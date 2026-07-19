@@ -44,6 +44,10 @@ npm run deploy
 
 公開版は Cloudflare Workers の静的アセット配信、API と D1 を利用しています。静的ファイルはWorkerを経由せず配信し、`/api/*` だけを動的処理するため、通常の個人利用なら無料枠で運用できます。
 
+## 完整 PostgreSQL 资料库
+
+`postgres/` 另有完整青空文库后端结构和全量导入器。它保存作品、人物、底本、原始正文、章节、段落、注音和外字，并将网站自己的 JLPT、分类和选读范围放在独立的 `app` schema。连接方法、断点续跑和 Cloudflare VPC 管理方式见 [`postgres/README.md`](postgres/README.md)。
+
 ## 出典とライセンス
 
 本文は[青空文庫](https://www.aozora.gr.jp/)の「著作権なし」作品から生成しています。各JSONに原文URLと出典を保持しています。アプリケーションコードはMITライセンスです。

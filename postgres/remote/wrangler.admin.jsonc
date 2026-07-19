@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "aozora-postgres-admin-preview",
+  "main": "./admin-worker.mjs",
+  "compatibility_date": "2026-07-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "35c833b89d0f412f8144c66ef749cad4"
+    }
+  ]
+}
