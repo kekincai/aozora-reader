@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Library, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
+import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
+import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
 import './App.css'
 
 type WorkSummary = { id: string; title: string; author: string; level: string; genre: string; minutes: number; summary: string; sourceUrl: string; attribution: string; paragraphCount: number }
@@ -23,29 +24,51 @@ function useReaderState() {
   return [state, setState] as const
 }
 
-function Header() {
+type AuthState = ReturnType<typeof useAuth>
+
+function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const [open, setOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [displayName, setDisplayName] = useState('')
+  const [working, setWorking] = useState(false)
+  const [message, setMessage] = useState('')
+  const action = async (kind: 'register' | 'login' | 'logout') => {
+    setWorking(true); setMessage('')
+    try {
+      if (kind === 'register') await auth.register(displayName)
+      if (kind === 'login') await auth.login()
+      if (kind === 'logout') await auth.logout()
+      if (kind !== 'logout') setMessage('この端末の記録を同期しました。')
+      else setAuthOpen(false)
+    } catch (cause) { setMessage(cause instanceof Error ? cause.message : '完了できませんでした。') }
+    finally { setWorking(false) }
+  }
   return <header className="site-header">
     <Link className="brand" to="/" aria-label="青空しおり ホーム"><span className="brand-mark">青</span><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
       <NavLink to="/">読む</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
+      <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
     </nav>
-    <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" disabled title="Google OAuth の公開設定後に有効になります">Google ログイン準備中</button></div>
+    <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
+    {authOpen && <div className="auth-scrim" onClick={() => setAuthOpen(false)}><section className="auth-dialog" role="dialog" aria-modal="true" aria-label="学習記録の同期" onClick={event => event.stopPropagation()}><button className="sheet-close" onClick={() => setAuthOpen(false)} aria-label="閉じる"><X size={20}/></button>
+      {user ? <><div className="auth-symbol"><Cloud/></div><h2>{user.displayName}さん</h2><p>読書の進み具合と復習語彙を、このパスキーで安全に同期しています。</p><div className={`sync-state ${syncStatus}`}><i/>{syncStatus === 'saving' ? '保存しています…' : syncStatus === 'error' ? '同期を再試行します' : 'クラウドに保存済み'}</div><button className="secondary-button logout-button" onClick={() => void action('logout')} disabled={working}><LogOut size={16}/> この端末からログアウト</button></> : <><div className="auth-symbol"><KeyRound/></div><h2>記録を持ち歩く</h2><p>パスワードもメールも不要です。端末の Face ID、Touch ID、Windows Hello などでパスキーを作ります。</p><label className="name-field"><span>呼ばれたい名前</span><input value={displayName} onChange={event => setDisplayName(event.target.value)} maxLength={40} placeholder="例：けい" autoComplete="nickname"/></label><button className="primary-button auth-primary" onClick={() => void action('register')} disabled={working || !displayName.trim() || !passkeyAvailable()}>{working ? <LoaderCircle className="spin" size={17}/> : <KeyRound size={17}/>} 新しく登録する</button><button className="text-button" onClick={() => void action('login')} disabled={working || !passkeyAvailable()}>すでにパスキーを持っている</button><small>生体情報は端末の外へ送信されません。Google ログインは後から追加できます。</small></>}
+      {message && <p className="auth-message" role="status">{message}</p>}
+    </section></div>}
   </header>
 }
 
-function Layout({ children }: { children: React.ReactNode }) {
-  return <div className="app-shell"><Header />{children}<footer><span>青空文庫の公開作品を、学びやすい読書体験へ。</span><a href="https://www.aozora.gr.jp/" target="_blank" rel="noreferrer">青空文庫について</a></footer></div>
+function Layout({ children, user, syncStatus, auth }: { children: React.ReactNode; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
+  return <div className="app-shell"><Header user={user} syncStatus={syncStatus} auth={auth}/>{children}<footer><span>青空文庫の公開作品を、学びやすい読書体験へ。</span><a href="https://www.aozora.gr.jp/" target="_blank" rel="noreferrer">青空文庫について</a></footer></div>
 }
 
-function Home({ state }: { state: ReaderState }) {
+function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const [works, setWorks] = useState<WorkSummary[]>([])
   const [filter, setFilter] = useState('すべて')
   useEffect(() => { fetch('/corpus/manifest.json').then(r => r.json()).then(d => setWorks(d.works)) }, [])
   const visible = works.filter(w => filter === 'すべて' || (filter === 'N2核心' ? w.level === 'N2' : filter === 'N2→N1' ? w.level !== 'N2' : w.genre.includes(filter)))
   const featured = works.find(w => w.id === '637')
-  return <Layout><main>
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main>
     <section className="hero-section">
       <div className="hero-copy"><div className="eyebrow"><Sparkles size={15}/> 今日の一篇</div><h1>手袋を買いに</h1><p className="author">新美 南吉</p><p className="hero-summary">雪の夜、子狐は初めて人間の町へ。<br/>やさしさと怖さが同居する、冬の短篇。</p><div className="meta-line"><span>N2 ウォームアップ</span><span>約8分</span><span>新字新仮名</span></div><Link className="primary-button" to="/read/637">読みはじめる <ChevronRight size={17}/></Link></div>
       <div className="hero-art" aria-hidden="true"><div className="moon"/><div className="branch branch-one"/><div className="branch branch-two"/><span className="snow s1">·</span><span className="snow s2">·</span><span className="snow s3">·</span></div>
@@ -90,18 +113,50 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   </div>
 }
 
-function Review({ state }: { state: ReaderState }) {
+function Review({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const defaults = Object.values(vocabulary).map(v => ({...v, savedAt: 0})); const cards = state.words.length ? state.words : defaults; const [index, setIndex] = useState(0); const [show, setShow] = useState(false); const card = cards[index % cards.length]
-  return <Layout><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={() => {setIndex(index+1);setShow(false)}}>もう一度</button><button onClick={() => {setIndex(index+1);setShow(false)}}>むずかしい</button><button onClick={() => {setIndex(index+1);setShow(false)}}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">登録なしでも、この端末に学習記録を保存します。</p></main></Layout>
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={() => {setIndex(index+1);setShow(false)}}>もう一度</button><button onClick={() => {setIndex(index+1);setShow(false)}}>むずかしい</button><button onClick={() => {setIndex(index+1);setShow(false)}}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></Layout>
 }
 
-function RecordPage({ state }: { state: ReaderState }) {
-  return <Layout><main className="simple-page record-page"><span className="kicker">YOUR RECORD</span><h1>読書の記録</h1><p className="page-lead">速さより、続けた日と出会った言葉を大切に。</p><div className="stats"><div><strong>{Object.keys(state.progress).length}</strong><span>読んだ作品</span></div><div><strong>{state.words.length}</strong><span>集めた言葉</span></div><div><strong>{Math.max(8, state.minutes)}</strong><span>読書時間（分）</span></div></div><section className="record-note"><BookOpen/><div><h2>次の一篇</h2><p>短い作品を一つ読み切ると、ここに読書の流れが育っていきます。</p><Link to="/">作品を選ぶ</Link></div></section></main></Layout>
+function RecordPage({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page record-page"><span className="kicker">YOUR RECORD</span><h1>読書の記録</h1><p className="page-lead">速さより、続けた日と出会った言葉を大切に。</p><div className="stats"><div><strong>{Object.keys(state.progress).length}</strong><span>読んだ作品</span></div><div><strong>{state.words.length}</strong><span>集めた言葉</span></div><div><strong>{Math.max(8, state.minutes)}</strong><span>読書時間（分）</span></div></div><section className="record-note"><BookOpen/><div><h2>{user ? `${user.displayName}さんの記録` : '次の一篇'}</h2><p>{user ? 'この記録はパスキーで保護され、別の対応端末からも続けられます。' : '短い作品を一つ読み切ると、ここに読書の流れが育っていきます。'}</p><Link to="/">作品を選ぶ</Link></div></section></main></Layout>
 }
 
 function App() {
   const [state, setState] = useReaderState()
-  return <BrowserRouter><Routes><Route path="/" element={<Home state={state}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state}/>}/><Route path="/record" element={<RecordPage state={state}/>}/></Routes></BrowserRouter>
+  const auth = useAuth()
+  const [syncStatus, setSyncStatus] = useState('local')
+  const hydratedUser = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!auth.user || hydratedUser.current === auth.user.id) return
+    let active = true
+    void loadCloudState<ReaderState>().then(({ state: cloud }) => {
+      if (!active) return
+      const merged = cloud ? {
+        progress: Object.fromEntries(Array.from(new Set([...Object.keys(state.progress), ...Object.keys(cloud.progress)])).map(id => [id, Math.max(state.progress[id] || 0, cloud.progress[id] || 0)])),
+        words: [...state.words, ...cloud.words].filter((word, index, words) => words.findIndex(item => item.word === word.word) === index),
+        minutes: Math.max(state.minutes, cloud.minutes),
+      } : state
+      setState(merged)
+      hydratedUser.current = auth.user?.id || null
+      setSyncStatus('saved')
+      void saveCloudState(merged)
+    }).catch(() => setSyncStatus('error'))
+    return () => { active = false }
+  }, [auth.user, setState, state])
+
+  useEffect(() => {
+    if (!auth.user || hydratedUser.current !== auth.user.id) return
+    setSyncStatus('saving')
+    const timer = window.setTimeout(() => void saveCloudState(state).then(() => setSyncStatus('saved')).catch(() => setSyncStatus('error')), 800)
+    return () => window.clearTimeout(timer)
+  }, [auth.user, state])
+
+  useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
+
+  const common = { user: auth.user, syncStatus, auth }
+  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
 }
 
 export default App
