@@ -31,7 +31,7 @@ npm run dev
 - `data/aozora-learning.sqlite`: 継続加工用のローカル派生データベース（Git管理外）
 - `public/learning/index.json` と `public/corpus/`: Cloudflareへ配る静的な学習索引と注釈済み本文
 
-SQLiteには作品、5,311語のN2/N1参考語彙、431項目の文法、作品内出現回数と逆引き索引を保存します。動詞・形容詞はkuromojiで基本形へ戻して照合します。
+SQLiteには作品、5,311語のN2/N1参考語彙、433項目の文法、作品内出現回数と逆引き索引を保存します。動詞・形容詞はkuromojiで基本形へ戻して照合します。
 
 ## 検証とデプロイ
 
