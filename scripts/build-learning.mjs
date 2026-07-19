@@ -55,7 +55,7 @@ function grammarPattern(title) {
   const parts = (japanese.match(/[ぁ-んァ-ヶ一-龯々]+/g) || [])
     .map(clean)
     .filter(item => item && !stopPatterns.has(item))
-  if (!parts.length || (parts.length === 1 && parts[0].length < 2)) return { display: '', parts: [] }
+  if (!parts.length) return { display: '', parts: [] }
   return { display: parts.join('…'), parts }
 }
 
@@ -139,6 +139,7 @@ const [rawN2Vocab, rawN1Vocab, rawN2Grammar, rawN1Grammar, manifest, tokenizer] 
   loadJson(sources.vocabulary.N2), loadJson(sources.vocabulary.N1), loadJson(sources.grammar.N2), loadJson(sources.grammar.N1),
   readFile(resolve(corpusRoot, 'manifest.json'), 'utf8').then(JSON.parse), buildTokenizer(),
 ])
+const grammarTranslations = await readFile(resolve(dataRoot, 'grammar-zh.json'), 'utf8').then(JSON.parse).catch(() => ({}))
 
 const vocabulary = [...rawN2Vocab.map(item => [item, 'N2']), ...rawN1Vocab.map(item => [item, 'N1'])].map(([item, level], index) => ({
   id: `v${index + 1}`,
@@ -150,18 +151,24 @@ const vocabulary = [...rawN2Vocab.map(item => [item, 'N2']), ...rawN1Vocab.map(i
   source: 'Tanos JLPT reference list via Hanabira',
 }))
 
-const grammar = [...rawN2Grammar.map(item => [item, 'N2']), ...rawN1Grammar.map(item => [item, 'N1'])].map(([item, level], index) => ({
+const grammar = [...rawN2Grammar.map(item => [item, 'N2']), ...rawN1Grammar.map(item => [item, 'N1'])].map(([item, level], index) => {
+  const translation = grammarTranslations[`${level}:${item.title}`]
+  return ({
   id: `g${index + 1}`,
   title: item.title,
   pattern: grammarPattern(item.title).display,
   matchParts: grammarPattern(item.title).parts,
-  meaning: item.short_explanation,
+  meaning: translation?.meaningZh || item.short_explanation,
   formation: item.formation,
   level,
   category: grammarCategory(item),
-  examples: (item.examples || []).slice(0, 2).map(example => ({ jp: example.jp, en: example.en })),
+  examples: (item.examples || []).slice(0, 2).map((example, exampleIndex) => ({ jp: example.jp, ...(translation?.exampleZh?.[exampleIndex] ? { zh: translation.exampleZh[exampleIndex] } : {}) })),
   source: 'Hanabira Japanese content',
-})).filter(entry => entry.pattern)
+  })
+}).filter(entry => entry.pattern)
+
+const ambiguousGrammarPatterns = new Set(['ない', 'ては', 'まで', 'ただ', 'なら', 'たら', 'とも', 'なり', 'うと', 'にも', 'がい', '上に'])
+const grammarForAnnotation = grammar.filter(entry => entry.matchParts.every(part => part.length >= 2) && !ambiguousGrammarPatterns.has(entry.pattern))
 
 const vocabIndex = indexLexicon(vocabulary)
 const articleRefs = Object.fromEntries([...vocabulary, ...grammar].map(entry => [entry.id, []]))
@@ -170,7 +177,7 @@ for (const summary of manifest.works) {
   const path = resolve(corpusRoot, 'works', `${summary.id}.json`)
   const work = JSON.parse(await readFile(path, 'utf8'))
   const counters = { vocabulary: new Map(), grammar: new Map() }
-  const annotatedParagraphs = work.paragraphs.map(paragraph => annotateParagraph(paragraph, tokenizer, vocabIndex, grammar, counters))
+  const annotatedParagraphs = work.paragraphs.map(paragraph => annotateParagraph(paragraph, tokenizer, vocabIndex, grammarForAnnotation, counters))
   for (const [entryId, count] of [...counters.vocabulary, ...counters.grammar]) articleRefs[entryId].push({ id: work.id, title: work.title, author: work.author, count })
   const learning = {
     vocabularyCount: [...counters.vocabulary.values()].reduce((sum, count) => sum + count, 0),

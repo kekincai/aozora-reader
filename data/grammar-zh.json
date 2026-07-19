@@ -1,0 +1,1388 @@
+{
+  "N2:A あるいは B (A aruiwa B)": {
+    "meaningZh": "表示备选；‘A 或者 B’，‘要么 A 要么 B’",
+    "exampleZh": [
+      "今天我打算看电影或者去购物。",
+      "她会说英语或者德语。"
+    ]
+  },
+  "N2:A。おまけに B。(~omake ni)": {
+    "meaningZh": "表示除此之外还有；‘而且’，‘此外’",
+    "exampleZh": [
+      "他迟到了。而且他还忘了作业。",
+      "这间公寓很小。此外租金也很高。"
+    ]
+  },
+  "N2:A。さて B。(A. Sate B.)": {
+    "meaningZh": "表示话题或情况突然转变；‘好了’，‘那么’",
+    "exampleZh": [
+      "今天的工作完成了。那么我们回家吧？",
+      "谈话有些冗长了。那么，请你多告诉我一些关于 Kimiko 的事情。"
+    ]
+  },
+  "N2:A。しかも B。(A. Shikamo B.)": {
+    "meaningZh": "表示附加信息；‘而且’，‘此外’，‘更进一步说’",
+    "exampleZh": [
+      "这道菜很好吃。而且价格也很便宜。",
+      "他是个优秀的学生。此外他还擅长体育。"
+    ]
+  },
+  "N2:A。したがって B。(A. Shitagatte B.)": {
+    "meaningZh": "表示因果关系；‘因此’，‘所以’，‘结果是’",
+    "exampleZh": [
+      "今天下雨了。因此我们带把伞吧？",
+      "他很忙。因此我们不要打扰他。"
+    ]
+  },
+  "N2:A すなわち B。 (A sunawachi B)": {
+    "meaningZh": "表示 A 等于 B；‘换句话说’，‘即’，‘也就是说’",
+    "exampleZh": [
+      "我想要取得优异的成绩，换句话说就是我想成功。",
+      "他一时语塞，也就是说他无话可说。"
+    ]
+  },
+  "N2:A。すると B。(~suruto)": {
+    "meaningZh": "表示当 A 发生时，B 会发生；‘那么’，‘如果’",
+    "exampleZh": [
+      "我打电话的时候她接了电话。",
+      "你按这个按钮门就会开了。"
+    ]
+  },
+  "N2:A。そういえば B。(~souieba)": {
+    "meaningZh": "表示提及与 A 相关的事情；‘说到那个’，‘顺便说一下’",
+    "exampleZh": [
+      "电影。说到这个他就在一家电影院工作。",
+      "山田女士。顺便说一句她这周末要旅行。"
+    ]
+  },
+  "N2:A。そこで B。(~sokode)": {
+    "meaningZh": "表示‘因此’或‘因为那个’",
+    "exampleZh": [
+      "明天有考试。因此我打算今晚复习。",
+      "这家餐厅人很多。因此我们去别的地方吃午饭吧。"
+    ]
+  },
+  "N2:A。それで B。 (~sore de)": {
+    "meaningZh": "表示事件的顺序或因果关系；‘然后’，‘因此’",
+    "exampleZh": [
+      "昨天下雨了。所以我就没去公园。",
+      "我考试不及格。因此我得参加补考。"
+    ]
+  },
+  "N2:A。それでも B。(~sore demo)": {
+    "meaningZh": "表示‘即使如此’，‘尽管这样’或‘但是’；用于对比两个陈述",
+    "exampleZh": [
+      "今天是星期天。然而我还是得去上班。",
+      "他很年轻。尽管如此他有很多经验。"
+    ]
+  },
+  "N2:A。それなのに B。(~sorenanoni)": {
+    "meaningZh": "表示两个情况或事实之间的对比或矛盾；‘即使那样’，‘尽管这样’",
+    "exampleZh": [
+      "他很聪明。然而他却考试不及格了。",
+      "我早起的。然而我还是错过了公交车。"
+    ]
+  },
+  "N2:A。それなら B。(A. Sore nara B.)": {
+    "meaningZh": "表示‘如果那样的话’；用于基于给定情况展示逻辑结果或决定",
+    "exampleZh": [
+      "考试快到了。那么我必须多复习了。",
+      "明天可能会下雨。那么我们带把伞吧。"
+    ]
+  },
+  "N2:A それはそうと B。 (A Sore wa sou to B)": {
+    "meaningZh": "表示话题转换；‘顺便说一下’，‘说到那个’",
+    "exampleZh": [
+      "顺便说一句今天天气不错，不是吗？",
+      "这部电影很有趣。顺便说一下这家餐厅的拉面很好吃。"
+    ]
+  },
+  "N2:A。だが B。(~daga)": {
+    "meaningZh": "表示对比的想法或陈述；‘但是’，‘然而’",
+    "exampleZh": [
+      "这间餐馆很贵。但味道非常好。",
+      "他很累。不过他不会休息直到完成工作。"
+    ]
+  },
+  "N2:A。ただB。(~tada)": {
+    "meaningZh": "表示对比两种情况；‘虽然’，‘但是’，‘然而’",
+    "exampleZh": [
+      "他很聪明；然而他并不努力。",
+      "外面下雨了，但我在家里很无聊。"
+    ]
+  },
+  "N2:A。ただしB。 (A. Tadashi B)": {
+    "meaningZh": "表示对陈述的附加条件或例外；‘但是’，‘前提是’，‘只要’",
+    "exampleZh": [
+      "你可以使用这个房间。不过用完后请清理干净。",
+      "我明天开始出差。不过如有紧急情况，请通过我的手机联系我。"
+    ]
+  },
+  "N2:Noun につき (〜ni tsuki)": {
+    "meaningZh": "表示原因、条件或情况；‘由于’，‘关于’，‘每’。",
+    "exampleZh": [
+      "由于考试，请今天保持安静。",
+      "该地区因施工而封闭。"
+    ]
+  },
+  "N2:Noun にて (Noun nite)": {
+    "meaningZh": "表示地点或方式；‘在’，‘于’，‘用’。",
+    "exampleZh": [
+      "将在车站广场举行活动。",
+      "会议将在酒店召开。"
+    ]
+  },
+  "N2:Noun の ことだから (Noun no koto dakara)": {
+    "meaningZh": "提供原因或解释；‘因为’，‘由于’，‘鉴于’。",
+    "exampleZh": [
+      "因为他擅长烹饪，所以他被选为厨师长。",
+      "这家店生意很好，因为服务很棒。"
+    ]
+  },
+  "N2:～ことになっている (〜koto ni natte iru)": {
+    "meaningZh": "表示某事被决定或规定；‘按规定’，‘按计划’。",
+    "exampleZh": [
+      "在日本，人们开车靠左是规定的。",
+      "根据公司规定，我们应穿制服。"
+    ]
+  },
+  "N2:A。それがB。(~sorega)": {
+    "meaningZh": "表示‘那就是A的意思；换句话说，就是B’"
+  },
+  "N2:A。だって B。(Datte~)": {
+    "meaningZh": "用于给出理由、表达因果关系或引入话题；'因为', '既然', '也就是'"
+  },
+  "N2:A。ちなみに B。(A. Chinamini B.)": {
+    "meaningZh": "提供额外信息关于主题；'顺便说一下', '附带一提'"
+  },
+  "N2:A。ということは B。 (A. To iu koto wa B.)": {
+    "meaningZh": "表示‘如果A，那就意味着B’或‘A蕴含着B’"
+  },
+  "N2:A。というのは B。(Toiu no wa~)": {
+    "meaningZh": "用于解释A或提供额外信息；'也就是说', '换句话说'"
+  },
+  "N2:A。なおB。(A. Nao B.)": {
+    "meaningZh": "提供额外信息；'此外', '另外', '而且'"
+  },
+  "N2:A。もっとも B。(Motto mo ~)": {
+    "meaningZh": "表达对比意见或事实；'虽然', '但是', '然而'"
+  },
+  "N2:A。要するに B。(A. Yousuru ni B.)": {
+    "meaningZh": "表示‘简而言之’，总结A为B"
+  },
+  "N2:Verb ことなく (~kotonaku)": {
+    "meaningZh": "表示没有做某事，不做某事，或某事未发生"
+  },
+  "N2:Verb ないことには Verb ない (~nai koto ni wa ~ nai)": {
+    "meaningZh": "表示在满足一定条件之前不能做某事"
+  },
+  "N2:～あげく (~ageku)": {
+    "meaningZh": "表示一系列行动或事件的结果；最终，最后，在...之后"
+  },
+  "N2:～あまり (〜amari)": {
+    "meaningZh": "表示过度或超出一定限度后的结果"
+  },
+  "N2:～うちに (〜uchi ni)": {
+    "meaningZh": "表示在某一条件仍然成立的情况下进行某事；当...时，一边...一边"
+  },
+  "N2:～がい (〜gai)": {
+    "meaningZh": "表示动词值得做"
+  },
+  "N2:～かいがあって (〜kaiga atte)": {
+    "meaningZh": "表示努力是有价值的或值得的；值得付出努力"
+  },
+  "N2:～かいもなく (〜kai mo naku)": {
+    "meaningZh": "表示没有价值，徒劳无功"
+  },
+  "N2:～かける (〜kakeru)": {
+    "meaningZh": "表示某过程或动作正在进行中；进行到一半"
+  },
+  "N2:～がち (〜gachi)": {
+    "meaningZh": "表示某事经常发生或习惯性地出现"
+  },
+  "N2:～か～ないかのうちに (〜ka〜naika no uchi ni)": {
+    "meaningZh": "表示一个动作紧接着另一个动作；一...就...，刚...就..."
+  },
+  "N2:～かねない (〜kane nai)": {
+    "meaningZh": "表示负面结果的可能性"
+  },
+  "N2:～かねる (〜kaneru)": {
+    "meaningZh": "表示做某事的不可能性（常用于礼貌拒绝）"
+  },
+  "N2:～かのようだ (〜ka no you da)": {
+    "meaningZh": "表示相似或比较；好像，如同"
+  },
+  "N2:～か～まいか (〜ka 〜maika)": {
+    "meaningZh": "表示在两种选择或行动之间犹豫不决"
+  },
+  "N2:～からこそ (〜kara koso)": {
+    "meaningZh": "强调原因；正因为..."
+  },
+  "N2:〜からして (〜kara shite)": {
+    "meaningZh": "表示基于某一特定方面的情况，某事是例外或不寻常的"
+  },
+  "N2:～からすると (〜kara suru to)": {
+    "meaningZh": "根据某种标准进行判断或评价；从这个角度来看"
+  },
+  "N2:Noun を はじめ (Noun wo hajime)": {
+    "meaningZh": "从...开始，包括"
+  },
+  "N2:Noun を はじめとして (Noun wo hajime to shite)": {
+    "meaningZh": "以...为开端"
+  },
+  "N2:Noun を はじめとする Noun (Noun o hajime to suru Noun)": {
+    "meaningZh": "以...为代表"
+  },
+  "N2:Noun を めぐって (Noun wo megutte)": {
+    "meaningZh": "关于；涉及"
+  },
+  "N2:Noun を めぐる Noun (Noun o meguru Noun)": {
+    "meaningZh": "围绕...的情况或事件"
+  },
+  "N2:Noun を もとに (Noun o moto ni)": {
+    "meaningZh": "基于；参考"
+  },
+  "N2:Noun を もとにして (Noun wo moto ni shite)": {
+    "meaningZh": "基于；利用"
+  },
+  "N2:～からといって (〜kara to itte)": {
+    "meaningZh": "仅仅因为...并不意味着"
+  },
+  "N2:～から～にかけて (〜kara 〜ni kakete)": {
+    "meaningZh": "从...到...,范围"
+  },
+  "N2:～からには (〜kara niwa)": {
+    "meaningZh": "既然，就"
+  },
+  "N2:～から見ると (〜kara miru to)": {
+    "meaningZh": "从...的角度来看"
+  },
+  "N2:～から言うと (〜kara iuto)": {
+    "meaningZh": "根据...的观点来判断"
+  },
+  "N2:～くせに (〜kuse ni)": {
+    "meaningZh": "尽管如此"
+  },
+  "N2:～ことから (〜koto kara)": {
+    "meaningZh": ": 表示原因或基础"
+  },
+  "N2:～ことに (〜koto ni)": {
+    "meaningZh": ": 表达对情况、行为或结果的感受或情绪"
+  },
+  "N2:～さえ～ば (〜sae ~ba)": {
+    "meaningZh": ": 只要...就"
+  },
+  "N2:～ざるを得ない (〜zaru wo enai)": {
+    "meaningZh": ": 没有选择只能"
+  },
+  "N2:～ずにはいられない (〜zu ni wa irarenai)": {
+    "meaningZh": ": 无法抑制地想要做某事"
+  },
+  "N2:～そうにない (〜sou ni nai)": {
+    "meaningZh": ": 不太可能"
+  },
+  "N2:～たかと思ったら (〜ta ka to omottara)": {
+    "meaningZh": ": 刚...就"
+  },
+  "N2:～たきり (〜takiri)": {
+    "meaningZh": "表示从某次行动后或自从某个事件以来；用于说明某次行动发生一次后未再重复，或者某种状态自某一事件或时间持续至今。"
+  },
+  "N2:～だけあって (〜dake atte)": {
+    "meaningZh": "表明某事物与其声誉相符；‘理所当然’地如此。"
+  },
+  "N2:～だけましだ (〜dake mashi da)": {
+    "meaningZh": "尽管情况不理想，但至少还可以接受；‘不是很好，但也并非最糟’。"
+  },
+  "N2:～たところ (〜ta tokoro)": {
+    "meaningZh": "用于描述刚刚完成的动作，常后接结果或观察。"
+  },
+  "N2:～たとたん (〜ta totan)": {
+    "meaningZh": "表示某事发生之时；‘正当……的时候’，‘就在……时候’。"
+  },
+  "N2:～だらけ (〜darake)": {
+    "meaningZh": "表明某物充满或覆盖着某种（通常为负面）特征。"
+  },
+  "N2:～っこない (〜kkonai)": {
+    "meaningZh": "表达某事发生的不可能性或可能性极低；‘没可能’，‘不可能’。"
+  },
+  "N2:～つつ (〜tsutsu)": {
+    "meaningZh": "展示两个动作同时发生或形成对比；‘一边……一边……’，‘虽然……但是……’。"
+  },
+  "N2:～つつある (〜tsutsu aru)": {
+    "meaningZh": "表示某个过程正在进行中或逐渐变化。"
+  },
+  "N2:～っぱなし (〜ppanashi)": {
+    "meaningZh": "表达某种持续的动作或状态；‘一直未改变’，‘不间断地’。"
+  },
+  "N2:～っぽい (〜ppoi)": {
+    "meaningZh": "表明某物具有类似另一事物的外观、特征或行为。"
+  },
+  "N2:～ていられない (〜te irarenai)": {
+    "meaningZh": "表示无法继续做某事；‘无法忍受’，‘不能持续下去’。"
+  },
+  "N2:～てかなわない (〜te kanawanai)": {
+    "meaningZh": "表达某事无法容忍或难以承受。"
+  },
+  "N2:～てからでないと (〜te kara denai to)": {
+    "meaningZh": "表明在某个动作完成之前无法进行另一动作；‘只有……之后才能……’。"
+  },
+  "N2:～てこそ (〜te koso)": {
+    "meaningZh": "强调条件；‘唯有……才’，‘正因如此’。"
+  },
+  "N2:～でしょうがない (〜deshou ga nai)": {
+    "meaningZh": "表达强烈的感情或生理状态；‘极其’，‘情不自禁’。"
+  },
+  "N2:～でたまらない (〜de tamaranai)": {
+    "meaningZh": "表示极度强烈的情感或感觉；‘无法忍受’，‘难以承受’。"
+  },
+  "N2:～でならない (〜de naranai)": {
+    "meaningZh": "表明某种不可控制的情绪或感受；‘情不自禁’，‘压倒性地’。"
+  },
+  "N2:～でばかりはいられない (〜de bakari wa irarenai)": {
+    "meaningZh": "表示不能仅依赖某事；‘不能总是依靠它’。"
+  },
+  "N2:～ではないか (〜de wa nai ka)": {
+    "meaningZh": "用于强烈表达个人观点；‘不是吗？’，‘对吧？’。"
+  },
+  "N2:～てはならない (〜te wa naranai)": {
+    "meaningZh": "表达禁止；‘必须不’，‘不能’，‘不应该’"
+  },
+  "N2:～てまで (〜te made)": {
+    "meaningZh": "表示为了达到某种目的所付出的极端努力；‘直到’，‘甚至’，‘远至’"
+  },
+  "N2:～て当然だ (〜te tōzen da)": {
+    "meaningZh": "表示某事是理所当然或预料之中的"
+  },
+  "N2:～というものだ (〜to iu mono da)": {
+    "meaningZh": "表达普遍规则或常识"
+  },
+  "N2:どうにか～ないものか (dō ni ka ~ nai mono ka)": {
+    "meaningZh": "强烈愿望某事有可能发生"
+  },
+  "N2:～とおり (〜toori)": {
+    "meaningZh": "表示按照指示做；‘依照’，‘根据’"
+  },
+  "N2:～とか (〜to ka)": {
+    "meaningZh": "列举例子或表示不确定；‘比如’，‘像是’，‘或者类似的东西’"
+  },
+  "N2:～どころか (〜dokoro ka)": {
+    "meaningZh": "表示远非；‘不仅不’"
+  },
+  "N2:～どころではない (〜dokoro de wa nai)": {
+    "meaningZh": "表示不是时候/地点；‘远远不够’"
+  },
+  "N2:～としたら (〜to shitara)": {
+    "meaningZh": "表示假设的情况；‘如果’，‘假使’，‘假如’"
+  },
+  "N2:～としても (〜to shite mo)": {
+    "meaningZh": "即使，尽管"
+  },
+  "N2:～と～ともに (〜to 〜tomoni)": {
+    "meaningZh": "表示同时发生或并行发生的两件事；‘和……一起’"
+  },
+  "N2:～とは限らない (〜to wa kagiranai)": {
+    "meaningZh": "表示某事不一定是真的；‘不一定’，‘未必’"
+  },
+  "N2:～ないことはない (〜nai koto wa nai)": {
+    "meaningZh": "表示某事并非不可能，意味着有可能或可以做到"
+  },
+  "N2:～ないこともない (〜nai koto mo nai)": {
+    "meaningZh": "表示某事并非不可能，但强调犹豫或怀疑"
+  },
+  "N2:～ないではいられない (〜nai de wa irarenai)": {
+    "meaningZh": "无法抑制；无法避免；无法克制"
+  },
+  "N2:～ながら (〜nagara)": {
+    "meaningZh": "表示同时进行两件事"
+  },
+  "N2:～にあたり (〜ni atari)": {
+    "meaningZh": "表示‘在……的时候’，‘在……期间’，‘关于’"
+  },
+  "N2:～において (〜ni oite)": {
+    "meaningZh": "表示动作或事件发生的地点、时间或背景；‘在’，‘于’，‘关于’"
+  },
+  "N2:～にかかわらず (〜ni kakawarazu)": {
+    "meaningZh": "表示无论与否；‘不管’"
+  },
+  "N2:～にかけては (〜ni kakete wa)": {
+    "meaningZh": "表示某个方面或领域中某人或某物表现出色。"
+  },
+  "N2:～にしたがって (〜ni shitagatte)": {
+    "meaningZh": "表达根据某事物的结果或变化；‘随着’、‘依照’。"
+  },
+  "N2:～にしたら (〜ni shitara)": {
+    "meaningZh": "从某种观点来看；‘如果我来考虑的话’。"
+  },
+  "N2:～にしろ～にしろ (〜ni shiro 〜ni shiro)": {
+    "meaningZh": "无论怎样，总之；表示两种选择中的任意一种。"
+  },
+  "N2:～につけ～につけ (〜ni tsuke 〜ni tsuke)": {
+    "meaningZh": "每当……的时候；无论是否……都。"
+  },
+  "N2:～につれて (〜ni tsurete)": {
+    "meaningZh": "表示一个事物的变化伴随着另一个事物的变化；‘随着’、‘连同’、‘在……的同时’。"
+  },
+  "N2:～にともなって (〜ni tomonatte)": {
+    "meaningZh": "表示伴随某事件的发生或作为其结果；‘伴随’、‘由于’。"
+  },
+  "N2:～にほかならない (〜ni hoka naranai)": {
+    "meaningZh": "表示某物就是‘无他’或‘非此莫属’。"
+  },
+  "N2:～にもかかわらず (〜ni mo kakawarazu)": {
+    "meaningZh": "尽管如此，然而；‘即使……也’。"
+  },
+  "N2:～により (〜ni yori)": {
+    "meaningZh": "通过某种方式或手段而发生；‘凭借’、‘由于’。"
+  },
+  "N2:～にわたって (〜ni watatte)": {
+    "meaningZh": "表示范围或持续时间；‘跨越’、‘贯穿整个’。"
+  },
+  "N2:～に先立ち (〜ni sakidachi)": {
+    "meaningZh": "表示在另一事件之前发生的动作或事件；‘在……之前’。"
+  },
+  "N2:～に反して (〜ni hanshite)": {
+    "meaningZh": "与某事相反，尽管如此。"
+  },
+  "N2:～に基づいて (〜ni motozuite)": {
+    "meaningZh": "基于，根据，依赖于。"
+  },
+  "N2:～に対して (〜ni taishite)": {
+    "meaningZh": "向……、针对……、与……相对、对……的回应。"
+  },
+  "N2:～に応えて (〜ni kotaete)": {
+    "meaningZh": "回应；满足。"
+  },
+  "N2:～に応じて (〜ni oujite)": {
+    "meaningZh": "依照，取决于，响应。"
+  },
+  "N2:～に決まっている (〜ni kimatte iru)": {
+    "meaningZh": "毫无疑问；‘显然’、‘必定是’。"
+  },
+  "N2:～に沿って (〜ni sotte)": {
+    "meaningZh": "沿着；遵循；按照。"
+  },
+  "N2:～に過ぎない (〜ni suginai)": {
+    "meaningZh": "仅仅只是……而已；‘只不过’、‘仅仅是’。"
+  },
+  "N2:～に関わって (〜ni kakawatte)": {
+    "meaningZh": "表示某事物与某个事项或因素有关或受其影响；关于，与...有关"
+  },
+  "N2:～に限り (〜ni kagiri)": {
+    "meaningZh": "仅限于；只限于"
+  },
+  "N2:～に際して (〜ni saishite)": {
+    "meaningZh": "在某一时刻或场合；当...的时候"
+  },
+  "N2:～ねばならない (〜neba naranai)": {
+    "meaningZh": "表示义务或必要性；必须，不得不"
+  },
+  "N2:～のみならず～も (〜nomi narazu 〜mo)": {
+    "meaningZh": "不仅...而且...；还有"
+  },
+  "N2:～のももっともだ (〜no mo mottomo da)": {
+    "meaningZh": "表示某事是可以理解的或合理的"
+  },
+  "N2:〜の上では (〜no ue de wa)": {
+    "meaningZh": "基于...；从...的角度来看"
+  },
+  "N2:～の下で (〜no shita de)": {
+    "meaningZh": "在某种情况下；在...之下"
+  },
+  "N2:～ばかりか〜も (〜bakari ka 〜 mo)": {
+    "meaningZh": "不仅...而且...；强调程度"
+  },
+  "N2:～ばかりだ (〜bakari da)": {
+    "meaningZh": "表示持续状态或负面倾向；仅仅，只是"
+  },
+  "N2:～ばかりに (〜bakari ni)": {
+    "meaningZh": "仅仅因为...；由于..."
+  },
+  "N2:～ば～というものでもない (〜ba 〜to iu mono demo nai)": {
+    "meaningZh": "并非如果A则B"
+  },
+  "N2:～はともかく～は (〜wa tomokaku 〜wa)": {
+    "meaningZh": "就...而言；至于..."
+  },
+  "N2:～はまだしも (〜wa mada shimo)": {
+    "meaningZh": "虽然第一项还算可以接受，但第二项更不行"
+  },
+  "N2:～はもとより (〜wa moto yori)": {
+    "meaningZh": "显然...还有其他事项"
+  },
+  "N2:～は抜きにして (〜wa nuki ni shite)": {
+    "meaningZh": "撇开...不谈；忽略..."
+  },
+  "N2:～べきではない (〜beki dewa nai)": {
+    "meaningZh": "表示某行为不应进行；不应该，本不该"
+  },
+  "N2:～まい (〜mai)": {
+    "meaningZh": "表示否定的推测或决心；可能不会，我将不会"
+  },
+  "N2:～まで～て (〜made 〜te)": {
+    "meaningZh": "直到某个时间点或条件为止；一直做到"
+  },
+  "N2:～ままに (〜mama ni)": {
+    "meaningZh": "按照...行事；保持不变"
+  },
+  "N2:～もかまわず (〜mo kamawazu)": {
+    "meaningZh": "表示冷漠或毫不在意；'毫不犹豫地', '不顾一切地'"
+  },
+  "N2:～ものか (〜mono ka)": {
+    "meaningZh": "绝对不是；没可能；没有机会"
+  },
+  "N2:～ものがある (〜mono ga aru)": {
+    "meaningZh": "表达强烈的印象或感觉；'有某种东西让人觉得...'"
+  },
+  "N2:～ものだ (〜mono da)": {
+    "meaningZh": "表达自然或理所当然的事情；'正常的是...', '应该', '应当'"
+  },
+  "N2:～ものだから (〜mono dakara)": {
+    "meaningZh": "表示某事的原因或理由；'因为', '由于', '鉴于'"
+  },
+  "N2:～ものではない (〜mono dewa nai)": {
+    "meaningZh": "强烈否定或禁止的建议：'不应该', '必须不要'"
+  },
+  "N2:～ものなら (〜mono nara)": {
+    "meaningZh": "表达一种愿望或不可能的情况；'如果可能的话', '要是...就好了'"
+  },
+  "N2:～ものの、～ (〜mono no、～)": {
+    "meaningZh": "表示两个句子之间的对比或矛盾；'虽然', '但是'"
+  },
+  "N2:～も～ば～も～ (〜mo〜ba〜mo〜)": {
+    "meaningZh": "列出同一主题的多个属性或行为：'两者都...', '不仅...而且...'"
+  },
+  "N2:～も同然だ (〜mo douzen da)": {
+    "meaningZh": "表示‘几乎’或‘实际上’相同的东西；'差不多就是'"
+  },
+  "N2:～やら～やら (〜yara〜yara)": {
+    "meaningZh": "表达各种项目或行动，'比如...,等等'"
+  },
+  "N2:～ようがない (〜you ga nai)": {
+    "meaningZh": "表示某事是不可能的；没有办法做某事"
+  },
+  "N2:～よりほかない (〜yori hoka nai)": {
+    "meaningZh": "表示没有其他选择；'别无选择只能', '不得不...'"
+  },
+  "N2:～わけがない (〜wake ga nai)": {
+    "meaningZh": "表示‘不可能’或‘绝对不是’，表明高度确定性"
+  },
+  "N2:～わけだ (〜wake da)": {
+    "meaningZh": "表达逻辑结论或原因；'意味着', '难怪', '原因是'"
+  },
+  "N2:～わけではない (〜wake dewa nai)": {
+    "meaningZh": "不一定；不意味着..."
+  },
+  "N2:～わけにはいかない (〜wake ni wa ikanai)": {
+    "meaningZh": "表示由于责任、社会压力等原因不能（或不应该）做某事"
+  },
+  "N2:～をきっかけに (〜wo kikkake ni)": {
+    "meaningZh": "表示某事作为另一个行动/事件的触发点或起点"
+  },
+  "N2:～を～として (〜wo〜toshite)": {
+    "meaningZh": "表达'作为', '以...的身份', 或'把...当作...'"
+  },
+  "N2:～を中心に (〜wo chuushin ni)": {
+    "meaningZh": "表示围绕某个主要主题或领域"
+  },
+  "N2:～を問わず (〜wo towazu)": {
+    "meaningZh": "不管"
+  },
+  "N2:～を込めて (〜wo komete)": {
+    "meaningZh": "怀着"
+  },
+  "N2:～を通じて (〜wo tsuujite)": {
+    "meaningZh": "通过"
+  },
+  "N2:～を頼りに (〜wo tayori ni)": {
+    "meaningZh": "依靠"
+  },
+  "N2:～一方 (〜ippou)": {
+    "meaningZh": "一方面；另一方面"
+  },
+  "N2:～一方だ (〜ippou da)": {
+    "meaningZh": "表示一方的情况或条件持续增加或减少。"
+  },
+  "N2:～上で (〜ue de)": {
+    "meaningZh": "在...的基础上或之后。"
+  },
+  "N2:～上に (〜ue ni)": {
+    "meaningZh": "除了...还有。"
+  },
+  "N2:～上は (～ue wa)": {
+    "meaningZh": "表示既然已经到了某种情况，就应当或必然采取相应行动。"
+  },
+  "N2:～以上 (〜ijou)": {
+    "meaningZh": "表示既然满足前项条件，后项就是应有的责任、判断或结果。"
+  },
+  "N2:～以来 (〜irai)": {
+    "meaningZh": "自...以来。"
+  },
+  "N2:～切る (〜kiru)": {
+    "meaningZh": "彻底地做某事。"
+  },
+  "N2:～反面 (〜hanmen)": {
+    "meaningZh": "表达两方面的对比；一方面...另一方面...。"
+  },
+  "N2:～向け (〜muke)": {
+    "meaningZh": "针对目标受众。"
+  },
+  "N2:～恐れがある (〜osore ga aru)": {
+    "meaningZh": "表示担忧或担心可能发生不好的事情。"
+  },
+  "N2:～折には (〜ori ni wa)": {
+    "meaningZh": "表示在某个特定时机或场合。"
+  },
+  "N2:～次第 (〜shidai)": {
+    "meaningZh": "接动词时表示一……就……，接名词时表示取决于……。"
+  },
+  "N2:～次第で (〜shidai de)": {
+    "meaningZh": "取决于...。"
+  },
+  "N2:～次第です (〜shidai desu)": {
+    "meaningZh": "取决于...。"
+  },
+  "N2:～気味 (〜gimi)": {
+    "meaningZh": "略微表现出某种状态的倾向。"
+  },
+  "N2:～限り (〜kagiri)": {
+    "meaningZh": "只要...就...。"
+  },
+  "N2:～際に (〜sai ni)": {
+    "meaningZh": "当...时，或者在...期间。"
+  },
+  "N1:A うが B うが (A uga B uga)": {
+    "meaningZh": "无论...或...。"
+  },
+  "N1:A うと B うと (A uto B uto)": {
+    "meaningZh": "无论...或...。"
+  },
+  "N1:A かたわら B (A katawara B)": {
+    "meaningZh": "表示以A为主要活动，同时也持续进行B。"
+  },
+  "N1:A かれ B かれ (A kare B kare)": {
+    "meaningZh": "表示无论A还是B，两种情况都包括在内。"
+  },
+  "N1:A だの B だの (A dano B dano)": {
+    "meaningZh": "列举A、B之类的例子，常带有抱怨或批评语气。"
+  },
+  "N1:A であれ B であれ (A deare B deare)": {
+    "meaningZh": "无论是...还是...。"
+  },
+  "N1:A というか B というか (A to iu ka B to iu ka)": {
+    "meaningZh": "表示不知该说是A还是B，或与其说A不如说B。"
+  },
+  "N1:A とも B とも (A tomo B tomo)": {
+    "meaningZh": "表示两个可能性；'要么A，要么B'"
+  },
+  "N1:A にしろ B にしろ (A nishiro B nishiro)": {
+    "meaningZh": "意味着'无论是A还是B';'不管A还是B'"
+  },
+  "N1:A にせよ B にせよ (A ni seyo B ni seyo)": {
+    "meaningZh": "表示'无论A或B';'不论是否是A或B'"
+  },
+  "N1:A につけ B につけ (A ni tsuke B ni tsuke)": {
+    "meaningZh": "表达'不管是...还是...', '两者都...' 或 '在任何情况下'"
+  },
+  "N1:A のやら B のやら (A no yara B no yara)": {
+    "meaningZh": "用于表示多种可能性之间的困惑或不确定"
+  },
+  "N1:Noun1 が Noun1 なら、 Noun2 も Noun2 だ (A ga A nara, B mo B da)": {
+    "meaningZh": "表明平行或匹配的情况；'如果A是真的A，那么B也是B'"
+  },
+  "N1:Noun1 も Noun1 なら、Noun2 も Noun2 だ (A mo A nara, B mo B da)": {
+    "meaningZh": "突出两个平行的事实或特征；'如果说~，那么也可以这么说~'"
+  },
+  "N1:Noun + あっての + Noun (A atte no B)": {
+    "meaningZh": "表达'B不能存在而没有A';'只有因为有A，B才存在'"
+  },
+  "N1:Noun かたがた (Noun kata gata)": {
+    "meaningZh": "表示同时做两件事；'一边...一边...'"
+  },
+  "N1:Noun がてら (Noun gatera)": {
+    "meaningZh": "意味着'在...的同时', '趁着...', 或 '伴随...'"
+  },
+  "N1:Noun からある (〜kara aru)": {
+    "meaningZh": "用于强调数量或测量值，表示至少那么多或不少于某个数"
+  },
+  "N1:Noun からする (Noun kara suru)": {
+    "meaningZh": "用于从某个角度或方面进行判断、估计或考虑"
+  },
+  "N1:Noun からの (~kara no)": {
+    "meaningZh": "定义起点或起源; '来自'"
+  },
+  "N1:Noun から言わせれば (~kara iwasereba)": {
+    "meaningZh": "表达某人的视角；'从~的观点来看'"
+  },
+  "N1:Noun + ぐるみ (〜gurumi)": {
+    "meaningZh": "描述'整个', '全部一起', 或 '作为一个整体的团体'"
+  },
+  "N1:Noun こそあれ (~koso are)": {
+    "meaningZh": "表示'尽管有...（一些负面或负担的一面），但仍然...'"
+  },
+  "N1:Noun こそ～が (~koso~ga)": {
+    "meaningZh": "强调'正是Noun才...', 然后添加对比或附加点"
+  },
+  "N1:Noun こそすれ (~koso sure)": {
+    "meaningZh": "表达'可能是X，但绝不是Y.' 经常与否定陈述搭配使用"
+  },
+  "N1:Noun ごとき / Noun ごとく (〜gotoki/〜gotoku)": {
+    "meaningZh": "意味着'像一个...', '好像...', 表示比喻或类比"
+  },
+  "N1:Noun じゃあるまいし (~ja aru mai shi)": {
+    "meaningZh": "表示'不是';'不像...'（口语/男性用语）"
+  },
+  "N1:Noun ずくめ (~zukume)": {
+    "meaningZh": "表示'全部'或'纯粹是'前一个名词"
+  },
+  "N1:Noun だけではすまない (Noun dake dewa sumanai)": {
+    "meaningZh": "表达'仅靠...是不够的', '不能仅仅通过...来解决...'"
+  },
+  "N1:Noun たりとも～ない (~tari tomo ~nai)": {
+    "meaningZh": "用于强调强烈的否定：'甚至没有~', '连一个~也没有'"
+  },
+  "N1:Noun たる Noun (~taru~)": {
+    "meaningZh": "表明'处于某种状态/角色中'; '作为'"
+  },
+  "N1:Noun ですら (~desura)": {
+    "meaningZh": "表示'即使', '多达', 用于正式语境中的强调"
+  },
+  "N1:Noun でなくてなんだろう (〜de nakute nandarou)": {
+    "meaningZh": "是一个强有力的反问句: '如果不是X，那会是什么呢?'"
+  },
+  "N1:Noun ではあるまいし (~dewa aru maishi)": {
+    "meaningZh": "意味着'并不是...';'不是像那样...', 比'じゃあるまいし'更正式"
+  },
+  "N1:Noun と Noun を兼ねて (Noun to Noun o kanete)": {
+    "meaningZh": "用于表示同时承担两种角色或目的"
+  },
+  "N1:Noun といい Noun といい (〜to ii〜to ii)": {
+    "meaningZh": "表达'无论是A还是B';'无论是否是A和也是B'"
+  },
+  "N1:Noun という Noun (~to iu~)": {
+    "meaningZh": "用于指定或定义一个名词为另一个名词; '被称作', '被称为', 或 '某个'"
+  },
+  "N1:Noun というところだ (Noun to iu tokoro da)": {
+    "meaningZh": "表示约略或概要：大约是..."
+  },
+  "N1:Noun + というもの (~ to iu mono)": {
+    "meaningZh": "表达泛指概念：所有的～"
+  },
+  "N1:Noun といったところだ (Noun to itta tokoro da)": {
+    "meaningZh": "表示至多、最多或限定在某个范围内：至多是..."
+  },
+  "N1:Noun といわず Noun といわず (A to iwazu B to iwazu)": {
+    "meaningZh": "表示“无论是A还是B”或“不管是否A和B”，不分彼此：无论是～还是～"
+  },
+  "N1:Noun + ときたら (〜tokitara)": {
+    "meaningZh": "表示谈及某话题时的强烈感受：说到..."
+  },
+  "N1:Noun とは比べものにならない (~to wa kurabemono ni naranai)": {
+    "meaningZh": "表示无法相比：无法比拟"
+  },
+  "N1:Noun + ともあろう + Noun (~tomoarou~)": {
+    "meaningZh": "批评或质疑某人应有的行为：即使是～也"
+  },
+  "N1:Noun ともなると (〜to mo naru to)": {
+    "meaningZh": "强调情况变化或状态改变：当～的时候"
+  },
+  "N1:Noun ともなれば (〜to mo nareba)": {
+    "meaningZh": "表达如果达到某种程度：一旦～就"
+  },
+  "N1:Noun と相まって (~ to aimatte)": {
+    "meaningZh": "表示伴随或一起：和～一起"
+  },
+  "N1:Noun なくして～はない (Noun nakushite ~ wa nai)": {
+    "meaningZh": "表示没有～就不存在～：没有～就没有～"
+  },
+  "N1:Noun なしでは～ない (Noun nashi de wa ~nai)": {
+    "meaningZh": "表示没有～就不可能做～：没有～就做不到～"
+  },
+  "N1:Noun なしには～ない (Noun nashi ni wa ~nai)": {
+    "meaningZh": "表示没有～就无法进行～：没有～就不能～"
+  },
+  "N1:Noun ならいざ知らず (~nara izashirazu)": {
+    "meaningZh": "表示即使在某情况下也不成立：或许～可能，但～绝无可能"
+  },
+  "N1:Noun + ならでは (~nara de wa)": {
+    "meaningZh": "表示某物的独特或特有的性质：只有～才有的～"
+  },
+  "N1:Noun なり Noun なり (A nari B nari)": {
+    "meaningZh": "列出相同类型的替代选项：要么～要么～"
+  },
+  "N1:Noun なりとも (~nari tomo)": {
+    "meaningZh": "表示即使是少量或程度：至少、哪怕有一点～"
+  },
+  "N1:Noun に Noun を重ねて (A ni B wo kasanete)": {
+    "meaningZh": "描述连续的动作或状态：一个接一个地、重叠起来"
+  },
+  "N1:Noun にあっては (Noun ni atte ha)": {
+    "meaningZh": "表示特定情况下的发生或存在：在～的情况下"
+  },
+  "N1:Noun にあるまじき Noun (Noun ni aru majiki Noun)": {
+    "meaningZh": "表示不相配、不合适或不适当：在～是不合适的"
+  },
+  "N1:Noun にして (Noun ni shite)": {
+    "meaningZh": "表示即使在某种情况下：即使在～也"
+  },
+  "N1:Noun にして初めて (Noun nishite hajimete)": {
+    "meaningZh": "表示只有第一次才...：直到第一次～才"
+  },
+  "N1:Noun にすら (〜ni sura)": {
+    "meaningZh": "表示甚至在某个地方：甚至在～也"
+  },
+  "N1:Noun にとどまらず～も (~ ni todomarazu ~ mo)": {
+    "meaningZh": "不仅表示～而且还有～：不仅～还～"
+  },
+  "N1:Noun にひきかえ Noun は (~ni hikikae ~ wa)": {
+    "meaningZh": "表示对比：与～相比"
+  },
+  "N1:Noun にもまして (〜ni mo mashite)": {
+    "meaningZh": "表示超过、胜过：比～更加"
+  },
+  "N1:Noun によらず (～ni yorazu)": {
+    "meaningZh": "无论"
+  },
+  "N1:Noun に先駆けて (〜ni saki gakete)": {
+    "meaningZh": "在...之前"
+  },
+  "N1:Noun に即した Noun (A ni sokushita B)": {
+    "meaningZh": "根据，基于"
+  },
+  "N1:Noun に即して Verb (〜ni soku shite ~)": {
+    "meaningZh": "依照，按照"
+  },
+  "N1:Noun に言わせれば (Noun ni iwasereba)": {
+    "meaningZh": "据...所说"
+  },
+  "N1:Noun に限ったことではない (〜ni kagitta koto dewa nai)": {
+    "meaningZh": "不仅仅局限于"
+  },
+  "N1:Noun に限ったことでもない (~ni kagitta koto demo nai)": {
+    "meaningZh": "不局限于"
+  },
+  "N1:Noun に限る (~ni kagiru)": {
+    "meaningZh": "仅限于"
+  },
+  "N1:Noun ぬいた Noun (A nuita B)": {
+    "meaningZh": "从...中取出"
+  },
+  "N1:Noun + ぬいて（~nuite)": {
+    "meaningZh": "除去，除了"
+  },
+  "N1: ～ぬく (~nuku)": {
+    "meaningZh": "彻底地完成"
+  },
+  "N1:Noun+のいかんだ (Noun no ikan da)": {
+    "meaningZh": "取决于；视...而定"
+  },
+  "N1:Noun のいかんでは (Noun no ikan de wa)": {
+    "meaningZh": "取决于...的情况"
+  },
+  "N1:Noun のいかんにかかわらず (Noun no ikan ni kakawarazu)": {
+    "meaningZh": "无论...如何"
+  },
+  "N1:Noun のいかんによっては (Noun no ikan ni yotte wa)": {
+    "meaningZh": "根据...的情况，可能..."
+  },
+  "N1:Noun のいかんによらず (~ no ikan ni yorazu)": {
+    "meaningZh": "不管...如何"
+  },
+  "N1:Noun のごとき Noun (A no gotoki B)": {
+    "meaningZh": "像...一样；仿佛...似的"
+  },
+  "N1:Noun のことだから (〜no koto dakara)": {
+    "meaningZh": "因为是关于...的缘故"
+  },
+  "N1:Noun の 嫌いがある (Noun no kirai ga aru)": {
+    "meaningZh": "对...感到厌恶"
+  },
+  "N1:Noun の手前 (~no temae)": {
+    "meaningZh": "在...面前，即将"
+  },
+  "N1:Noun の極み (〜no kiwami)": {
+    "meaningZh": "表示极端或最高度的某事物。"
+  },
+  "N1:Noun の 至り (~no itari)": {
+    "meaningZh": "表达某事物的高度或极致。"
+  },
+  "N1:Noun はいざ知らず (~ wa iza shirazu)": {
+    "meaningZh": "意为‘我能理解～，但～呢？（令人惊讶）’。"
+  },
+  "N1:Noun はおろか～すら (Noun wa oroka ～sura)": {
+    "meaningZh": "表示‘不仅不提～，连～都算不上’。"
+  },
+  "N1:Noun はおろか～まで (~wa oroka ~made)": {
+    "meaningZh": "表示‘不仅是A，还有B；更不用说A了，B也是如此’。"
+  },
+  "N1:Noun はおろか～も (Noun wa oroka ～ mo)": {
+    "meaningZh": "表示‘不仅...而且...；不提...，就连...也包括在内’。"
+  },
+  "N1:Noun はさておき (~ wa sateoki)": {
+    "meaningZh": "意为‘撇开...不论’或‘姑且不说...’。"
+  },
+  "N1:Noun + はどうであれ (~ wa dou de are)": {
+    "meaningZh": "意味着‘不管...如何’或‘无论...怎样’。"
+  },
+  "N1:Noun まみれ (~mamire)": {
+    "meaningZh": "表示某物被某种东西完全覆盖或充满的状态。"
+  },
+  "N1:Noun もさることながら Noun も (A mo saru koto nagara B mo)": {
+    "meaningZh": "意为‘不仅...而且...；尤其强调第二个名词’。"
+  },
+  "N1:Noun も兼ねて (~mo kanete)": {
+    "meaningZh": "用于表达‘还...；也...’或‘同时...’。"
+  },
+  "N1:Noun も相まって (~mo aimatte)": {
+    "meaningZh": "表示结合其他因素后导致某种结果。"
+  },
+  "N1:Noun を おいて他に Verb ない (〜wo oite hoka ni〜nai)": {
+    "meaningZh": "意为‘除了～之外没有别的选择，～是最好的或最合适的’。"
+  },
+  "N1:Noun をもって (~wo motte)": {
+    "meaningZh": "用于表示手段、方法或时间；‘凭借...；通过...’。"
+  },
+  "N1:Noun をものともせずに (Noun wo mono tomo sezu ni)": {
+    "meaningZh": "表达尽管有某种情况发生，但行动依然进行的意思，意为‘毫不在意...’。"
+  },
+  "N1:Noun をよそに (~wo yoso ni)": {
+    "meaningZh": "意为‘尽管...’或‘不顾...’。"
+  },
+  "N1:Noun を余儀なくされる (Noun wo yogi naku sareru)": {
+    "meaningZh": "表示被迫处于某种境地，意为‘不得不...；被强迫...’。"
+  },
+  "N1:Noun を前提として (Noun wo zentei toshite)": {
+    "meaningZh": "基于某事物的前提。"
+  },
+  "N1:Noun を前提にして (Noun wo zentei ni shite)": {
+    "meaningZh": "假设；假定；以某事物为基础。"
+  },
+  "N1:Noun を境にして (Noun wo sakai ni shite)": {
+    "meaningZh": "作为转折点或自某一时间起。"
+  },
+  "N1:Noun を機にして (~wo ki ni shite)": {
+    "meaningZh": "利用机会；趁着某个时机。"
+  },
+  "N1:Noun を皮切りに / を皮切りにして (Noun wo kawakiri ni / wo kawakiri ni shite)": {
+    "meaningZh": "以...为开端；从...开始。"
+  },
+  "N1:Noun を皮切りにして (Noun wo kawakiri ni shite)": {
+    "meaningZh": "以...为开端；从...开始。"
+  },
+  "N1:Noun を禁じ得ない (〜wo kinjienai)": {
+    "meaningZh": "无法避免；不能不。"
+  },
+  "N1:Noun を経て (〜wo hete)": {
+    "meaningZh": "通过；经历某个阶段。"
+  },
+  "N1:Noun を踏まえて (〜wo fumaete)": {
+    "meaningZh": "基于；考虑到。"
+  },
+  "N1:Noun を限りに (Noun wo kagiri ni)": {
+    "meaningZh": "直到；到...为止。"
+  },
+  "N1:Noun 並み (~nami)": {
+    "meaningZh": "像...一样；相当于。"
+  },
+  "N1:Noun + 前提で (Noun + zentei de)": {
+    "meaningZh": "在...的前提下；假设...。"
+  },
+  "N1:Verbる / Noun(である) + 限り(は) (kagiri (wa))": {
+    "meaningZh": "只要...就；在...的情况下。"
+  },
+  "N1:Verb がてら (~ gatera)": {
+    "meaningZh": "顺便做某事；趁着做另一件事的时候。"
+  },
+  "N1:Verb こそすれ (~koso sure)": {
+    "meaningZh": "即使做了X，也绝不会是Y。"
+  },
+  "N1:Verb させられる (~saserareru)": {
+    "meaningZh": "被迫去做某事。"
+  },
+  "N1:Verb ざるを得ない (~ zaru wo enai)": {
+    "meaningZh": "不得不；别无选择只能。"
+  },
+  "N1:Verb ずじまい (~zu jimai)": {
+    "meaningZh": ": 表示没有做某事的遗憾；错过了机会。"
+  },
+  "N1:Verb ずとも (〜zu tomo)": {
+    "meaningZh": "即使不做X，Y仍然可能发生。"
+  },
+  "N1:Verb ずにはおかない (~zuni wa okanai)": {
+    "meaningZh": "无法避免...；不得不...。"
+  },
+  "N1:Verb ずにはすまない (Verb zuni wa sumanai)": {
+    "meaningZh": "不能没有...；不可避免；必须做某事。"
+  },
+  "N1:Verb そうにない (Verb sou ni nai)": {
+    "meaningZh": "不太可能...；似乎不大可能发生。"
+  },
+  "N1:Verb そうもない (〜sou mo nai)": {
+    "meaningZh": "不太可能...；看起来不会发生。"
+  },
+  "N1:Verb そばから (〜soba kara)": {
+    "meaningZh": "表示在某个动作刚完成，紧接着另一个动作立即开始。"
+  },
+  "N1:Verb たが最後 (〜ta ga saigo)": {
+    "meaningZh": "强调一旦某事发生，就无法回头；‘一旦’、‘一...就’等。"
+  },
+  "N1:Verb たことにしてください (~ ta koto ni shite kudasai)": {
+    "meaningZh": "请求对方假装或接受某事已经发生或将处于某种状态。"
+  },
+  "N1:Verb たら Verb たで (~ tara ~ tade)": {
+    "meaningZh": "表示如果某个动作发生（或不发生），会有特定的结果或情况。"
+  },
+  "N1:Verb たら きりがない (Verb tara kiri ga nai)": {
+    "meaningZh": "表明一旦开始某个行为，就不会停止；‘如果开始做某事，就不会停下来’。"
+  },
+  "N1:Verb たら最後 (〜tara saigo)": {
+    "meaningZh": "表示一旦某个行为发生，情况就会不可逆转地改变——通常以负面方式。"
+  },
+  "N1:Verb つ Verb つ (Verb tsu Verb tsu)": {
+    "meaningZh": "表达两个交替进行的动作反复出现。"
+  },
+  "N1:Verb てからというもの (Verb te kara to iu mono)": {
+    "meaningZh": "表示自从某件事发生以来，某种状态一直持续到现在。"
+  },
+  "N1:Verb てこそ (Verb te koso)": {
+    "meaningZh": "强调只有通过做某事才能得到某个结果或认识。"
+  },
+  "N1:Verb ては (～te wa)": {
+    "meaningZh": "表达一种重复的模式或循环，常暗示令人沮丧的结果；‘每当X发生，Y就会再次发生’。"
+  },
+  "N1:Verb ては Verb (~ te wa ~)": {
+    "meaningZh": "表示某种行为的反复模式；意为‘每次’、‘每当’等。"
+  },
+  "N1:Verb てまでも (~ temademo)": {
+    "meaningZh": "表达‘即使意味着做...’或‘无论代价多大’。"
+  },
+  "N1:Verb てみせる (Verb te miseru)": {
+    "meaningZh": "表示通过行动来展示或证明某事。"
+  },
+  "N1:Verb てやまない (Verb te yamanai)": {
+    "meaningZh": "与某些情感/心理动词一起使用，表明一种强烈、持续的情感：‘无法停止’、‘永不终止’。"
+  },
+  "N1:Verb ないではおかない (~ nai de wa okanai)": {
+    "meaningZh": "意味着‘不得不做’、‘一定会发生’或‘注定会发生’。"
+  },
+  "N1:Verb ないではすまない (Verb nai dewa sumanai)": {
+    "meaningZh": "表示某种道德或社会上的必然性：‘不能结束而不做’、‘必须做’。"
+  },
+  "N1:Verb ないまでも (Verb nai made mo)": {
+    "meaningZh": "表达即使不完全到...的程度。"
+  },
+  "N1:Verb ないものだろうか (Verb nai mono darou ka)": {
+    "meaningZh": "表达希望或疑问，是否可以做到某事：‘不是没有方法...吗？’、‘难道我们不能...吗？’"
+  },
+  "N1:Verb ないものでもない (Verb nai mono demo nai)": {
+    "meaningZh": "表示并非完全不可能或不存在：‘并不是我不...’、‘并不是没有...’。"
+  },
+  "N1:Verb の ない Noun (~ no nai ~)": {
+    "meaningZh": "用以修饰名词，带有否定动词形式；‘一个不（动词）的名词’。"
+  },
+  "N1:Verb ば きりがない (〜ba kiri ga nai)": {
+    "meaningZh": "表示了某事一旦开始就无法停止：‘一旦开始……，就会没完没了。’"
+  },
+  "N1:Verb もしないで (~ mo shinai de)": {
+    "meaningZh": "意味着‘连……都没有做’。"
+  },
+  "N1:Verb やしない (~ yashinai)": {
+    "meaningZh": "表达了强烈的否定或拒绝：‘我绝不会……’、‘无论如何也不会……’。"
+  },
+  "N1:Verb ようか Verbるまいか (Verb you ka Verb ru mai ka)": {
+    "meaningZh": "表示犹豫不决：‘要不要去做这件事呢？’。"
+  },
+  "N1:Verb ようが Verb るまいが (Verb you ga Verb ru mai ga)": {
+    "meaningZh": "表示‘无论是否……’，‘不管发生什么’。"
+  },
+  "N1:Verb ようがない (〜you ga nai)": {
+    "meaningZh": "表达了‘不可能做某事’。"
+  },
+  "N1:Verb ようと Verbる まいと (Verb you to Verb ru mai to)": {
+    "meaningZh": "表明无论是否做（动词），结果或态度不变。"
+  },
+  "N1:Verb ようにも (〜you ni mo)": {
+    "meaningZh": "用于表达‘即使想做某事，也无法做到’。"
+  },
+  "N1:Verb ようにも Verb れない (〜you ni mo 〜renai)": {
+    "meaningZh": "表示即使想/尝试也做不到某事。"
+  },
+  "N1:Verb ようもない (~you mo nai)": {
+    "meaningZh": "表达了‘不可能做某事’。"
+  },
+  "N1:Verbる がままに (〜ga mama ni)": {
+    "meaningZh": "表示‘任由某事自然发生’；‘正如某事所是的样子’。"
+  },
+  "N1:Verbる が早いか (verb-ru ga hayai ka)": {
+    "meaningZh": "表示‘一……就……’或‘当……的时候’。"
+  },
+  "N1:Verbる くらいなら (〜ru kurai nara)": {
+    "meaningZh": "表达了避免做某事的偏好：‘与其做X，不如不做’、‘如果要做X，我宁愿不做’。"
+  },
+  "N1:Verbる こと なし に (Verb-ru koto nashi ni)": {
+    "meaningZh": "用于表达‘没有做某事’。"
+  },
+  "N1:Verbる ことのないように (Verb-ru koto no nai you ni)": {
+    "meaningZh": "表达了防止某事发生的愿望或努力：‘以免……’、‘为了避免……’。"
+  },
+  "N1:Verbる ときりがない (verb-ru to kiri ga nai)": {
+    "meaningZh": "表示某事可以无限持续下去或没有限制地进行。"
+  },
+  "N1:Verbる ともなく Verb (Verb-ru tomonaku Verb)": {
+    "meaningZh": "表示‘不知不觉中’或‘无意识地’。"
+  },
+  "N1:Verbる ともなしに Verb (Verb-ru tomonashi ni Verb)": {
+    "meaningZh": "表示无意间做了某事。"
+  },
+  "N1:Verbる なり (Verb-ru nari)": {
+    "meaningZh": "表示‘一……就……’或‘当……的时候’。"
+  },
+  "N1:Verbる にとどまらず～も (Verb-ru ni todomarazu ~ mo)": {
+    "meaningZh": "表示‘不仅……而且……’，‘不限于……’。"
+  },
+  "N1:Verbる にはあたらない (Verb-ru ni wa ataranai)": {
+    "meaningZh": "表示无需做某事，没有必要做某事"
+  },
+  "N1:Verbる にも (Verb-ru ni mo)": {
+    "meaningZh": "表明即使想做某事也做不到"
+  },
+  "N1:Verbる にも Verb れない (Verb-ru ni mo Verb-re nai)": {
+    "meaningZh": "表达即便尝试也无法做到某事"
+  },
+  "N1:Verbる べからざる Noun (Verb-ru bekara zaru Noun)": {
+    "meaningZh": "表示不应该做某事；必须不做某事"
+  },
+  "N1:Verbる べからず (〜ru bekara zu)": {
+    "meaningZh": "表示不应该或必须不做某事"
+  },
+  "N1:Verbる べく (Verb-ru beku)": {
+    "meaningZh": "表示为了某个目的"
+  },
+  "N1:Verbる べくもない (Verb-ru beku mo nai)": {
+    "meaningZh": "表示无法做到某事"
+  },
+  "N1:Verbる までもない (〜ru made mo nai)": {
+    "meaningZh": "表示没有必要达到某种程度"
+  },
+  "N1:Verbる ものとする (〜ru mono to suru)": {
+    "meaningZh": "假设或决定某事物为某物"
+  },
+  "N1:Verbる や否や (Verb-ru ya ina ya)": {
+    "meaningZh": "表达一发生就立刻做某事"
+  },
+  "N1:Verbる 始末だ (〜ru shimatsu da)": {
+    "meaningZh": "表示某个行为的结果或结论"
+  },
+  "N1:Verbる 嫌いがある (～ru kirai ga aru)": {
+    "meaningZh": "表示有不良习惯去做某事"
+  },
+  "N1:いつまで～のやら (itsumade ~ no yara)": {
+    "meaningZh": "表示对持续时间的不确定"
+  },
+  "N1:～が Verb られる (〜ga Verb rareru)": {
+    "meaningZh": "表示能够做某事"
+  },
+  "N1:～かと思いきや (〜ka to omoikiya)": {
+    "meaningZh": "表达出乎意料的结果"
+  },
+  "N1:～がゆえに (～ga yue ni)": {
+    "meaningZh": "表示原因或结果；因为，由于，因此"
+  },
+  "N1:～がゆえの Noun (〜ga yue no Noun)": {
+    "meaningZh": "表示原因或结果；因为，由于"
+  },
+  "N1:～から Noun に 至る まで (〜kara 〜ni itaru made)": {
+    "meaningZh": "表示从一个事物到另一个事物的范围"
+  },
+  "N1:～ごとく (〜gotoku)": {
+    "meaningZh": "似乎像...一样"
+  },
+  "N1:～こととて (〜koto tote)": {
+    "meaningZh": "表示理由或前提，用于决策或判断；‘因为’、‘由于’"
+  },
+  "N1:～ずにすんだ (〜zuni sunda)": {
+    "meaningZh": "表达‘没有做某事也能做到’的意思；‘设法避免了’"
+  },
+  "N1:～だろうとなかろうと (〜darou to nakarou to)": {
+    "meaningZh": "无论是否；‘不管……都’"
+  },
+  "N1:～つもりだ (〜tsumori da)": {
+    "meaningZh": "表示说话人的意图或计划"
+  },
+  "N1:～つもりで (〜tsumori de)": {
+    "meaningZh": "表示说话人的意图或计划；‘怀着……的打算’、‘计划做某事’"
+  },
+  "N1:～ではすまない (〜dewa sumanai)": {
+    "meaningZh": "表示仅凭某事是不够的或不足以解决问题"
+  },
+  "N1:～とあって (〜to atte)": {
+    "meaningZh": "由于某种情况下的特殊情况"
+  },
+  "N1:～とあれば (〜to areba)": {
+    "meaningZh": "表示条件；‘如果’、‘当……的时候’、‘因为’"
+  },
+  "N1:～といえども (〜to iedomo)": {
+    "meaningZh": "即使说；‘即便……也’"
+  },
+  "N1:～といったらありはしない (〜to ittara ari wa shinai)": {
+    "meaningZh": "表达极端的惊叹；‘极其’、‘难以置信’、‘无与伦比’"
+  },
+  "N1:～といったらありゃしない (〜to ittara arya shinai)": {
+    "meaningZh": "强调某事达到极致的程度；‘你无法想象有多……’、‘不可思议地……’"
+  },
+  "N1:～といったらない (〜to ittara nai)": {
+    "meaningZh": "表示某事物达到了极端程度；‘再没有比这更……的了’"
+  },
+  "N1:～ときている (〜to kite iru)": {
+    "meaningZh": "突出严重或极端的情况，常带有负面意味"
+  },
+  "N1:～ところを (〜tokoro wo)": {
+    "meaningZh": "表示不巧或不便的时间点；‘正当……的时候’、‘即使……也’"
+  },
+  "N1:～とされる (〜to sareru)": {
+    "meaningZh": "表示一般看法或广泛接受的观点；‘被认为是’、‘被视为’、‘据说’"
+  },
+  "N1:～としたところで (〜to shita tokoro de)": {
+    "meaningZh": "即便假设某事成立，结果也不会改变"
+  },
+  "N1:～とすると (〜to suru to)": {
+    "meaningZh": "表达‘如果’、‘当……的时候’或推测性的‘假设……的话’"
+  },
+  "N1:～とすれば (～to sureba)": {
+    "meaningZh": "用于表达‘如果情况是这样’、‘假定……的话’"
+  },
+  "N1:～となったら (〜to nattara)": {
+    "meaningZh": "表示‘如果到了……的地步’、‘当……成为现实时’"
+  },
+  "N1:～となると (〜to naru to)": {
+    "meaningZh": "强调某种特定的情况；‘当谈到……的时候’、‘如果变成……’、‘假如……发生’"
+  },
+  "N1:～となれば (〜to nareba)": {
+    "meaningZh": "如果谈到...；当说到..."
+  },
+  "N1:～とのことだ (〜to no koto da)": {
+    "meaningZh": "听说；据说"
+  },
+  "N1:～とはいえ (～to wa ie)": {
+    "meaningZh": "即使；虽然"
+  },
+  "N1:～とみえて (〜to miete)": {
+    "meaningZh": "似乎；看起来像是"
+  },
+  "N1:～とみられる (～to mirareru)": {
+    "meaningZh": "被认为；人们认为"
+  },
+  "N1:～とみると (〜to miru to)": {
+    "meaningZh": "视...为；当作...看待"
+  },
+  "N1:どんなに～うが (donna ni ～ u ga)": {
+    "meaningZh": "无论多么...也"
+  },
+  "N1:～と言わんばかりに (〜to iwan bakari ni)": {
+    "meaningZh": "仿佛在暗示"
+  },
+  "N1:～と言わんばかりの Noun (～to iwan bakari no Noun)": {
+    "meaningZh": "好像要表达"
+  },
+  "N1:～ながらに (～nagara ni)": {
+    "meaningZh": "从...开始；当...的时候"
+  },
+  "N1:～ながらの Noun (〜nagara no Noun)": {
+    "meaningZh": "一边做某事一边"
+  },
+  "N1:～ながらも (〜nagara mo)": {
+    "meaningZh": "即使；尽管"
+  },
+  "N1:～なくはない (〜naku wa nai)": {
+    "meaningZh": "并非不可能"
+  },
+  "N1:～なくもない (〜naku mo nai)": {
+    "meaningZh": "并非不值得"
+  },
+  "N1:～なら～なりに": {
+    "meaningZh": "如果是...的话，那么就是...的样子"
+  },
+  "N1:～には及ばない (〜ni wa oyobanai)": {
+    "meaningZh": "不需要那样做"
+  },
+  "N1:～に堪えない (～ni taenai)": {
+    "meaningZh": "无法忍受"
+  },
+  "N1:～に堪える (～ni taeru)": {
+    "meaningZh": "能够承受"
+  },
+  "N1:～に耐える (～ni taeru)": {
+    "meaningZh": "忍耐；经受住"
+  },
+  "N1:～に至った (〜ni itatta)": {
+    "meaningZh": "达到...的地步；导致"
+  },
+  "N1:～に越したことはない (〜ni koshita koto wa nai)": {
+    "meaningZh": "表达某事是最理想的选择或最可取的行为；‘没有比……更好的’。"
+  },
+  "N1:～に難くない (～ni katakunai)": {
+    "meaningZh": "表示‘不难想象/理解～’，带有正式或文学色彩。"
+  },
+  "N1:～のは Noun ぐらいのものだ (〜no wa Noun gurai no mono da)": {
+    "meaningZh": "传达‘只有……而已’或‘无非是……’的意思。"
+  },
+  "N1:～ば～ものを (～ba～mono o)": {
+    "meaningZh": "表达遗憾或错失良机：‘要是……就好了’。"
+  },
+  "N1:～びた (～bita)": {
+    "meaningZh": "表示‘看起来像～’（常与名词/形容词连用）。"
+  },
+  "N1:～びる (〜biru)": {
+    "meaningZh": "表示‘显得像～’，通常用于某些形容词或名词。"
+  },
+  "N1:～ぶった (～butta)": {
+    "meaningZh": "常作为～ぶる的过去式出现，意为‘假装是～’（或根据上下文可能指‘击打/撞击’）。"
+  },
+  "N1:～ぶって (〜butte)": {
+    "meaningZh": "表示‘假装是～’。"
+  },
+  "N1:～ぶり (〜buri)": {
+    "meaningZh": "表达某事自上次发生以来所经历的时间长度。"
+  },
+  "N1:～ぶる (〜buru)": {
+    "meaningZh": "用于描述某人假装或表现得像不是那样的情况（常带有负面含义）。"
+  },
+  "N1:～までだ (～made da)": {
+    "meaningZh": "表示限度或程度；‘仅限于……’，‘不超过……’。"
+  },
+  "N1:～もなんでもない (〜mo nandemonai)": {
+    "meaningZh": "用来否定或轻视某事的重要性；‘根本不算什么’，‘无关紧要’。"
+  },
+  "N1:～ものとして (～mono to shite)": {
+    "meaningZh": "表明假设或设想；‘假定’，‘在……的情况下’。"
+  },
+  "N1:～んがために (〜n ga tame ni)": {
+    "meaningZh": "强调行为的原因或目的；‘为了’，‘为了……的缘故’。"
+  },
+  "N1:～んばかりに (〜n bakari ni)": {
+    "meaningZh": "表示‘仿佛即将……’或‘好像要说……’。"
+  },
+  "N1:～差し支えない (〜sashitsukaenai)": {
+    "meaningZh": "表明没有问题或障碍；‘没关系’，‘无所谓’。"
+  },
+  "N1:～折に (〜ori ni)": {
+    "meaningZh": "表示某事发生的时机或场合；‘当……的时候’，‘在……的时候’。"
+  },
+  "N1:～極まりない (〜kiwamarinai)": {
+    "meaningZh": "表达极端状态，通常为负面含义；‘极其’，‘非常’，‘无边无际地’。"
+  },
+  "N1:～極まる (〜kiwamaru)": {
+    "meaningZh": "也表示极端程度或状态，通常为负面含义。"
+  },
+  "N1:～足りない (～tarinai)": {
+    "meaningZh": "表达不足或缺乏；‘不够’，‘不充分’。"
+  },
+  "N1:～足る Noun (〜taru Noun)": {
+    "meaningZh": "表示某事物值得或足以被称为、用作某种对象。"
+  },
+  "N1:～限りだ (〜kagiri da)": {
+    "meaningZh": "表示极度的情感或反应；‘我感觉如此～’，‘尽可能地～’"
+  },
+  "N2:～末 (～sue)": {
+    "meaningZh": "表示经过一段时间或一连串行动后所得的结果；最终……，结果……。"
+  }
+}

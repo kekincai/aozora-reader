@@ -7,6 +7,7 @@
     "dev": "vite",
     "import:aozora": "node scripts/import-aozora.mjs && node scripts/build-learning.mjs",
     "build:learning": "node scripts/build-learning.mjs",
+    "translate:grammar": "node scripts/translate-grammar.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",

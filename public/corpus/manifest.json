@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T14:13:34.100Z",
+  "generatedAt": "2026-07-19T14:45:40.456Z",
   "works": [
     {
       "id": "637",
@@ -16,8 +16,8 @@
       "learning": {
         "vocabularyCount": 175,
         "vocabularyUnique": 48,
-        "grammarCount": 75,
-        "grammarUnique": 30
+        "grammarCount": 43,
+        "grammarUnique": 20
       }
     },
     {
@@ -35,8 +35,8 @@
       "learning": {
         "vocabularyCount": 184,
         "vocabularyUnique": 59,
-        "grammarCount": 57,
-        "grammarUnique": 22
+        "grammarCount": 29,
+        "grammarUnique": 12
       }
     },
     {
@@ -54,8 +54,8 @@
       "learning": {
         "vocabularyCount": 223,
         "vocabularyUnique": 54,
-        "grammarCount": 86,
-        "grammarUnique": 34
+        "grammarCount": 45,
+        "grammarUnique": 24
       }
     },
     {
@@ -73,8 +73,8 @@
       "learning": {
         "vocabularyCount": 255,
         "vocabularyUnique": 79,
-        "grammarCount": 79,
-        "grammarUnique": 36
+        "grammarCount": 56,
+        "grammarUnique": 25
       }
     },
     {
@@ -92,8 +92,8 @@
       "learning": {
         "vocabularyCount": 384,
         "vocabularyUnique": 91,
-        "grammarCount": 121,
-        "grammarUnique": 37
+        "grammarCount": 73,
+        "grammarUnique": 25
       }
     },
     {
@@ -111,8 +111,8 @@
       "learning": {
         "vocabularyCount": 567,
         "vocabularyUnique": 187,
-        "grammarCount": 156,
-        "grammarUnique": 55
+        "grammarCount": 75,
+        "grammarUnique": 41
       }
     },
     {
@@ -130,8 +130,8 @@
       "learning": {
         "vocabularyCount": 185,
         "vocabularyUnique": 69,
-        "grammarCount": 84,
-        "grammarUnique": 34
+        "grammarCount": 46,
+        "grammarUnique": 22
       }
     },
     {
@@ -149,8 +149,8 @@
       "learning": {
         "vocabularyCount": 1087,
         "vocabularyUnique": 307,
-        "grammarCount": 299,
-        "grammarUnique": 59
+        "grammarCount": 162,
+        "grammarUnique": 43
       }
     },
     {
@@ -168,8 +168,8 @@
       "learning": {
         "vocabularyCount": 395,
         "vocabularyUnique": 167,
-        "grammarCount": 113,
-        "grammarUnique": 36
+        "grammarCount": 45,
+        "grammarUnique": 25
       }
     },
     {
@@ -187,8 +187,8 @@
       "learning": {
         "vocabularyCount": 435,
         "vocabularyUnique": 155,
-        "grammarCount": 221,
-        "grammarUnique": 61
+        "grammarCount": 111,
+        "grammarUnique": 44
       }
     }
   ]
