@@ -207,16 +207,17 @@ database.exec(`
   CREATE TABLE IF NOT EXISTS grammar (id TEXT PRIMARY KEY, title TEXT NOT NULL, pattern TEXT NOT NULL, meaning TEXT NOT NULL, formation TEXT NOT NULL, level TEXT NOT NULL, category TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS occurrences (work_id TEXT NOT NULL, entry_id TEXT NOT NULL, kind TEXT NOT NULL, count INTEGER NOT NULL, PRIMARY KEY (work_id, entry_id));
   CREATE INDEX IF NOT EXISTS occurrence_entry_idx ON occurrences(entry_id, work_id);
-  DELETE FROM works; DELETE FROM vocabulary; DELETE FROM grammar; DELETE FROM occurrences;
 `)
-const insertWork = database.prepare('INSERT INTO works VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-const insertVocabulary = database.prepare('INSERT INTO vocabulary VALUES (?, ?, ?, ?, ?, ?)')
-const insertGrammar = database.prepare('INSERT INTO grammar VALUES (?, ?, ?, ?, ?, ?, ?)')
-const insertOccurrence = database.prepare('INSERT INTO occurrences VALUES (?, ?, ?, ?)')
+const insertWork = database.prepare('INSERT OR REPLACE INTO works VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+const insertVocabulary = database.prepare('INSERT OR REPLACE INTO vocabulary VALUES (?, ?, ?, ?, ?, ?)')
+const insertGrammar = database.prepare('INSERT OR REPLACE INTO grammar VALUES (?, ?, ?, ?, ?, ?, ?)')
+const insertOccurrence = database.prepare('INSERT OR REPLACE INTO occurrences VALUES (?, ?, ?, ?)')
+const clearWorkOccurrences = database.prepare('DELETE FROM occurrences WHERE work_id = ?')
 database.exec('BEGIN')
 try {
   for (const summary of works) {
     const work = JSON.parse(await readFile(resolve(corpusRoot, 'works', `${summary.id}.json`), 'utf8'))
+    clearWorkOccurrences.run(work.id)
     insertWork.run(work.id, work.title, work.author, work.level, work.genre, work.sourceUrl, work.sourcePath, JSON.stringify(work.annotatedParagraphs), new Date().toISOString())
   }
   for (const entry of vocabulary) insertVocabulary.run(entry.id, entry.term, entry.reading, entry.meaning, entry.level, entry.kanaRow)
