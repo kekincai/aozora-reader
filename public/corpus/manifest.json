@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T13:20:13.170Z",
+  "generatedAt": "2026-07-19T14:09:18.819Z",
   "works": [
     {
       "id": "637",
@@ -12,7 +12,13 @@
       "sourcePath": "cards/000121/files/637_13341.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000121/files/637_13341.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 1
+      "paragraphCount": 1,
+      "learning": {
+        "vocabularyCount": 175,
+        "vocabularyUnique": 48,
+        "grammarCount": 75,
+        "grammarUnique": 30
+      }
     },
     {
       "id": "92",
@@ -25,7 +31,13 @@
       "sourcePath": "cards/000879/files/92_14545.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000879/files/92_14545.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 3
+      "paragraphCount": 3,
+      "learning": {
+        "vocabularyCount": 184,
+        "vocabularyUnique": 59,
+        "grammarCount": 57,
+        "grammarUnique": 22
+      }
     },
     {
       "id": "628",
@@ -38,7 +50,13 @@
       "sourcePath": "cards/000121/files/628_14895.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000121/files/628_14895.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 6
+      "paragraphCount": 6,
+      "learning": {
+        "vocabularyCount": 223,
+        "vocabularyUnique": 54,
+        "grammarCount": 86,
+        "grammarUnique": 34
+      }
     },
     {
       "id": "43754",
@@ -51,7 +69,13 @@
       "sourcePath": "cards/000081/files/43754_17659.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000081/files/43754_17659.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 1
+      "paragraphCount": 1,
+      "learning": {
+        "vocabularyCount": 255,
+        "vocabularyUnique": 79,
+        "grammarCount": 79,
+        "grammarUnique": 36
+      }
     },
     {
       "id": "211",
@@ -64,7 +88,13 @@
       "sourcePath": "cards/000025/files/211_20472.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000025/files/211_20472.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 3
+      "paragraphCount": 3,
+      "learning": {
+        "vocabularyCount": 384,
+        "vocabularyUnique": 91,
+        "grammarCount": 121,
+        "grammarUnique": 37
+      }
     },
     {
       "id": "1567",
@@ -77,7 +107,13 @@
       "sourcePath": "cards/000035/files/1567_14913.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000035/files/1567_14913.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 1
+      "paragraphCount": 1,
+      "learning": {
+        "vocabularyCount": 567,
+        "vocabularyUnique": 187,
+        "grammarCount": 156,
+        "grammarUnique": 55
+      }
     },
     {
       "id": "2363",
@@ -90,7 +126,13 @@
       "sourcePath": "cards/000042/files/2363_13807.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000042/files/2363_13807.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 1
+      "paragraphCount": 1,
+      "learning": {
+        "vocabularyCount": 185,
+        "vocabularyUnique": 69,
+        "grammarCount": 84,
+        "grammarUnique": 34
+      }
     },
     {
       "id": "799",
@@ -103,7 +145,13 @@
       "sourcePath": "cards/000148/files/799_14972.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000148/files/799_14972.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 10
+      "paragraphCount": 10,
+      "learning": {
+        "vocabularyCount": 1087,
+        "vocabularyUnique": 307,
+        "grammarCount": 299,
+        "grammarUnique": 59
+      }
     },
     {
       "id": "624",
@@ -116,7 +164,13 @@
       "sourcePath": "cards/000119/files/624_14544.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000119/files/624_14544.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 3
+      "paragraphCount": 3,
+      "learning": {
+        "vocabularyCount": 395,
+        "vocabularyUnique": 167,
+        "grammarCount": 113,
+        "grammarUnique": 36
+      }
     },
     {
       "id": "45245",
@@ -129,7 +183,13 @@
       "sourcePath": "cards/000129/files/45245_22007.html",
       "sourceUrl": "https://www.aozora.gr.jp/cards/000129/files/45245_22007.html",
       "attribution": "青空文庫（著作権なし）",
-      "paragraphCount": 1
+      "paragraphCount": 1,
+      "learning": {
+        "vocabularyCount": 435,
+        "vocabularyUnique": 155,
+        "grammarCount": 221,
+        "grammarUnique": 61
+      }
     }
   ]
 }

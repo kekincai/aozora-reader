@@ -1,20 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
+import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
 import './App.css'
 
-type WorkSummary = { id: string; title: string; author: string; level: string; genre: string; minutes: number; summary: string; sourceUrl: string; attribution: string; paragraphCount: number }
-type Work = WorkSummary & { paragraphs: string[] }
+type LearningStats = { vocabularyCount: number; vocabularyUnique: number; grammarCount: number; grammarUnique: number }
+type WorkSummary = { id: string; title: string; author: string; level: string; genre: string; minutes: number; summary: string; sourceUrl: string; attribution: string; paragraphCount: number; learning?: LearningStats }
+type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
+type Work = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
 type ReaderState = { progress: Record<string, number>; words: SavedWord[]; minutes: number }
+type ArticleRef = { id: string; title: string; author: string; count: number }
+type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; level: 'N1'|'N2'; kanaRow: string; articles: ArticleRef[] }
+type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;en:string}[]; articles: ArticleRef[] }
+type LearningIndex = { notice: string; vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
+type SelectedEntry = { kind: 'vocabulary'; entry: VocabularyEntry } | { kind: 'grammar'; entry: GrammarEntry }
 
 const initialState: ReaderState = { progress: { '92': 42 }, words: [], minutes: 0 }
-const vocabulary: Record<string, Omit<SavedWord, 'savedAt'>> = {
-  暮らす: { word: '暮らす', reading: 'くらす', meaning: '生活；度日。日々を送る。', level: 'N2推定' },
-  真っ白: { word: '真っ白', reading: 'まっしろ', meaning: '完全に白い様子。', level: 'N2' },
-  おっかなびっくり: { word: 'おっかなびっくり', reading: 'おっかなびっくり', meaning: 'こわがりながら、慎重に。', level: 'N1' },
-}
+const fallbackCards: SavedWord[] = [
+  { word: '暮らす', reading: 'くらす', meaning: 'to live; to get along', level: 'N2', savedAt: 0 },
+  { word: 'おっかなびっくり', reading: 'おっかなびっくり', meaning: 'nervously; timidly', level: 'N1', savedAt: 0 },
+]
 
 function useReaderState() {
   const [state, setState] = useState<ReaderState>(() => {
@@ -47,7 +53,7 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
     <Link className="brand" to="/" aria-label="青空しおり ホーム"><span className="brand-mark">青</span><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
-      <NavLink to="/">読む</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
+      <NavLink to="/">読む</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
       <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
     </nav>
     <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
@@ -76,45 +82,104 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
     </section>
     <section className="library-section"><div className="section-heading"><div><span className="kicker">DISCOVER</span><h2>今の自分に合う一篇</h2></div><p>N2を中心に、少し背伸びするN1まで。<br/>短く読める順に選びました。</p></div>
       <div className="filters">{['すべて','N2核心','N2→N1','短篇','童話','随筆'].map(item => <button key={item} className={filter === item ? 'active' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>
-      <div className="work-list">{visible.map((w, index) => <Link className="work-row" to={`/read/${w.id}`} key={w.id}><span className="work-index">{String(index + 1).padStart(2,'0')}</span><div className="work-main"><div className="work-tags"><span>{w.level}</span><span>{w.genre}</span></div><h3>{w.title}</h3><p>{w.author}</p></div><p className="work-summary">{w.summary}</p><span className="work-time"><Clock3 size={15}/>{w.minutes}分</span><ChevronRight className="row-arrow" size={19}/></Link>)}</div>
+      <div className="work-list">{visible.map((w, index) => <Link className="work-row" to={`/read/${w.id}`} key={w.id}><span className="work-index">{String(index + 1).padStart(2,'0')}</span><div className="work-main"><div className="work-tags"><span>{w.level}</span><span>{w.genre}</span></div><h3>{w.title}</h3><p>{w.author}</p></div><p className="work-summary">{w.summary}{w.learning && <small>{w.learning.vocabularyUnique}語彙 · {w.learning.grammarUnique}文法</small>}</p><span className="work-time"><Clock3 size={15}/>{w.minutes}分</span><ChevronRight className="row-arrow" size={19}/></Link>)}</div>
       {!works.length && <div className="loading">作品を選んでいます…</div>}
     </section>
     {featured && <section className="source-note"><Library size={20}/><div><strong>作品の出典を明記しています</strong><p>公開作品だけを収録し、原文と青空文庫へのリンクを各作品に表示します。</p></div></section>}
   </main></Layout>
 }
 
-const opening = [
-  <>寒い冬が北方から、<ruby>狐<rt>きつね</rt></ruby>の親子の<ruby>棲<rt>す</rt></ruby>んでいる森へもやって来ました。</>,
-  <>或朝、洞穴から子供の狐が出ようとしましたが、「あっ」と叫んで眼を<ruby>抑<rt>おさ</rt></ruby>えながら母さん狐のところへころげて来ました。</>,
-  <>「母ちゃん、眼に何か刺さった、ぬいて頂戴早く早く」と言いました。</>,
-  <>母さん狐がびっくりして、あわてふためきながら、眼をおさえている子供の手を恐る恐るとりのけて見ましたが、何も刺さってはいませんでした。</>,
-  <>子狐は雪の上で、母さんと静かに<span className="vocab" data-word="暮らす">暮らす</span>日々を思いました。</>,
-]
-
 function Reader({ state, setState }: { state: ReaderState; setState: React.Dispatch<React.SetStateAction<ReaderState>> }) {
   const { id = '637' } = useParams(); const navigate = useNavigate()
-  const [work, setWork] = useState<Work | null>(null); const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(false); const [selected, setSelected] = useState<SavedWord | null>(null)
-  useEffect(() => { fetch(`/corpus/works/${id}.json`).then(r => r.json()).then(setWork); window.scrollTo(0,0) }, [id])
+  const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
+  const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(false); const [selected, setSelected] = useState<SelectedEntry | null>(null)
+  const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
+  useEffect(() => { Promise.all([fetch(`/corpus/works/${id}.json`).then(r => r.json()), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }); window.scrollTo(0,0) }, [id])
   useEffect(() => { if (work) setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})) }, [work, id, setState])
-  const saveWord = () => { if (!selected) return; setState(s => ({...s, words: s.words.some(w => w.word === selected.word) ? s.words : [...s.words, selected]})) }
-  const body = useMemo(() => work?.paragraphs.join('') || '', [work])
-  if (!work) return <div className="reader-loading">本文をひらいています…</div>
+  const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
+  const grammarMap = useMemo(() => new Map(learning?.grammar.map(entry => [entry.id, entry]) || []), [learning])
+  const saveWord = () => {
+    if (!selected) return
+    const item = selected.kind === 'vocabulary'
+      ? { word: selected.entry.term, reading: selected.entry.reading, meaning: selected.entry.meaning, level: selected.entry.level, savedAt: Date.now() }
+      : { word: selected.entry.pattern, reading: '文法', meaning: selected.entry.meaning, level: selected.entry.level, savedAt: Date.now() }
+    setState(s => ({...s, words: s.words.some(w => w.word === item.word) ? s.words : [...s.words, item]}))
+  }
+  const visibleParagraphs = useMemo(() => {
+    if (!work) return []
+    if (full) return work.annotatedParagraphs
+    let remaining = 3100
+    return work.annotatedParagraphs.map(paragraph => {
+      if (remaining <= 0) return []
+      const result = []
+      for (const token of paragraph) { if (remaining <= 0) break; result.push(token); remaining -= token.text.length }
+      return result
+    }).filter(paragraph => paragraph.length)
+  }, [work, full])
+  if (!work || !learning) return <div className="reader-loading">本文を分析しています…</div>
+  const openToken = (token: AnnotatedToken) => {
+    const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
+    const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
+    if (vocab && levels[vocab.level]) setSelected({kind:'vocabulary', entry:vocab})
+    else if (grammar && showGrammar && levels[grammar.level]) setSelected({kind:'grammar', entry:grammar})
+  }
   return <div className={`reader-page ${furigana ? '' : 'hide-ruby'}`}>
     <header className="reader-header"><button className="reader-back" onClick={() => navigate(-1)}><ArrowLeft size={19}/><span>戻る</span></button><div className="reader-title"><strong>{work.title}</strong><span>{state.progress[id] || 18}%</span></div><div className="reader-progress"><i style={{width: `${state.progress[id] || 18}%`}}/></div><button className="icon-button"><Menu size={19}/></button></header>
-    <div className="reader-controls"><button className={furigana ? 'active' : ''} onClick={() => setFurigana(!furigana)}>ふりがな</button><button className="active">{work.level}+</button><button onClick={() => alert('この公開版では、作品を読みやすい節ごとに順次追加します。')}>章一覧</button></div>
+    <div className="reader-controls"><button className={furigana ? 'active' : ''} onClick={() => setFurigana(!furigana)}>ふりがな</button><button className={levels.N2 ? 'active n2-control' : ''} onClick={() => setLevels(value => ({...value,N2:!value.N2}))}>N2 語彙</button><button className={levels.N1 ? 'active n1-control' : ''} onClick={() => setLevels(value => ({...value,N1:!value.N1}))}>N1 語彙</button><button className={showGrammar ? 'active grammar-control' : ''} onClick={() => setShowGrammar(!showGrammar)}>文法</button></div>
     <main className="reading-wrap"><div className="reading-meta"><span>{work.genre}</span><h1>{work.title}</h1><p>{work.author}</p></div>
-      <article className="reading-text" onClick={(e) => { const el = (e.target as HTMLElement).closest<HTMLElement>('[data-word]'); if (el) { const v = vocabulary[el.dataset.word || '']; if(v) setSelected({...v, savedAt: Date.now()}) } }}>
-        {id === '637' ? opening.map((p,i) => <p key={i}>{p}</p>) : <div dangerouslySetInnerHTML={{__html: full ? body : body.slice(0, 3200)}}/>}
-      </article>
+      <div className="reader-learning-summary"><div><strong>{work.learning?.vocabularyUnique || 0}</strong><span>N2/N1 語彙</span></div><div><strong>{work.learning?.grammarUnique || 0}</strong><span>N2/N1 文法</span></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></div>
+      <div className="annotation-legend"><span className="legend-n2">N2 語彙</span><span className="legend-n1">N1 語彙</span><span className="legend-grammar">文法</span><small>タップすると意味と用例を表示</small></div>
+      <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph.map((token, tokenIndex) => {
+        const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
+        const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
+        const vocabVisible = vocab && levels[vocab.level]
+        const grammarVisible = grammar && showGrammar && levels[grammar.level]
+        const annotationClasses = [vocabVisible ? `vocab-${vocab.level.toLowerCase()}` : '', grammarVisible ? `grammar-token grammar-${grammar.level.toLowerCase()}` : ''].filter(Boolean)
+        const className = annotationClasses.length ? `learning-token ${annotationClasses.join(' ')}` : ''
+        const content = token.reading ? <ruby>{token.text}<rt>{token.reading}</rt></ruby> : token.text
+        return className ? <button type="button" className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span key={tokenIndex}>{content}</span>
+      })}</p>)}</article>
       <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '学習片に戻る' : '本章全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </main>
-    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)}><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.word}</h2><p>[ {selected.reading} ]</p></div><span>{selected.level}</span></div><p className="meaning">{selected.meaning}</p><p className="usage">文脈では、ある場所で日々の生活を続けるという意味です。</p><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.words.some(w => w.word === selected.word) ? <><Check size={17}/> 追加済み</> : <><RotateCcw size={17}/> 復習に追加</>}</button><button className="icon-button bookmark"><Bookmark size={20}/></button></div></section></div>}
+    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)}><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{selected.entry.meaning}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}<br/><small>{selected.entry.examples[0].en}</small></p>}<div className="appears-in"><span>この表現がある作品</span>{selected.entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title} · {article.count}回</Link>)}</div><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.words.some(w => w.word === (selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern)) ? <><Check size={17}/> 追加済み</> : <><RotateCcw size={17}/> 復習に追加</>}</button><button className="icon-button bookmark"><Bookmark size={20}/></button></div></section></div>}
   </div>
 }
 
+function LearnPage({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
+  const [index, setIndex] = useState<LearningIndex | null>(null)
+  const [tab, setTab] = useState<'vocabulary'|'grammar'>('vocabulary')
+  const [query, setQuery] = useState(''); const [level, setLevel] = useState<'すべて'|'N2'|'N1'>('すべて')
+  const [kana, setKana] = useState('すべて'); const [category, setCategory] = useState('すべて'); const [corpusOnly, setCorpusOnly] = useState(true)
+  useEffect(() => { fetch('/learning/index.json').then(response => response.json()).then(setIndex) }, [])
+  const categories = useMemo(() => Array.from(new Set(index?.grammar.map(entry => entry.category) || [])).sort(), [index])
+  const entries = useMemo(() => {
+    if (!index) return []
+    const normalized = query.trim().toLowerCase()
+    if (tab === 'vocabulary') return index.vocabulary.filter(entry =>
+      (level === 'すべて' || entry.level === level) && (kana === 'すべて' || entry.kanaRow === kana) && (!corpusOnly || entry.articles.length) &&
+      (!normalized || `${entry.term} ${entry.reading} ${entry.meaning}`.toLowerCase().includes(normalized)))
+    return index.grammar.filter(entry =>
+      (level === 'すべて' || entry.level === level) && (category === 'すべて' || entry.category === category) && (!corpusOnly || entry.articles.length) &&
+      (!normalized || `${entry.pattern} ${entry.title} ${entry.meaning} ${entry.formation}`.toLowerCase().includes(normalized)))
+  }, [index, tab, query, level, kana, category, corpusOnly])
+  useEffect(() => { setQuery(''); setLevel('すべて') }, [tab])
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="learn-page">
+    <section className="learn-intro"><div><span className="kicker">N2 · N1 INDEX</span><h1>文章から、ことばを学ぶ。</h1><p>語彙と文法を探し、その表現が実際に使われている青空文庫の作品へ戻れます。</p></div><div className="learn-totals"><strong>{index ? index.vocabulary.length.toLocaleString() : '—'}<small>語彙</small></strong><strong>{index ? index.grammar.length.toLocaleString() : '—'}<small>文法</small></strong></div></section>
+    <section className="learn-workspace">
+      <div className="learn-tabs" role="tablist"><button className={tab === 'vocabulary' ? 'active' : ''} onClick={() => setTab('vocabulary')}>語彙<span>五十音順</span></button><button className={tab === 'grammar' ? 'active' : ''} onClick={() => setTab('grammar')}>文法<span>働き別</span></button></div>
+      <div className="learn-search"><Search size={18}/><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'vocabulary' ? '漢字・読み・意味で検索' : '文型・意味・接続で検索'}/><label><input type="checkbox" checked={corpusOnly} onChange={event => setCorpusOnly(event.target.checked)}/> 収録作品にある項目</label></div>
+      <div className="learn-filter-row"><ListFilter size={16}/><div className="level-switch">{['すべて','N2','N1'].map(item => <button key={item} className={level === item ? 'active' : ''} onClick={() => setLevel(item as typeof level)}>{item}</button>)}</div>{tab === 'vocabulary' ? <div className="kana-filter">{['すべて','あ','か','さ','た','な','は','ま','や','ら','わ','他'].map(item => <button key={item} className={kana === item ? 'active' : ''} onClick={() => setKana(item)}>{item === 'すべて' ? '全' : item}</button>)}</div> : <select value={category} onChange={event => setCategory(event.target.value)}><option>すべて</option>{categories.map(item => <option key={item}>{item}</option>)}</select>}</div>
+      <div className="result-heading"><strong>{entries.length.toLocaleString()}項目</strong><span>JLPT参考分類 · 公式リストではありません</span></div>
+      <div className="learning-list">{entries.slice(0, 220).map(entry => 'term' in entry ? <article className="learning-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.term}</h2><p>{entry.reading}</p></div><p className="entry-meaning">{entry.meaning}</p><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article> : <article className="learning-row grammar-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.pattern}</h2><p>{entry.category}</p></div><div className="entry-meaning"><strong>{entry.meaning}</strong><small>{entry.formation}</small></div><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article>)}</div>
+      {entries.length > 220 && <p className="result-limit">最初の220項目を表示中。検索または分類で絞り込めます。</p>}
+      {index && <p className="dataset-notice">{index.notice}</p>}
+    </section>
+  </main></Layout>
+}
+
 function Review({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
-  const defaults = Object.values(vocabulary).map(v => ({...v, savedAt: 0})); const cards = state.words.length ? state.words : defaults; const [index, setIndex] = useState(0); const [show, setShow] = useState(false); const card = cards[index % cards.length]
+  const cards = state.words.length ? state.words : fallbackCards; const [index, setIndex] = useState(0); const [show, setShow] = useState(false); const card = cards[index % cards.length]
   return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={() => {setIndex(index+1);setShow(false)}}>もう一度</button><button onClick={() => {setIndex(index+1);setShow(false)}}>むずかしい</button><button onClick={() => {setIndex(index+1);setShow(false)}}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></Layout>
 }
 
@@ -156,7 +221,7 @@ function App() {
   useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
 
   const common = { user: auth.user, syncStatus, auth }
-  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
+  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
 }
 
 export default App
