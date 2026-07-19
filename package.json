@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name aozora-reader --branch main",
+    "deploy:worker": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "lucide-react": "^1.25.0",
