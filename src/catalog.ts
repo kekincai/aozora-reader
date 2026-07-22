@@ -46,14 +46,15 @@ export function annotateRuby(text: string, rubies: Ruby[]): AnnotatedToken[] {
 }
 
 export async function loadWorks(query = '') {
+  if (!query.trim()) {
+    const curated = await fetch('/corpus/manifest.json').then(response => response.ok ? response.json() : { works: [] }) as { works: WorkSummary[] }
+    return curated.works
+  }
   const url = new URL('/api/catalog/works', window.location.origin)
-  url.searchParams.set('limit', query ? '50' : '30')
-  if (query.trim()) url.searchParams.set('q', query.trim())
+  url.searchParams.set('limit', '50')
+  url.searchParams.set('q', query.trim())
   const api = await json<{ works: WorkSummary[] }>(await fetch(url))
-  if (query.trim()) return api.works
-  const curated = await fetch('/corpus/manifest.json').then(response => response.ok ? response.json() : { works: [] }).catch(() => ({ works: [] })) as { works: WorkSummary[] }
-  const seen = new Set(curated.works.map(work => work.id))
-  return [...curated.works, ...api.works.filter(work => !seen.has(work.id))]
+  return api.works
 }
 
 export async function loadWork(id: string): Promise<ReaderWork> {
