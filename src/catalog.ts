@@ -17,9 +17,11 @@ export type AnnotatedToken = { text: string; reading?: string; vocabId?: string;
 export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
 
 type Ruby = { startOffset: number; endOffset: number; baseText: string; reading: string }
+type VocabularyOccurrence = { startOffset: number; endOffset: number; vocabId: string }
+type GrammarOccurrence = { startOffset: number; endOffset: number; grammarId: string; ranges: [number, number][] }
 type CatalogWorkResponse = {
   work: WorkSummary
-  paragraphs: { ordinal: number; text: string; rubies: Ruby[] }[]
+  paragraphs: { ordinal: number; text: string; rubies: Ruby[]; vocabulary?: VocabularyOccurrence[]; grammar?: GrammarOccurrence[] }[]
   page: { hasMore: boolean }
 }
 
@@ -45,6 +47,22 @@ export function annotateRuby(text: string, rubies: Ruby[]): AnnotatedToken[] {
   return tokens.length ? tokens : [{ text }]
 }
 
+export function annotateLearning(text: string, rubies: Ruby[], vocabulary: VocabularyOccurrence[] = [], grammar: GrammarOccurrence[] = []): AnnotatedToken[] {
+  const characters = Array.from(text)
+  const boundaries = new Set([0, characters.length])
+  rubies.forEach(item => { boundaries.add(item.startOffset); boundaries.add(item.endOffset) })
+  vocabulary.forEach(item => { boundaries.add(item.startOffset); boundaries.add(item.endOffset) })
+  grammar.flatMap(item => item.ranges || [[item.startOffset, item.endOffset]]).forEach(([start, end]) => { boundaries.add(start); boundaries.add(end) })
+  const points = [...boundaries].filter(point => point >= 0 && point <= characters.length).sort((a, b) => a - b)
+  return points.slice(0, -1).map((start, index) => {
+    const end = points[index + 1]
+    const ruby = rubies.find(item => item.startOffset === start && item.endOffset === end)
+    const vocab = vocabulary.find(item => item.startOffset <= start && item.endOffset >= end)
+    const grammarIds = grammar.filter(item => (item.ranges || [[item.startOffset, item.endOffset]]).some(([rangeStart, rangeEnd]) => rangeStart < end && rangeEnd > start)).map(item => item.grammarId)
+    return { text: characters.slice(start, end).join(''), ...(ruby ? { reading: ruby.reading } : {}), ...(vocab ? { vocabId: vocab.vocabId } : {}), ...(grammarIds.length ? { grammarIds } : {}) }
+  }).filter(token => token.text)
+}
+
 export async function loadWorks(query = '') {
   if (!query.trim()) {
     const curated = await fetch('/corpus/manifest.json').then(response => response.ok ? response.json() : { works: [] }) as { works: WorkSummary[] }
@@ -57,6 +75,24 @@ export async function loadWorks(query = '') {
   return api.works
 }
 
+export type WorkSearch = { query?: string; level?: string; genre?: string; maxCharacters?: number; sort?: 'shortest'|'title'|'newest'; offset?: number; limit?: number }
+
+export async function searchWorks(filters: WorkSearch = {}) {
+  const url = new URL('/api/catalog/works', window.location.origin)
+  if (filters.query) url.searchParams.set('q', filters.query)
+  if (filters.level) url.searchParams.set('level', filters.level)
+  if (filters.genre) url.searchParams.set('genre', filters.genre)
+  if (filters.maxCharacters) url.searchParams.set('maxCharacters', String(filters.maxCharacters))
+  if (filters.sort) url.searchParams.set('sort', filters.sort)
+  url.searchParams.set('offset', String(filters.offset || 0))
+  url.searchParams.set('limit', String(filters.limit || 30))
+  return json<{ works: WorkSummary[]; page: { offset: number; limit: number; hasMore: boolean; nextOffset: number | null } }>(await fetch(url))
+}
+
+export async function loadTodayWork() {
+  return json<{ date: string; work: WorkSummary | null }>(await fetch('/api/catalog/today'))
+}
+
 export async function loadWork(id: string): Promise<ReaderWork> {
   const apiPromise = fetch(`/api/catalog/works/${encodeURIComponent(id)}?limit=220`).then(json<CatalogWorkResponse>)
   const curatedPromise = fetch(`/corpus/works/${encodeURIComponent(id)}.json`).then(response => response.ok ? response.json() as Promise<ReaderWork> : null).catch(() => null)
@@ -66,7 +102,7 @@ export async function loadWork(id: string): Promise<ReaderWork> {
     return {
       ...api.work,
       paragraphs: api.paragraphs.map(paragraph => paragraph.text),
-      annotatedParagraphs: api.paragraphs.map(paragraph => annotateRuby(paragraph.text, paragraph.rubies)),
+      annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
     }
   } catch (error) {
     const curated = await curatedPromise

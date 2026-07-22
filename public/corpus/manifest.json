@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T14:45:40.456Z",
+  "generatedAt": "2026-07-22T14:10:38.655Z",
   "works": [
     {
       "id": "637",
@@ -14,8 +14,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 1,
       "learning": {
-        "vocabularyCount": 175,
-        "vocabularyUnique": 48,
+        "vocabularyCount": 80,
+        "vocabularyUnique": 41,
         "grammarCount": 43,
         "grammarUnique": 20
       }
@@ -33,8 +33,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 3,
       "learning": {
-        "vocabularyCount": 184,
-        "vocabularyUnique": 59,
+        "vocabularyCount": 93,
+        "vocabularyUnique": 49,
         "grammarCount": 29,
         "grammarUnique": 12
       }
@@ -52,8 +52,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 6,
       "learning": {
-        "vocabularyCount": 223,
-        "vocabularyUnique": 54,
+        "vocabularyCount": 91,
+        "vocabularyUnique": 44,
         "grammarCount": 45,
         "grammarUnique": 24
       }
@@ -71,8 +71,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 1,
       "learning": {
-        "vocabularyCount": 255,
-        "vocabularyUnique": 79,
+        "vocabularyCount": 136,
+        "vocabularyUnique": 63,
         "grammarCount": 56,
         "grammarUnique": 25
       }
@@ -90,8 +90,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 3,
       "learning": {
-        "vocabularyCount": 384,
-        "vocabularyUnique": 91,
+        "vocabularyCount": 213,
+        "vocabularyUnique": 81,
         "grammarCount": 73,
         "grammarUnique": 25
       }
@@ -109,8 +109,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 1,
       "learning": {
-        "vocabularyCount": 567,
-        "vocabularyUnique": 187,
+        "vocabularyCount": 359,
+        "vocabularyUnique": 163,
         "grammarCount": 75,
         "grammarUnique": 41
       }
@@ -128,8 +128,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 1,
       "learning": {
-        "vocabularyCount": 185,
-        "vocabularyUnique": 69,
+        "vocabularyCount": 97,
+        "vocabularyUnique": 61,
         "grammarCount": 46,
         "grammarUnique": 22
       }
@@ -147,8 +147,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 10,
       "learning": {
-        "vocabularyCount": 1087,
-        "vocabularyUnique": 307,
+        "vocabularyCount": 568,
+        "vocabularyUnique": 276,
         "grammarCount": 162,
         "grammarUnique": 43
       }
@@ -166,8 +166,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 3,
       "learning": {
-        "vocabularyCount": 395,
-        "vocabularyUnique": 167,
+        "vocabularyCount": 233,
+        "vocabularyUnique": 138,
         "grammarCount": 45,
         "grammarUnique": 25
       }
@@ -185,8 +185,8 @@
       "attribution": "青空文庫（著作権なし）",
       "paragraphCount": 1,
       "learning": {
-        "vocabularyCount": 435,
-        "vocabularyUnique": 155,
+        "vocabularyCount": 246,
+        "vocabularyUnique": 138,
         "grammarCount": 111,
         "grammarUnique": 44
       }

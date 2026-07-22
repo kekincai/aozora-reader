@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { annotateRuby } from './catalog'
+import { annotateLearning, annotateRuby } from './catalog'
 
 describe('catalog reader', () => {
   it('applies PostgreSQL code-point offsets to ruby without losing text', () => {
@@ -13,5 +13,14 @@ describe('catalog reader', () => {
       { text: '棲', reading: 'す' },
       { text: 'む' },
     ])
+  })
+})
+
+describe('database learning annotations', () => {
+  it('combines ruby and safe vocabulary spans without marking nearby kana', () => {
+    const tokens = annotateLearning('狐と暮らす', [{ startOffset: 0, endOffset: 1, baseText: '狐', reading: 'きつね' }], [{ startOffset: 2, endOffset: 5, vocabId: 'v1' }], [])
+    expect(tokens.map(token => token.text).join('')).toBe('狐と暮らす')
+    expect(tokens.find(token => token.text === 'と')?.vocabId).toBeUndefined()
+    expect(tokens.find(token => token.text === '暮らす')?.vocabId).toBe('v1')
   })
 })

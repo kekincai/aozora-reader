@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { DatabaseSync } from 'node:sqlite'
 import kuromoji from 'kuromoji'
 import * as cheerio from 'cheerio'
+import { annotationSafety, canAnnotateToken, hiragana, kanaKey, vocabularyCategory } from './lib/learning-rules.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const corpusRoot = resolve(root, 'public/corpus')
@@ -34,7 +35,6 @@ const categoryRules = [
   ['限定・評価', /limitation|restriction|evaluation|worth|deserve|no more than/i],
 ]
 
-const hiragana = (value = '') => value.replace(/[ァ-ヶ]/g, char => String.fromCharCode(char.charCodeAt(0) - 0x60))
 const clean = (value = '') => value.normalize('NFKC').replace(/[・･]/g, '').trim()
 const kanaRow = (reading) => {
   const first = hiragana(reading)[0] || '他'
@@ -128,6 +128,7 @@ function annotateParagraph(html, tokenizer, vocabIndex, grammarEntries, counters
     const surface = clean(token.surface_form)
     const reading = hiragana(token.reading === '*' ? '' : token.reading)
     let vocab = vocabIndex.byTerm.get(base) || vocabIndex.byTerm.get(surface)
+    if (vocab && !canAnnotateToken(vocab, token)) vocab = undefined
     const grammarIds = grammarRanges.filter(range => range.start < end && range.end > start).map(range => range.id)
     if (vocab) counters.vocabulary.set(vocab.id, (counters.vocabulary.get(vocab.id) || 0) + 1)
     const showReading = /[一-龯々]/.test(token.surface_form) && reading && hiragana(token.surface_form) !== reading
@@ -141,15 +142,26 @@ const [rawN2Vocab, rawN1Vocab, rawN2Grammar, rawN1Grammar, manifest, tokenizer] 
 ])
 const grammarTranslations = await readFile(resolve(dataRoot, 'grammar-zh.json'), 'utf8').then(JSON.parse).catch(() => ({}))
 
-const vocabulary = [...rawN2Vocab.map(item => [item, 'N2']), ...rawN1Vocab.map(item => [item, 'N1'])].map(([item, level], index) => ({
-  id: `v${index + 1}`,
-  term: clean(item.vocabulary_original || item.vocabulary_simplified),
-  reading: hiragana(clean(item.vocabulary_simplified || item.vocabulary_original)),
-  meaning: item.vocabulary_english,
-  level,
-  kanaRow: kanaRow(item.vocabulary_simplified || item.vocabulary_original),
-  source: 'Tanos JLPT reference list via Hanabira',
-}))
+const vocabulary = [...rawN2Vocab.map(item => [item, 'N2']), ...rawN1Vocab.map(item => [item, 'N1'])].map(([item, level], index) => {
+  const term = clean(item.vocabulary_original || item.vocabulary_simplified)
+  const reading = hiragana(clean(item.vocabulary_simplified || item.vocabulary_original))
+  const termToken = tokenizer.tokenize(term)[0]
+  const safety = annotationSafety(term, termToken)
+  return {
+    id: `v${index + 1}`,
+    term,
+    reading,
+    meaning: item.vocabulary_english,
+    meaningLanguage: 'en',
+    level,
+    kanaRow: kanaRow(reading),
+    kanaKey: kanaKey(reading),
+    category: vocabularyCategory(termToken),
+    annotationSafe: safety.safe,
+    annotationNote: safety.reason,
+    source: 'Tanos JLPT reference list via Hanabira',
+  }
+})
 
 const grammar = [...rawN2Grammar.map(item => [item, 'N2']), ...rawN1Grammar.map(item => [item, 'N1'])].map(([item, level], index) => {
   const translation = grammarTranslations[`${level}:${item.title}`]

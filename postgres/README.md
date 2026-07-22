@@ -22,6 +22,10 @@
 - `catalog.ruby_annotations` / `catalog.gaiji_annotations`：注音与外字位置
 - `app.work_profiles`：JLPT、分类、摘要、选读范围和发布状态，和原始资料分开
 - `ops.import_runs`：每次导入的来源提交、状态、数量和错误
+- `learning.vocabulary` / `learning.grammar_patterns`：N2、N1 参考词汇与文法，保留释义语言和来源
+- `learning.paragraph_*_occurrences`：正文中的安全命中位置；短假名和功能词不会自动标注
+- `learning.work_*_stats`：从词汇或文法反查实际出现过的作品
+- `learning.work_analysis`：可续跑的作品分析进度和版本
 
 正文偏移量统一使用 Unicode code point，而不是 UTF-16 字节位置。
 
@@ -42,6 +46,15 @@ npm run db:migrate
 npm run db:import:aozora
 npm run db:verify
 ```
+
+词汇与文法分析是独立的可续跑任务：
+
+```bash
+npm run db:import:learning
+npm run db:verify:learning
+```
+
+Mini PC 上只需在 `G:\git\aozora-reader` 更新代码后双击 `postgres\import-learning-on-minipc.cmd`。它不会重新导入青空文库正文，也不会遍历 G 盘；中断后再次运行会跳过相同分析版本中已经完成的作品。
 
 全量导入可安全重跑。元数据使用 UPSERT；正文只有在文件散列或解析器版本变化时才会重建。调试时可以设置 `AOZORA_METADATA_ONLY=true` 或 `AOZORA_CONTENT_LIMIT=20`。
 

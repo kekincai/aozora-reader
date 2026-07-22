@@ -2,14 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
-import { loadWork, loadWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
+import { loadTodayWork, loadWork, loadWorks, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import './App.css'
 
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
 type ReaderState = { progress: Record<string, number>; words: SavedWord[]; minutes: number }
 type ArticleRef = { id: string; title: string; author: string; count: number }
-type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; level: 'N1'|'N2'; kanaRow: string; articles: ArticleRef[] }
-type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles: ArticleRef[] }
+type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaRow: string; kanaKey?: string; category?: string; annotationSafe?: boolean; articles: ArticleRef[] }
+type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles: ArticleRef[] }
 type LearningIndex = { notice: string; vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
 type SelectedEntry = { kind: 'vocabulary'; entry: VocabularyEntry } | { kind: 'grammar'; entry: GrammarEntry }
 
@@ -50,7 +50,7 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
     <Link className="brand" to="/" aria-label="青空しおり ホーム"><span className="brand-mark">青</span><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
-      <NavLink to="/">読む</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
+      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
       <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
     </nav>
     <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
@@ -70,15 +70,17 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
   const [filter, setFilter] = useState('すべて')
   const [query, setQuery] = useState('')
   const [loadError, setLoadError] = useState('')
+  const [today, setToday] = useState<WorkSummary | null>(null)
   useEffect(() => {
     const timer = window.setTimeout(() => void loadWorks(query).then(next => { setWorks(next); setLoadError('') }).catch(() => setLoadError('Mini PCの作品一覧に接続できません。')), query ? 250 : 0)
     return () => window.clearTimeout(timer)
   }, [query])
+  useEffect(() => { void loadTodayWork().then(result => setToday(result.work)).catch(() => setToday(null)) }, [])
   const visible = works.filter(w => query || filter === 'すべて' || (filter === 'N2核心' ? w.level === 'N2' : filter === 'N2→N1' ? w.level !== 'N2' && w.level !== '未分類' : w.genre.includes(filter)))
-  const featured = works.find(w => w.id === '637')
+  const featured = today || works.find(w => w.id === '637')
   return <Layout user={user} syncStatus={syncStatus} auth={auth}><main>
     <section className="hero-section">
-      <div className="hero-copy"><div className="eyebrow"><Sparkles size={15}/> 今日の一篇</div><h1>手袋を買いに</h1><p className="author">新美 南吉</p><p className="hero-summary">雪の夜、子狐は初めて人間の町へ。<br/>やさしさと怖さが同居する、冬の短篇。</p><div className="meta-line"><span>N2 ウォームアップ</span><span>約8分</span><span>新字新仮名</span></div><Link className="primary-button" to="/read/637">読みはじめる <ChevronRight size={17}/></Link></div>
+      <div className="hero-copy"><div className="eyebrow"><Sparkles size={15}/> 今日の一篇</div><h1>{featured?.title || '手袋を買いに'}</h1><p className="author">{featured?.author || '新美 南吉'}</p><p className="hero-summary">{featured?.summary || '雪の夜、子狐は初めて人間の町へ。やさしさと怖さが同居する、冬の短篇。'}</p><div className="meta-line"><span>{featured?.level || 'N2'} ウォームアップ</span><span>約{featured?.minutes || 8}分</span><span>{featured?.genre || '童話'}</span></div><Link className="primary-button" to={`/read/${featured?.id || '637'}`}>読みはじめる <ChevronRight size={17}/></Link></div>
       <div className="hero-art" aria-hidden="true"><div className="moon"/><div className="branch branch-one"/><div className="branch branch-two"/><span className="snow s1">·</span><span className="snow s2">·</span><span className="snow s3">·</span></div>
       <aside className="today-panel"><div><span className="panel-label">読みかけ</span><strong>蜘蛛の糸</strong><div className="progress"><i style={{width: `${state.progress['92'] || 0}%`}}/></div><small>{state.progress['92'] || 0}%</small></div><div className="rule"/><div><span className="panel-label">今日の復習</span><strong>{Math.max(18, state.words.length)}語・3文法</strong><Link to="/review">はじめる <ChevronRight size={14}/></Link></div></aside>
     </section>
@@ -89,6 +91,41 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
       {loadError && <p className="catalog-error">{loadError}</p>}
     </section>
     {featured && <section className="source-note"><Library size={20}/><div><strong>作品の出典を明記しています</strong><p>公開作品だけを収録し、原文と青空文庫へのリンクを各作品に表示します。</p></div></section>}
+  </main></Layout>
+}
+
+function ArticlesPage({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
+  const [query, setQuery] = useState('')
+  const [level, setLevel] = useState('')
+  const [genre, setGenre] = useState('')
+  const [length, setLength] = useState('20000')
+  const [sort, setSort] = useState<'shortest'|'title'|'newest'>('shortest')
+  const [works, setWorks] = useState<WorkSummary[]>([])
+  const [offset, setOffset] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setLoading(true)
+      void searchWorks({ query, level, genre, maxCharacters: Number(length), sort, offset, limit: 30 })
+        .then(result => { setWorks(result.works); setHasMore(result.page.hasMore); setMessage('') })
+        .catch(() => setMessage('作品数据库に接続できません。しばらくしてからもう一度お試しください。'))
+        .finally(() => setLoading(false))
+    }, query ? 250 : 0)
+    return () => window.clearTimeout(timer)
+  }, [query, level, genre, length, sort, offset])
+  const changeFilter = (action: () => void) => { setOffset(0); action() }
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="articles-page">
+    <section className="catalog-intro"><span className="kicker">AOZORA CATALOG</span><h1>文章を探す</h1><p>青空文庫の公開作品を、題名・作者・長さ・学習レベルから探せます。</p></section>
+    <section className="article-search-panel">
+      <label className="article-query"><Search size={19}/><input value={query} onChange={event => changeFilter(() => setQuery(event.target.value))} placeholder="題名・作者・読みで検索"/></label>
+      <div className="article-filters"><label><span>難易度</span><select value={level} onChange={event => changeFilter(() => setLevel(event.target.value))}><option value="">すべて</option><option>N2</option><option value="N2+">N2→N1</option><option>N1</option></select></label><label><span>種類</span><select value={genre} onChange={event => changeFilter(() => setGenre(event.target.value))}><option value="">すべて</option><option>短篇</option><option>童話</option><option>随筆</option><option>幻想</option></select></label><label><span>長さ</span><select value={length} onChange={event => changeFilter(() => setLength(event.target.value))}><option value="5000">約10分以内</option><option value="10000">約20分以内</option><option value="20000">短め</option><option value="2000000">制限なし</option></select></label><label><span>並び順</span><select value={sort} onChange={event => changeFilter(() => setSort(event.target.value as typeof sort))}><option value="shortest">短い順</option><option value="title">五十音順</option><option value="newest">更新順</option></select></label></div>
+      <div className="catalog-result-meta"><strong>{offset + 1}–{offset + works.length}</strong><span>全17,831作品のデータベースから検索</span></div>
+      <div className="work-list">{works.map((work, index) => <Link className="work-row" to={`/read/${work.id}`} key={work.id}><span className="work-index">{String(offset + index + 1).padStart(2,'0')}</span><div className="work-main"><div className="work-tags"><span>{work.level}</span><span>{work.genre}</span></div><h3>{work.title}</h3><p>{work.author}</p></div><p className="work-summary">{work.summary || `${work.characterCount?.toLocaleString() || '—'}字の青空文庫作品`}</p><span className="work-time"><Clock3 size={15}/>{work.minutes}分</span><ChevronRight className="row-arrow" size={19}/></Link>)}</div>
+      {loading && <div className="loading">作品を探しています…</div>}{message && <p className="catalog-error">{message}</p>}
+      <div className="catalog-pagination"><button disabled={!offset} onClick={() => setOffset(Math.max(0, offset - 30))}>前へ</button><span>{Math.floor(offset / 30) + 1}ページ</span><button disabled={!hasMore} onClick={() => setOffset(offset + 30)}>次へ</button></div>
+    </section>
   </main></Layout>
 }
 
@@ -150,31 +187,55 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
 
 function LearnPage({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const [index, setIndex] = useState<LearningIndex | null>(null)
+  const [databaseEntries, setDatabaseEntries] = useState<Array<VocabularyEntry | GrammarEntry> | null>(null)
   const [tab, setTab] = useState<'vocabulary'|'grammar'>('vocabulary')
   const [query, setQuery] = useState(''); const [level, setLevel] = useState<'すべて'|'N2'|'N1'>('すべて')
-  const [kana, setKana] = useState('すべて'); const [category, setCategory] = useState('すべて'); const [corpusOnly, setCorpusOnly] = useState(true)
+  const [kana, setKana] = useState('すべて'); const [category, setCategory] = useState('すべて'); const [vocabCategory, setVocabCategory] = useState('すべて'); const [corpusOnly, setCorpusOnly] = useState(true)
   useEffect(() => { fetch('/learning/index.json').then(response => response.json()).then(setIndex) }, [])
+  useEffect(() => {
+    setDatabaseEntries(null)
+    const timer = window.setTimeout(() => {
+      const url = new URL(`/api/learning/${tab}`, window.location.origin)
+      if (query.trim()) url.searchParams.set('q', query.trim())
+      if (level !== 'すべて') url.searchParams.set('level', level)
+      if (tab === 'vocabulary' && kana !== 'すべて') url.searchParams.set('kana', kana)
+      const selectedCategory = tab === 'vocabulary' ? vocabCategory : category
+      if (selectedCategory !== 'すべて') url.searchParams.set('category', selectedCategory)
+      url.searchParams.set('corpusOnly', String(corpusOnly))
+      url.searchParams.set('limit', '220')
+      void fetch(url).then(response => {
+        if (!response.ok) throw new Error('learning database unavailable')
+        return response.json() as Promise<{ entries: Array<VocabularyEntry | GrammarEntry> }>
+      }).then(result => setDatabaseEntries(result.entries)).catch(() => setDatabaseEntries(null))
+    }, query ? 220 : 0)
+    return () => window.clearTimeout(timer)
+  }, [tab, query, level, kana, category, vocabCategory, corpusOnly])
   const categories = useMemo(() => Array.from(new Set(index?.grammar.map(entry => entry.category) || [])).sort(), [index])
+  const vocabularyCategories = useMemo(() => Array.from(new Set(index?.vocabulary.map(entry => entry.category).filter(Boolean) || [])).sort(), [index])
+  const gojuon = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん']
   const entries = useMemo(() => {
     if (!index) return []
     const normalized = query.trim().toLowerCase()
     if (tab === 'vocabulary') return index.vocabulary.filter(entry =>
-      (level === 'すべて' || entry.level === level) && (kana === 'すべて' || entry.kanaRow === kana) && (!corpusOnly || entry.articles.length) &&
+      (level === 'すべて' || entry.level === level) && (kana === 'すべて' || (entry.kanaKey || entry.kanaRow) === kana) && (vocabCategory === 'すべて' || entry.category === vocabCategory) && (!corpusOnly || entry.articles.length) &&
       (!normalized || `${entry.term} ${entry.reading} ${entry.meaning}`.toLowerCase().includes(normalized)))
     return index.grammar.filter(entry =>
       (level === 'すべて' || entry.level === level) && (category === 'すべて' || entry.category === category) && (!corpusOnly || entry.articles.length) &&
       (!normalized || `${entry.pattern} ${entry.title} ${entry.meaning} ${entry.formation}`.toLowerCase().includes(normalized)))
-  }, [index, tab, query, level, kana, category, corpusOnly])
+  }, [index, tab, query, level, kana, category, vocabCategory, corpusOnly])
+  const visibleEntries = databaseEntries ?? entries
   useEffect(() => { setQuery(''); setLevel('すべて') }, [tab])
   return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="learn-page">
-    <section className="learn-intro"><div><span className="kicker">N2 · N1 INDEX</span><h1>文章から、ことばを学ぶ。</h1><p>語彙と文法を探し、その表現が実際に使われている青空文庫の作品へ戻れます。</p></div><div className="learn-totals"><strong>{index ? index.vocabulary.length.toLocaleString() : '—'}<small>語彙</small></strong><strong>{index ? index.grammar.length.toLocaleString() : '—'}<small>文法</small></strong></div></section>
+    <section className="learn-intro"><div><span className="kicker">N2 · N1 STUDY MAP</span><h1>文章から、ことばを学ぶ。</h1><p>N2を固めてからN1へ。品詞と文法の働きごとに進み、実際の作品で使い方を確かめます。</p></div><div className="learn-totals"><strong>{index ? index.vocabulary.length.toLocaleString() : '—'}<small>語彙</small></strong><strong>{index ? index.grammar.length.toLocaleString() : '—'}<small>文法</small></strong></div></section>
     <section className="learn-workspace">
+      <div className="study-path"><div><span>01</span><strong>N2 核心語彙</strong><small>名词・动词・形容词</small></div><div><span>02</span><strong>N2 文法機能</strong><small>条件・原因・对比</small></div><div><span>03</span><strong>N1への橋渡し</strong><small>书面语・抽象表达</small></div><div><span>04</span><strong>作品で定着</strong><small>检索・阅读・复习</small></div></div>
       <div className="learn-tabs" role="tablist"><button className={tab === 'vocabulary' ? 'active' : ''} onClick={() => setTab('vocabulary')}>語彙<span>五十音順</span></button><button className={tab === 'grammar' ? 'active' : ''} onClick={() => setTab('grammar')}>文法<span>働き別</span></button></div>
       <div className="learn-search"><Search size={18}/><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'vocabulary' ? '漢字・読み・意味で検索' : '文型・意味・接続で検索'}/><label><input type="checkbox" checked={corpusOnly} onChange={event => setCorpusOnly(event.target.checked)}/> 収録作品にある項目</label></div>
-      <div className="learn-filter-row"><ListFilter size={16}/><div className="level-switch">{['すべて','N2','N1'].map(item => <button key={item} className={level === item ? 'active' : ''} onClick={() => setLevel(item as typeof level)}>{item}</button>)}</div>{tab === 'vocabulary' ? <div className="kana-filter">{['すべて','あ','か','さ','た','な','は','ま','や','ら','わ','他'].map(item => <button key={item} className={kana === item ? 'active' : ''} onClick={() => setKana(item)}>{item === 'すべて' ? '全' : item}</button>)}</div> : <select value={category} onChange={event => setCategory(event.target.value)}><option>すべて</option>{categories.map(item => <option key={item}>{item}</option>)}</select>}</div>
-      <div className="result-heading"><strong>{entries.length.toLocaleString()}項目</strong><span>JLPT参考分類 · 公式リストではありません</span></div>
-      <div className="learning-list">{entries.slice(0, 220).map(entry => 'term' in entry ? <article className="learning-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.term}</h2><p>{entry.reading}</p></div><p className="entry-meaning">{entry.meaning}</p><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article> : <article className="learning-row grammar-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.pattern}</h2><p>{entry.category}</p></div><div className="entry-meaning"><strong>{entry.meaning}</strong><small>{entry.formation}</small></div><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article>)}</div>
-      {entries.length > 220 && <p className="result-limit">最初の220項目を表示中。検索または分類で絞り込めます。</p>}
+      <div className="learn-filter-row"><ListFilter size={16}/><div className="level-switch">{['すべて','N2','N1'].map(item => <button key={item} className={level === item ? 'active' : ''} onClick={() => setLevel(item as typeof level)}>{item}</button>)}</div>{tab === 'vocabulary' ? <select value={vocabCategory} onChange={event => setVocabCategory(event.target.value)}><option>すべて</option>{vocabularyCategories.map(item => <option key={item}>{item}</option>)}</select> : <select value={category} onChange={event => setCategory(event.target.value)}><option>すべて</option>{categories.map(item => <option key={item}>{item}</option>)}</select>}</div>
+      {tab === 'vocabulary' && <div className="gojuon-filter" aria-label="五十音索引"><button className={kana === 'すべて' ? 'active' : ''} onClick={() => setKana('すべて')}>全</button>{gojuon.map(item => <button key={item} className={kana === item ? 'active' : ''} onClick={() => setKana(item)}>{item}</button>)}<button className={kana === '他' ? 'active' : ''} onClick={() => setKana('他')}>他</button></div>}
+      <div className="result-heading"><strong>{visibleEntries.length.toLocaleString()}項目{databaseEntries && ' · DB'}</strong><span>JLPT参考分類 · 公式リストではありません</span></div>
+      <div className="learning-list">{visibleEntries.slice(0, 220).map(entry => 'term' in entry ? <article className="learning-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.term}</h2><p>{entry.reading} · {entry.category || '其他'}</p></div><p className="entry-meaning">{entry.meaning}<small>{entry.meaningLanguage === 'en' && '英文原释义 · 中文化予定'}</small></p><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article> : <article className="learning-row grammar-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.pattern}</h2><p>{entry.category}</p></div><div className="entry-meaning"><strong>{entry.meaning}</strong><small>{entry.formation}</small>{entry.meaningLanguage === 'en' && <small>英文原释义 · 中文化予定</small>}</div><div className="article-links">{entry.articles.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article>)}</div>
+      {!databaseEntries && entries.length > 220 && <p className="result-limit">最初の220項目を表示中。検索または分類で絞り込めます。</p>}
       {index && <p className="dataset-notice">{index.notice}</p>}
     </section>
   </main></Layout>
@@ -223,7 +284,7 @@ function App() {
   useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
 
   const common = { user: auth.user, syncStatus, auth }
-  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
+  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
 }
 
 export default App

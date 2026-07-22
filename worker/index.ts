@@ -5,7 +5,7 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
-import { catalogHealth, getWork, listWorks, type CatalogEnv } from './catalog'
+import { catalogHealth, getWork, listGrammar, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
 
 interface Env extends CatalogEnv {
   DB: D1Database
@@ -216,6 +216,9 @@ async function handle(request: Request, env: Env) {
   if (request.method === 'GET' && url.pathname === '/api/health') return json({ ok: true })
   if (request.method === 'GET' && url.pathname === '/api/catalog/health') return catalogHealth(env)
   if (request.method === 'GET' && url.pathname === '/api/catalog/works') return listWorks(request, env)
+  if (request.method === 'GET' && url.pathname === '/api/catalog/today') return todayWork(request, env)
+  if (request.method === 'GET' && url.pathname === '/api/learning/vocabulary') return listVocabulary(request, env)
+  if (request.method === 'GET' && url.pathname === '/api/learning/grammar') return listGrammar(request, env)
   const workMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/catalog\/works\/(\d+)$/) : null
   if (workMatch) return getWork(request, env, workMatch[1])
   if (request.method === 'GET' && url.pathname === '/api/me') {
