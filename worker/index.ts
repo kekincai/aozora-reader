@@ -5,8 +5,9 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
+import { catalogHealth, getWork, listWorks, type CatalogEnv } from './catalog'
 
-interface Env {
+interface Env extends CatalogEnv {
   DB: D1Database
 }
 
@@ -213,6 +214,10 @@ async function handle(request: Request, env: Env) {
   const url = new URL(request.url)
   if (!checkSameOrigin(request)) return error('不正な送信元です。', 403)
   if (request.method === 'GET' && url.pathname === '/api/health') return json({ ok: true })
+  if (request.method === 'GET' && url.pathname === '/api/catalog/health') return catalogHealth(env)
+  if (request.method === 'GET' && url.pathname === '/api/catalog/works') return listWorks(request, env)
+  const workMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/catalog\/works\/(\d+)$/) : null
+  if (workMatch) return getWork(request, env, workMatch[1])
   if (request.method === 'GET' && url.pathname === '/api/me') {
     const user = await currentUser(request, env)
     return json({ user: user ? { id: user.id, displayName: user.display_name } : null })

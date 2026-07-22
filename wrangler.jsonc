@@ -3,6 +3,7 @@
   "name": "aozora-reader",
   "compatibility_date": "2026-07-19",
   "main": "./worker/index.ts",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
@@ -13,6 +14,12 @@
       "database_name": "aozora-reader-db",
       "database_id": "30285486-b380-401d-8b93-0c26ad8dc1d4",
       "migrations_dir": "migrations"
+    }
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "4a45f627276c44738792e203d4ff14b7"
     }
   ]
 }

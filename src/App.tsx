@@ -2,12 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
+import { loadWork, loadWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import './App.css'
 
-type LearningStats = { vocabularyCount: number; vocabularyUnique: number; grammarCount: number; grammarUnique: number }
-type WorkSummary = { id: string; title: string; author: string; level: string; genre: string; minutes: number; summary: string; sourceUrl: string; attribution: string; paragraphCount: number; learning?: LearningStats }
-type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
-type Work = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
 type ReaderState = { progress: Record<string, number>; words: SavedWord[]; minutes: number }
 type ArticleRef = { id: string; title: string; author: string; count: number }
@@ -71,8 +68,13 @@ function Layout({ children, user, syncStatus, auth }: { children: React.ReactNod
 function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const [works, setWorks] = useState<WorkSummary[]>([])
   const [filter, setFilter] = useState('すべて')
-  useEffect(() => { fetch('/corpus/manifest.json').then(r => r.json()).then(d => setWorks(d.works)) }, [])
-  const visible = works.filter(w => filter === 'すべて' || (filter === 'N2核心' ? w.level === 'N2' : filter === 'N2→N1' ? w.level !== 'N2' : w.genre.includes(filter)))
+  const [query, setQuery] = useState('')
+  const [loadError, setLoadError] = useState('')
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadWorks(query).then(next => { setWorks(next); setLoadError('') }).catch(() => setLoadError('Mini PCの作品一覧に接続できません。')), query ? 250 : 0)
+    return () => window.clearTimeout(timer)
+  }, [query])
+  const visible = works.filter(w => query || filter === 'すべて' || (filter === 'N2核心' ? w.level === 'N2' : filter === 'N2→N1' ? w.level !== 'N2' && w.level !== '未分類' : w.genre.includes(filter)))
   const featured = works.find(w => w.id === '637')
   return <Layout user={user} syncStatus={syncStatus} auth={auth}><main>
     <section className="hero-section">
@@ -81,9 +83,10 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
       <aside className="today-panel"><div><span className="panel-label">読みかけ</span><strong>蜘蛛の糸</strong><div className="progress"><i style={{width: `${state.progress['92'] || 0}%`}}/></div><small>{state.progress['92'] || 0}%</small></div><div className="rule"/><div><span className="panel-label">今日の復習</span><strong>{Math.max(18, state.words.length)}語・3文法</strong><Link to="/review">はじめる <ChevronRight size={14}/></Link></div></aside>
     </section>
     <section className="library-section"><div className="section-heading"><div><span className="kicker">DISCOVER</span><h2>今の自分に合う一篇</h2></div><p>N2を中心に、少し背伸びするN1まで。<br/>短く読める順に選びました。</p></div>
-      <div className="filters">{['すべて','N2核心','N2→N1','短篇','童話','随筆'].map(item => <button key={item} className={filter === item ? 'active' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>
+      <div className="catalog-tools"><div className="filters">{['すべて','N2核心','N2→N1','短篇','童話','随筆'].map(item => <button key={item} className={filter === item ? 'active' : ''} onClick={() => { setFilter(item); setQuery('') }}>{item}</button>)}</div><label className="catalog-search"><Search size={15}/><input value={query} onChange={event => setQuery(event.target.value)} placeholder="全17,831作品から題名・作者を検索"/></label></div>
       <div className="work-list">{visible.map((w, index) => <Link className="work-row" to={`/read/${w.id}`} key={w.id}><span className="work-index">{String(index + 1).padStart(2,'0')}</span><div className="work-main"><div className="work-tags"><span>{w.level}</span><span>{w.genre}</span></div><h3>{w.title}</h3><p>{w.author}</p></div><p className="work-summary">{w.summary}{w.learning && <small>{w.learning.vocabularyUnique}語彙 · {w.learning.grammarUnique}文法</small>}</p><span className="work-time"><Clock3 size={15}/>{w.minutes}分</span><ChevronRight className="row-arrow" size={19}/></Link>)}</div>
       {!works.length && <div className="loading">作品を選んでいます…</div>}
+      {loadError && <p className="catalog-error">{loadError}</p>}
     </section>
     {featured && <section className="source-note"><Library size={20}/><div><strong>作品の出典を明記しています</strong><p>公開作品だけを収録し、原文と青空文庫へのリンクを各作品に表示します。</p></div></section>}
   </main></Layout>
@@ -94,7 +97,7 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
   const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(false); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
-  useEffect(() => { Promise.all([fetch(`/corpus/works/${id}.json`).then(r => r.json()), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }); window.scrollTo(0,0) }, [id])
+  useEffect(() => { Promise.all([loadWork(id), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }); window.scrollTo(0,0) }, [id])
   useEffect(() => { if (work) setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})) }, [work, id, setState])
   const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
   const grammarMap = useMemo(() => new Map(learning?.grammar.map(entry => [entry.id, entry]) || []), [learning])
@@ -137,7 +140,7 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
         const content = token.reading ? <ruby>{token.text}<rt>{token.reading}</rt></ruby> : token.text
         return className ? <button type="button" className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span key={tokenIndex}>{content}</span>
       })}</p>)}</article>
-      <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '学習片に戻る' : '本章全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
+      <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>
     <Link className="mobile-learning-bar" to="/learn"><span>この章：{work.learning?.vocabularyUnique || 0}語彙・{work.learning?.grammarUnique || 0}文法</span><strong>一覧 <ChevronRight size={14}/></strong></Link>

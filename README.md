@@ -16,6 +16,16 @@
 
 登録しなくても利用でき、記録はブラウザ内に保存されます。任意でPasskeyを作るとCloudflare D1へ同期され、対応する別端末でも続きを読めます。生体情報そのものは端末の外へ送信されません。GoogleログインはOAuthクライアント取得後に追加できる構成です。
 
+## 実行構成
+
+- Cloudflare Worker: 公開 API、Passkey 認証、同一生成元制御
+- Hyperdrive + Workers VPC + Cloudflare Tunnel: Mini PC 上の PostgreSQL への非公開接続
+- PostgreSQL `aozora_reader`: 17,831作品のメタデータと構造化本文
+- Cloudflare D1: ユーザー、Passkey、セッション、学習記録
+- Cloudflare Static Assets: React の画面と精編済み N2・N1 学習データ
+
+PostgreSQL の 5432 番ポートはインターネットへ公開しません。作品 API は `/api/catalog/works`、作品本文は `/api/catalog/works/:id`、接続確認は `/api/catalog/health` です。
+
 ## 開発
 
 ```bash
