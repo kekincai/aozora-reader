@@ -6,6 +6,7 @@ import {
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
 import { catalogHealth, getWork, listGrammar, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
+import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
 
 interface Env extends CatalogEnv {
   DB: D1Database
@@ -113,6 +114,7 @@ async function cleanup(env: Env) {
   await env.DB.batch([
     env.DB.prepare('DELETE FROM auth_challenges WHERE expires_at <= ?').bind(now),
     env.DB.prepare('DELETE FROM sessions WHERE expires_at <= ?').bind(now),
+    env.DB.prepare('DELETE FROM analytics_events WHERE created_at <= ?').bind(now - 180 * 86_400_000),
   ])
 }
 
@@ -156,7 +158,7 @@ async function registerVerify(request: Request, env: Env) {
     env.DB.prepare('DELETE FROM auth_challenges WHERE id = ?').bind(challenge.id),
   ])
   const sessionHeader = await issueSession(request, env, challenge.user_id)
-  return json({ user: { id: challenge.user_id, displayName: challenge.display_name } }, 201, { 'set-cookie': sessionHeader })
+  return json({ user: { id: challenge.user_id, displayName: challenge.display_name, isAdmin: false } }, 201, { 'set-cookie': sessionHeader })
 }
 
 async function loginOptions(request: Request, env: Env) {
@@ -190,7 +192,7 @@ async function loginVerify(request: Request, env: Env) {
     env.DB.prepare('DELETE FROM auth_challenges WHERE id = ?').bind(challenge.id),
   ])
   const user = await env.DB.prepare('SELECT id, display_name FROM users WHERE id = ?').bind(passkey.user_id).first<UserRow>()
-  return json({ user: { id: user?.id, displayName: user?.display_name } }, 200, { 'set-cookie': sessionHeader })
+  return json({ user: { id: user?.id, displayName: user?.display_name, isAdmin: await isAdmin(env, user?.id) } }, 200, { 'set-cookie': sessionHeader })
 }
 
 async function stateRoute(request: Request, env: Env) {
@@ -223,7 +225,7 @@ async function handle(request: Request, env: Env) {
   if (workMatch) return getWork(request, env, workMatch[1])
   if (request.method === 'GET' && url.pathname === '/api/me') {
     const user = await currentUser(request, env)
-    return json({ user: user ? { id: user.id, displayName: user.display_name } : null })
+    return json({ user: user ? { id: user.id, displayName: user.display_name, isAdmin: await isAdmin(env, user.id) } : null })
   }
   if (request.method === 'POST' && url.pathname === '/api/auth/register/options') return registerOptions(request, env)
   if (request.method === 'POST' && url.pathname === '/api/auth/register/verify') return registerVerify(request, env)
@@ -235,6 +237,11 @@ async function handle(request: Request, env: Env) {
     return json({ ok: true }, 200, { 'set-cookie': sessionCookie(request, '', 0) })
   }
   if (url.pathname === '/api/state' && (request.method === 'GET' || request.method === 'PUT')) return stateRoute(request, env)
+  if (request.method === 'POST' && url.pathname === '/api/analytics') return recordAnalytics(request, env, await currentUser(request, env))
+  if (request.method === 'POST' && url.pathname === '/api/feedback') return submitFeedback(request, env, await currentUser(request, env))
+  if (request.method === 'GET' && url.pathname === '/api/admin/overview') return adminOverview(env, await currentUser(request, env))
+  const feedbackMatch = request.method === 'PATCH' ? url.pathname.match(/^\/api\/admin\/feedback\/([0-9a-f-]+)$/) : null
+  if (feedbackMatch) return updateFeedback(request, env, await currentUser(request, env), feedbackMatch[1])
   return error('API が見つかりません。', 404)
 }
 
@@ -245,7 +252,7 @@ export default {
       return await handle(request, env)
     } catch (cause) {
       console.error(cause)
-      if (cause instanceof ApiError) return error(cause.message, cause.status)
+      if (cause instanceof ApiError || cause instanceof OperationsError) return error(cause.message, cause.status)
       return error('処理を完了できませんでした。', 500)
     }
   },

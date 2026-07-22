@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
 import { loadTodayWork, loadWork, loadWorks, readingForToken, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
+import { AdminPage } from './AdminPage'
+import { FeedbackPage } from './FeedbackPage'
+import { trackEvent } from './operations'
 import './App.css'
 
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
@@ -30,6 +33,7 @@ function useReaderState() {
 type AuthState = ReturnType<typeof useAuth>
 
 function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -50,7 +54,7 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
     <Link className="brand" to="/" aria-label="青空しおり ホーム"><img className="brand-mark" src="/brand-mark.svg" alt=""/><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
-      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
+      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink><NavLink to={{pathname:'/feedback',search:`?from=${encodeURIComponent(location.pathname)}`}}>ご意見</NavLink>{user?.isAdmin && <NavLink to="/admin">管理</NavLink>}
       <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
     </nav>
     <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
@@ -63,6 +67,17 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
 
 function Layout({ children, user, syncStatus, auth }: { children: React.ReactNode; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   return <div className="app-shell"><Header user={user} syncStatus={syncStatus} auth={auth}/>{children}<footer><span>青空文庫の公開作品を、学びやすい読書体験へ。</span><a href="https://www.aozora.gr.jp/" target="_blank" rel="noreferrer">青空文庫について</a></footer></div>
+}
+
+function AnalyticsTracker() {
+  const location = useLocation()
+  const lastPath = useRef('')
+  useEffect(() => {
+    if (lastPath.current === location.pathname) return
+    lastPath.current = location.pathname
+    trackEvent('page_view', { path: location.pathname })
+  }, [location.pathname])
+  return null
 }
 
 function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
@@ -109,7 +124,7 @@ function ArticlesPage({ user, syncStatus, auth }: { user: CloudUser | null; sync
     const timer = window.setTimeout(() => {
       setLoading(true)
       void searchWorks({ query, level, genre, maxCharacters: Number(length), sort, offset, limit: 30 })
-        .then(result => { setWorks(result.works); setHasMore(result.page.hasMore); setMessage('') })
+        .then(result => { setWorks(result.works); setHasMore(result.page.hasMore); setMessage(''); if (query.trim()) trackEvent('search', { value: result.works.length, path: '/articles' }) })
         .catch(() => setMessage('作品数据库に接続できません。しばらくしてからもう一度お試しください。'))
         .finally(() => setLoading(false))
     }, query ? 250 : 0)
@@ -135,7 +150,8 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(false); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
   useEffect(() => { Promise.all([loadWork(id), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }); window.scrollTo(0,0) }, [id])
-  useEffect(() => { if (work) setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})) }, [work, id, setState])
+  const trackedWork = useRef('')
+  useEffect(() => { if (work) { setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})); if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
   const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
   const grammarMap = useMemo(() => new Map(learning?.grammar.map(entry => [entry.id, entry]) || []), [learning])
   const saveWord = () => {
@@ -160,8 +176,8 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   const openToken = (token: AnnotatedToken) => {
     const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
     const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
-    if (vocab && levels[vocab.level]) setSelected({kind:'vocabulary', entry:vocab})
-    else if (grammar && showGrammar && levels[grammar.level]) setSelected({kind:'grammar', entry:grammar})
+    if (vocab && levels[vocab.level]) { setSelected({kind:'vocabulary', entry:vocab}); trackEvent('learning_open', { label:'vocabulary' }) }
+    else if (grammar && showGrammar && levels[grammar.level]) { setSelected({kind:'grammar', entry:grammar}); trackEvent('learning_open', { label:'grammar' }) }
   }
   return <div className={`reader-page ${furigana ? '' : 'hide-ruby'}`}>
     <header className="reader-header"><button className="reader-back" onClick={() => navigate(-1)}><ArrowLeft size={19}/><span>戻る</span></button><div className="reader-title"><strong>{work.title}</strong><span>{state.progress[id] || 18}%</span></div><div className="reader-progress"><i style={{width: `${state.progress[id] || 18}%`}}/></div><button className="icon-button"><Menu size={19}/></button></header>
@@ -244,7 +260,8 @@ function LearnPage({ user, syncStatus, auth }: { user: CloudUser | null; syncSta
 
 function Review({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const cards = state.words.length ? state.words : fallbackCards; const [index, setIndex] = useState(0); const [show, setShow] = useState(false); const card = cards[index % cards.length]
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={() => {setIndex(index+1);setShow(false)}}>もう一度</button><button onClick={() => {setIndex(index+1);setShow(false)}}>むずかしい</button><button onClick={() => {setIndex(index+1);setShow(false)}}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></Layout>
+  const rate = () => { setIndex(index + 1); setShow(false); trackEvent('review_complete', { value:index + 1, path:'/review' }) }
+  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={rate}>もう一度</button><button onClick={rate}>むずかしい</button><button onClick={rate}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></Layout>
 }
 
 function RecordPage({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
@@ -285,7 +302,7 @@ function App() {
   useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
 
   const common = { user: auth.user, syncStatus, auth }
-  return <BrowserRouter><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/></Routes></BrowserRouter>
+  return <BrowserRouter><AnalyticsTracker/><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/><Route path="/feedback" element={<Layout {...common}><FeedbackPage/></Layout>}/><Route path="/admin" element={<Layout {...common}><AdminPage user={auth.user}/></Layout>}/></Routes></BrowserRouter>
 }
 
 export default App

@@ -2,7 +2,7 @@ import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser'
 import { useCallback, useEffect, useState } from 'react'
 
-export type CloudUser = { id: string; displayName: string }
+export type CloudUser = { id: string; displayName: string; isAdmin?: boolean }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
