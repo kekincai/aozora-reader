@@ -2,15 +2,21 @@ $LogPath = Join-Path $PSScriptRoot ("import-" + (Get-Date -Format 'yyyyMMdd-HHmm
 $ErrorActionPreference = 'Stop'
 $ExitCode = 0
 $PasswordPointer = [IntPtr]::Zero
+Set-Content -Path $LogPath -Value ("Aozora import started " + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')) -Encoding UTF8
+
+function Write-ImportMessage {
+  param([string]$Message, [ConsoleColor]$Color = [ConsoleColor]::Gray)
+  Write-Host $Message -ForegroundColor $Color
+  Add-Content -Path $LogPath -Value $Message -Encoding UTF8
+}
 
 function Invoke-ImportStep {
   param([string]$Label, [string[]]$Arguments)
-  Write-Host "`n== $Label ==" -ForegroundColor Cyan
+  Write-ImportMessage "`n== $Label ==" Cyan
   & npm.cmd @Arguments 2>&1 | Tee-Object -FilePath $LogPath -Append
   if ($LASTEXITCODE -ne 0) { throw "$Label failed with exit code $LASTEXITCODE" }
 }
 
-Start-Transcript -Path $LogPath -Append | Out-Null
 try {
   $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
   $AozoraRoot = (Resolve-Path (Join-Path $RepoRoot '..\aozorabunko')).Path
@@ -21,10 +27,10 @@ try {
     }
   }
 
-  Write-Host "Repository: $RepoRoot"
-  Write-Host "Aozora source: $AozoraRoot"
-  Write-Host "Node: $(& node.exe --version)"
-  Write-Host "npm: $(& npm.cmd --version)"
+  Write-ImportMessage "Repository: $RepoRoot"
+  Write-ImportMessage "Aozora source: $AozoraRoot"
+  Write-ImportMessage "Node: $(& node.exe --version)"
+  Write-ImportMessage "npm: $(& npm.cmd --version)"
 
   $SecurePassword = Read-Host 'PostgreSQL workers_vpc password' -AsSecureString
   $PasswordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)
@@ -48,15 +54,14 @@ try {
   Invoke-ImportStep 'Import complete Aozora catalog and text' @('run', 'db:import:aozora')
   Invoke-ImportStep 'Compact PostgreSQL storage' @('run', 'db:compact')
   Invoke-ImportStep 'Verify imported database' @('run', 'db:verify')
-  Write-Host "`nImport completed. Log: $LogPath" -ForegroundColor Green
+  Write-ImportMessage "`nImport completed. Log: $LogPath" Green
 } catch {
   $ExitCode = 1
-  Write-Host "`nIMPORT FAILED: $($_.Exception.Message)" -ForegroundColor Red
-  Write-Host "Log: $LogPath" -ForegroundColor Yellow
+  Write-ImportMessage "`nIMPORT FAILED: $($_.Exception.Message)" Red
+  Write-ImportMessage "Log: $LogPath" Yellow
 } finally {
   if ($PasswordPointer -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($PasswordPointer) }
   Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue
-  Stop-Transcript | Out-Null
 }
 
 exit $ExitCode
