@@ -7,9 +7,11 @@ import {
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
 import { catalogHealth, getWork, listGrammar, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
 import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
+import { handleSeoRequest } from './seo'
 
 interface Env extends CatalogEnv {
   DB: D1Database
+  ASSETS: Fetcher
 }
 
 type UserRow = { id: string; display_name: string }
@@ -246,10 +248,14 @@ async function handle(request: Request, env: Env) {
 }
 
 export default {
-  async fetch(request, env): Promise<Response> {
+  async fetch(request, env, ctx): Promise<Response> {
     try {
-      if (Math.random() < 0.02) await cleanup(env)
-      return await handle(request, env)
+      const pathname = new URL(request.url).pathname
+      if (pathname.startsWith('/api/')) {
+        if (Math.random() < 0.02) await cleanup(env)
+        return await handle(request, env)
+      }
+      return await handleSeoRequest(request, env, ctx)
     } catch (cause) {
       console.error(cause)
       if (cause instanceof ApiError || cause instanceof OperationsError) return error(cause.message, cause.status)

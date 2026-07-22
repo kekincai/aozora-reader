@@ -24,6 +24,69 @@ async function queryCatalog<T>(env: CatalogEnv, run: (client: Client) => Promise
   finally { await client.end() }
 }
 
+export type SeoWork = {
+  id: string
+  title: string
+  author: string
+  level: string
+  genre: string
+  summary: string
+  sourceUrl: string
+  characterCount: number
+  updatedOn: string | null
+  excerpt: string
+}
+
+export async function getSeoWork(env: CatalogEnv, workID: string): Promise<SeoWork | null> {
+  if (!/^\d{1,6}$/.test(workID)) return null
+  const result = await queryCatalog(env, client => client.query(`
+    select
+      w.aozora_work_id::text as id,
+      w.title,
+      coalesce(
+        string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者'),
+        string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal),
+        '作者不詳'
+      ) as author,
+      coalesce(pr.jlpt_level, '未分類') as level,
+      coalesce(pr.genres[1], '文学') as genre,
+      coalesce(pr.summary_ja, '') as summary,
+      w.card_url as "sourceUrl",
+      w.character_count::integer as "characterCount",
+      w.metadata_updated_on::text as "updatedOn",
+      coalesce(preview.excerpt, '') as excerpt
+    from catalog.works w
+    left join catalog.work_people wp on wp.work_id = w.id
+    left join catalog.people p on p.id = wp.person_id
+    left join app.work_profiles pr on pr.work_id = w.id
+    left join lateral (
+      select string_agg(sample.plain_text, E'\n' order by sample.ordinal) as excerpt
+      from (
+        select para.ordinal, para.plain_text
+        from catalog.paragraphs para
+        where para.work_id = w.id and length(trim(para.plain_text)) > 0
+        order by para.ordinal
+        limit 8
+      ) sample
+    ) preview on true
+    where w.aozora_work_id = $1 and w.copyright_status = 'なし' and w.has_content
+    group by w.id, pr.work_id, preview.excerpt
+  `, [Number(workID)]))
+  if (!result.rowCount) return null
+  const work = result.rows[0] as SeoWork
+  return { ...work, excerpt: work.excerpt.slice(0, 700) }
+}
+
+export async function listSitemapWorks(env: CatalogEnv) {
+  const result = await queryCatalog(env, client => client.query(`
+    select aozora_work_id::text as id, metadata_updated_on::text as "updatedOn"
+    from catalog.works
+    where copyright_status = 'なし' and has_content
+    order by aozora_work_id
+  `))
+  return result.rows as Array<{ id: string; updatedOn: string | null }>
+}
+
 function numberParam(value: string | null, fallback: number, minimum: number, maximum: number) {
   const parsed = Number.parseInt(value || '', 10)
   return Number.isFinite(parsed) ? Math.min(maximum, Math.max(minimum, parsed)) : fallback
