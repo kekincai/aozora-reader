@@ -30,5 +30,14 @@ describe('complete Aozora PostgreSQL importer', () => {
     expect(repositoryPathFromUrl('https://www.aozora.gr.jp/cards/000001/files/1.html')).toBe('cards/000001/files/1.html')
     expect(repositoryPathFromUrl('https://example.com/other/file.html')).toBeNull()
   })
-})
 
+  it('treats the catalog revision sentinel as unknown', () => {
+    const records = metadataRowsToRecords([{
+      作品ID: '058324',
+      作品名: 'revision sentinel',
+      'テキストファイルURL': 'https://www.aozora.gr.jp/cards/001867/files/58324_ruby_66924.zip',
+      'テキストファイル修正回数': '-1',
+    }])
+    expect(records.files[0].revision_count).toBeNull()
+  })
+})

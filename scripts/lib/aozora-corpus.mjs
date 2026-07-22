@@ -14,6 +14,10 @@ const textDecoderLabels = new Map([
 
 const emptyToNull = value => value === undefined || value === null || String(value).trim() === '' ? null : String(value).trim()
 const integerOrNull = value => emptyToNull(value) === null ? null : Number.parseInt(value, 10)
+const nonNegativeIntegerOrNull = value => {
+  const number = integerOrNull(value)
+  return Number.isInteger(number) && number >= 0 ? number : null
+}
 const dateOrNull = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') ? value : null
 const codePointLength = value => Array.from(value || '').length
 
@@ -72,7 +76,8 @@ function fileFromRow(row, workId, format) {
     source_updated_on: dateOrNull(row[`${prefix}最終更新日`]),
     declared_encoding: emptyToNull(row[`${prefix}符号化方式`]),
     declared_charset: emptyToNull(row[`${prefix}文字集合`]),
-    revision_count: integerOrNull(row[`${prefix}修正回数`]),
+    // The official catalog uses -1 as an unknown/not-applicable sentinel.
+    revision_count: nonNegativeIntegerOrNull(row[`${prefix}修正回数`]),
   }
 }
 
