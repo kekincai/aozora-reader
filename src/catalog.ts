@@ -16,6 +16,15 @@ export type WorkSummary = {
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
 export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
 
+type VocabularyReading = { term: string; reading: string }
+const KANJI = /[\p{Script=Han}々〆ヵヶ]/u
+
+export function readingForToken(token: AnnotatedToken, vocabulary?: VocabularyReading) {
+  if (token.reading) return token.reading
+  if (!vocabulary || token.text !== vocabulary.term || !KANJI.test(token.text)) return undefined
+  return vocabulary.reading && vocabulary.reading !== token.text ? vocabulary.reading : undefined
+}
+
 type Ruby = { startOffset: number; endOffset: number; baseText: string; reading: string }
 type VocabularyOccurrence = { startOffset: number; endOffset: number; vocabId: string }
 type GrammarOccurrence = { startOffset: number; endOffset: number; grammarId: string; ranges: [number, number][] }

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
-import { loadTodayWork, loadWork, loadWorks, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
+import { loadTodayWork, loadWork, loadWorks, readingForToken, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import './App.css'
 
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
@@ -174,7 +174,8 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
         const grammarVisible = grammar && showGrammar && levels[grammar.level]
         const annotationClasses = [vocabVisible ? `vocab-${vocab.level.toLowerCase()}` : '', grammarVisible ? `grammar-token grammar-${grammar.level.toLowerCase()}` : ''].filter(Boolean)
         const className = annotationClasses.length ? `learning-token ${annotationClasses.join(' ')}` : ''
-        const content = token.reading ? <ruby>{token.text}<rt>{token.reading}</rt></ruby> : token.text
+        const reading = readingForToken(token, vocab)
+        const content = reading ? <ruby>{token.text}<rt>{reading}</rt></ruby> : token.text
         return className ? <button type="button" className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span key={tokenIndex}>{content}</span>
       })}</p>)}</article>
       <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
