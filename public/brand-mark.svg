@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">青空しおり 茶花紋</title>
+  <desc id="desc">本のページを思わせる五枚の花弁を円で囲んだ茶花の紋章</desc>
+  <g fill="none" stroke="#315e50" stroke-width="2.25">
+    <circle cx="32" cy="32" r="29"/>
+    <circle cx="32" cy="32" r="25.5" opacity=".28"/>
+  </g>
+  <g fill="#315e50" stroke="#f6f4ee" stroke-width="1.35" stroke-linejoin="round">
+    <path d="M32 32C25.5 29.4 21.9 23.3 23.2 17.4 24.4 12.2 28.8 9.2 32 8.2c3.2 1 7.6 4 8.8 9.2 1.3 5.9-2.3 12-8.8 14.6Z"/>
+    <path d="M32 32C25.5 29.4 21.9 23.3 23.2 17.4 24.4 12.2 28.8 9.2 32 8.2c3.2 1 7.6 4 8.8 9.2 1.3 5.9-2.3 12-8.8 14.6Z" transform="rotate(72 32 32)"/>
+    <path d="M32 32C25.5 29.4 21.9 23.3 23.2 17.4 24.4 12.2 28.8 9.2 32 8.2c3.2 1 7.6 4 8.8 9.2 1.3 5.9-2.3 12-8.8 14.6Z" transform="rotate(144 32 32)"/>
+    <path d="M32 32C25.5 29.4 21.9 23.3 23.2 17.4 24.4 12.2 28.8 9.2 32 8.2c3.2 1 7.6 4 8.8 9.2 1.3 5.9-2.3 12-8.8 14.6Z" transform="rotate(216 32 32)"/>
+    <path d="M32 32C25.5 29.4 21.9 23.3 23.2 17.4 24.4 12.2 28.8 9.2 32 8.2c3.2 1 7.6 4 8.8 9.2 1.3 5.9-2.3 12-8.8 14.6Z" transform="rotate(288 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="6.2" fill="#c7684b" stroke="#f6f4ee" stroke-width="1.4"/>
+  <path d="M29.5 29.2h5v6.7L32 34.2l-2.5 1.7Z" fill="#f6f4ee"/>
+</svg>

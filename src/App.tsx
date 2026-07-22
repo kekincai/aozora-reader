@@ -47,7 +47,7 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
     finally { setWorking(false) }
   }
   return <header className="site-header">
-    <Link className="brand" to="/" aria-label="青空しおり ホーム"><span className="brand-mark">青</span><span>青空しおり</span></Link>
+    <Link className="brand" to="/" aria-label="青空しおり ホーム"><img className="brand-mark" src="/brand-mark.svg" alt=""/><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
       <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink>
