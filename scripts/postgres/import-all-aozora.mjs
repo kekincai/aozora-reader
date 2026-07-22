@@ -12,6 +12,8 @@ const metadataBatchSize = Number(process.env.AOZORA_METADATA_BATCH || 500)
 const contentBatchSize = Number(process.env.AOZORA_CONTENT_BATCH || 20)
 const contentLimit = Number(process.env.AOZORA_CONTENT_LIMIT || 0)
 const metadataOnly = process.env.AOZORA_METADATA_ONLY === 'true'
+const gitSafeDirectory = sourceRoot.replaceAll('\\', '/')
+const gitArgs = (...args) => ['-c', `safe.directory=${gitSafeDirectory}`, '-C', sourceRoot, ...args]
 
 const chunks = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, (index + 1) * size))
 
@@ -31,7 +33,7 @@ async function upsertJson(client, { table, fields, rows, conflict, update = [], 
 
 class GitBatchReader {
   constructor(root) {
-    this.child = spawn('git', ['-C', root, 'cat-file', '--batch'], { stdio: ['pipe', 'pipe', 'pipe'] })
+    this.child = spawn('git', ['-c', `safe.directory=${root.replaceAll('\\', '/')}`, '-C', root, 'cat-file', '--batch'], { stdio: ['pipe', 'pipe', 'pipe'] })
     this.iterator = this.child.stdout[Symbol.asyncIterator]()
     this.buffer = Buffer.alloc(0)
     this.stderr = ''
@@ -275,7 +277,7 @@ const client = createClient(database)
 let importRunId
 await client.connect()
 try {
-  const sourceCommit = execFileSync('git', ['-C', sourceRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+  const sourceCommit = execFileSync('git', gitArgs('rev-parse', 'HEAD'), { encoding: 'utf8' }).trim()
   const run = await client.query(`insert into ops.import_runs(source_name, source_root, source_commit, parser_version) values ('aozorabunko', $1, $2, $3) returning id`, [sourceRoot, sourceCommit, PARSER_VERSION])
   importRunId = run.rows[0].id
   const archive = new AdmZip(metadataZip)
