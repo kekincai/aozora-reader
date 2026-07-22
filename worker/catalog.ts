@@ -11,6 +11,12 @@ const publicHeaders = {
 
 const response = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: publicHeaders })
 
+export function dailyIndex(date: string, count: number) {
+  if (count <= 0) return -1
+  const dayNumber = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000)
+  return ((dayNumber % count) + count) % count
+}
+
 async function queryCatalog<T>(env: CatalogEnv, run: (client: Client) => Promise<T>) {
   const client = new Client({ connectionString: env.HYPERDRIVE.connectionString })
   await client.connect()
@@ -94,9 +100,11 @@ export async function todayWork(request: Request, env: CatalogEnv) {
     from catalog.works w join app.work_profiles pr on pr.work_id=w.id
     left join catalog.work_people wp on wp.work_id=w.id left join catalog.people p on p.id=wp.person_id
     where pr.is_published and pr.is_curated and w.copyright_status='なし' and w.has_content
-    group by w.id,pr.work_id order by md5(w.aozora_work_id::text || $1) limit 1
-  `, [date]))
-  return response({ date, work: result.rows[0] || null }, 200)
+    group by w.id,pr.work_id order by w.aozora_work_id
+  `))
+  const index = dailyIndex(date, result.rows.length)
+  const work = index >= 0 ? result.rows[index] : null
+  return response({ date, work }, 200)
 }
 
 export async function listVocabulary(request: Request, env: CatalogEnv) {
