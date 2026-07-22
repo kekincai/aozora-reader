@@ -90,7 +90,8 @@ export async function searchWorks(filters: WorkSearch = {}) {
 }
 
 export async function loadTodayWork() {
-  return json<{ date: string; work: WorkSummary | null }>(await fetch('/api/catalog/today'))
+  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date())
+  return json<{ date: string; work: WorkSummary | null }>(await fetch(`/api/catalog/today?date=${date}&rotation=v2`))
 }
 
 export async function loadWork(id: string): Promise<ReaderWork> {
