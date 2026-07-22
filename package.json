@@ -11,6 +11,7 @@
     "db:create": "node scripts/postgres/create-database.mjs",
     "db:migrate": "node scripts/postgres/migrate.mjs",
     "db:import:aozora": "node scripts/postgres/import-all-aozora.mjs",
+    "db:compact": "node scripts/postgres/compact.mjs",
     "db:verify": "node scripts/postgres/verify.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",

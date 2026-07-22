@@ -45,6 +45,8 @@ npm run db:verify
 
 全量导入可安全重跑。元数据使用 UPSERT；正文只有在文件散列或解析器版本变化时才会重建。调试时可以设置 `AOZORA_METADATA_ONLY=true` 或 `AOZORA_CONTENT_LIMIT=20`。
 
+导入结束后会执行一次存储压缩。原始 HTML 始终以青空文库 Git 仓库为准；数据库只保留作品级检索文本、段落 HTML、段落纯文本以及 ruby/外字结构，避免重复保存同一正文。
+
 ## 通过 Cloudflare VPC / Hyperdrive 管理
 
 局域网端口未开放时，可以使用 `postgres/remote/admin-worker.mjs` 作为临时、带随机令牌的远程开发桥。它只应通过 `wrangler dev --remote` 临时启动，用完立即停止，不应部署成长期公开管理接口。
@@ -57,4 +59,3 @@ export PGHTTP_TOKEN='one-time-random-token'
 ```
 
 正式网站只应绑定新数据库对应的 Hyperdrive，不能暴露这个管理桥。
-

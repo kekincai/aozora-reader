@@ -6,7 +6,7 @@ $PasswordPointer = [IntPtr]::Zero
 function Invoke-ImportStep {
   param([string]$Label, [string[]]$Arguments)
   Write-Host "`n== $Label ==" -ForegroundColor Cyan
-  & npm.cmd @Arguments
+  & npm.cmd @Arguments 2>&1 | Tee-Object -FilePath $LogPath -Append
   if ($LASTEXITCODE -ne 0) { throw "$Label failed with exit code $LASTEXITCODE" }
 }
 
@@ -38,13 +38,15 @@ try {
   $env:PGSSLMINVERSION = 'TLSv1.3'
   $env:PGSSLREJECTUNAUTHORIZED = 'false'
   $env:AOZORA_ROOT = $AozoraRoot
-  $env:AOZORA_CONTENT_BATCH = '20'
+  $env:AOZORA_CONTENT_BATCH = '50'
+  $env:AOZORA_CONTENT_BATCH_BYTES = '8388608'
   $env:PGPOOL_MAX = '2'
 
   Set-Location $RepoRoot
   Invoke-ImportStep 'Install importer dependencies' @('install', '--no-audit', '--no-fund')
   Invoke-ImportStep 'Apply PostgreSQL migrations' @('run', 'db:migrate')
   Invoke-ImportStep 'Import complete Aozora catalog and text' @('run', 'db:import:aozora')
+  Invoke-ImportStep 'Compact PostgreSQL storage' @('run', 'db:compact')
   Invoke-ImportStep 'Verify imported database' @('run', 'db:verify')
   Write-Host "`nImport completed. Log: $LogPath" -ForegroundColor Green
 } catch {

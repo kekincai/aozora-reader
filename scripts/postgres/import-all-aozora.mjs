@@ -10,6 +10,7 @@ const metadataZip = resolve(sourceRoot, 'index_pages/list_person_all_extended_ut
 const database = process.env.PGDATABASE || 'aozora_reader'
 const metadataBatchSize = Number(process.env.AOZORA_METADATA_BATCH || 500)
 const contentBatchSize = Number(process.env.AOZORA_CONTENT_BATCH || 20)
+const contentBatchBytes = Number(process.env.AOZORA_CONTENT_BATCH_BYTES || 8 * 1024 * 1024)
 const contentLimit = Number(process.env.AOZORA_CONTENT_LIMIT || 0)
 const metadataOnly = process.env.AOZORA_METADATA_ONLY === 'true'
 const gitSafeDirectory = sourceRoot.replaceAll('\\', '/')
@@ -148,7 +149,7 @@ async function flushContentBatch(client, batch) {
   try {
     await client.query('delete from catalog.chapters where work_id = any($1::bigint[])', [workIds])
     const contentFields = [
-      ['work_id', 'bigint'], ['source_file_id', 'bigint'], ['source_encoding', 'text'], ['raw_html', 'text'], ['body_html', 'text'], ['plain_text', 'text'],
+      ['work_id', 'bigint'], ['source_file_id', 'bigint'], ['source_encoding', 'text'], ['plain_text', 'text'],
       ['content_sha256', 'text'], ['parser_version', 'text'], ['character_count', 'integer'], ['paragraph_count', 'integer'], ['chapter_count', 'integer'], ['ruby_count', 'integer'], ['gaiji_count', 'integer'],
     ]
     await upsertJson(client, {
@@ -160,8 +161,11 @@ async function flushContentBatch(client, batch) {
     const chapterRows = batch.flatMap(item => item.chapters)
     const insertedChapters = await upsertJson(client, {
       table: 'catalog.chapters',
-      fields: [['work_id', 'bigint'], ['ordinal', 'integer'], ['heading_level', 'smallint'], ['title', 'text'], ['title_reading', 'text'], ['heading_html', 'text'], ['plain_text', 'text'], ['character_count', 'integer']],
-      rows: chapterRows, conflict: '(work_id, ordinal)', update: ['heading_level', 'title', 'title_reading', 'heading_html', 'plain_text', 'character_count'], returning: 'id, work_id, ordinal',
+      fields: [['work_id', 'bigint'], ['ordinal', 'integer'], ['heading_level', 'smallint'], ['title', 'text'], ['title_reading', 'text'], ['heading_html', 'text'], ['character_count', 'integer']],
+      rows: chapterRows.map(chapter => ({
+        work_id: chapter.work_id, ordinal: chapter.ordinal, heading_level: chapter.heading_level, title: chapter.title,
+        title_reading: chapter.title_reading, heading_html: chapter.heading_html, character_count: chapter.character_count,
+      })), conflict: '(work_id, ordinal)', update: ['heading_level', 'title', 'title_reading', 'heading_html', 'character_count'], returning: 'id, work_id, ordinal',
     })
     const chapterIds = new Map(insertedChapters.map(row => [`${row.work_id}:${row.ordinal}`, row.id]))
     const paragraphRows = batch.flatMap(item => item.paragraphs.map(row => ({ ...row, chapter_id: chapterIds.get(`${row.work_id}:${row.chapter_ordinal}`) })))
@@ -215,8 +219,10 @@ async function flushContentBatch(client, batch) {
 async function importContents(client) {
   const sourceFiles = await client.query(`
     select sf.id, sf.work_id, sf.repository_path, sf.declared_encoding, sf.content_sha256,
+           w.aozora_work_id, w.title,
            wc.parser_version as existing_parser_version
     from catalog.source_files sf
+    join catalog.works w on w.id = sf.work_id
     left join catalog.work_contents wc on wc.work_id = sf.work_id
     where sf.format = 'html' and sf.repository_path is not null
     order by sf.work_id
@@ -225,6 +231,8 @@ async function importContents(client) {
   const reader = new GitBatchReader(sourceRoot)
   const stats = { considered: sourceFiles.rowCount, imported: 0, unchanged: 0, missing: 0, failed: 0, paragraphs: 0, rubies: 0, gaiji: 0 }
   let batch = []
+  let batchBytes = 0
+  const startedAt = Date.now()
   try {
     for (const [index, file] of sourceFiles.rows.entries()) {
       try {
@@ -237,11 +245,12 @@ async function importContents(client) {
         const contentHash = sha256(object.bytes)
         if (file.content_sha256 === contentHash && file.existing_parser_version === PARSER_VERSION) { stats.unchanged += 1; continue }
         const decoded = decodeAozoraBytes(object.bytes, file.declared_encoding || '')
+        if (object.bytes.length >= 1024 * 1024) console.log(`Large work ${file.aozora_work_id} ${file.title}: ${(object.bytes.length / 1024 / 1024).toFixed(1)} MiB`)
         const parsed = extractAozoraDocument(decoded.source)
         const workId = file.work_id
         batch.push({
           content: {
-            work_id: workId, source_file_id: file.id, source_encoding: decoded.encoding, raw_html: decoded.source, body_html: parsed.bodyHtml, plain_text: parsed.plainText,
+            work_id: workId, source_file_id: file.id, source_encoding: decoded.encoding, plain_text: parsed.plainText,
             content_sha256: contentHash, parser_version: PARSER_VERSION, character_count: parsed.characterCount, paragraph_count: parsed.paragraphs.length,
             chapter_count: parsed.chapters.length, ruby_count: parsed.rubies.length, gaiji_count: parsed.gaiji.length,
           },
@@ -251,20 +260,25 @@ async function importContents(client) {
           gaiji: parsed.gaiji.map(item => ({ work_id: workId, ...item })),
           file: { id: file.id, repository_object_id: object.objectId, content_sha256: contentHash, byte_size: object.bytes.length },
         })
+        batchBytes += object.bytes.length
         stats.paragraphs += parsed.paragraphs.length
         stats.rubies += parsed.rubies.length
         stats.gaiji += parsed.gaiji.length
-        if (batch.length >= contentBatchSize) {
+        if (batch.length >= contentBatchSize || batchBytes >= contentBatchBytes) {
           await flushContentBatch(client, batch)
           stats.imported += batch.length
           batch = []
+          batchBytes = 0
         }
       } catch (error) {
         if (batch.length >= contentBatchSize) throw error
         stats.failed += 1
         await client.query('update catalog.source_files set is_available = true, parse_error = $2, checked_at = now() where id = $1', [file.id, String(error.message || error).slice(0, 2000)])
       }
-      if ((index + 1) % 250 === 0) console.log(`Content progress ${index + 1}/${sourceFiles.rowCount}; imported ${stats.imported}, failed ${stats.failed}`)
+      if ((index + 1) % 25 === 0) {
+        const minutes = ((Date.now() - startedAt) / 60_000).toFixed(1)
+        console.log(`Content progress ${index + 1}/${sourceFiles.rowCount}; imported ${stats.imported}, unchanged ${stats.unchanged}, failed ${stats.failed}; ${minutes} min`)
+      }
     }
     if (batch.length) { await flushContentBatch(client, batch); stats.imported += batch.length }
   } finally {
