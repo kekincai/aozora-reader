@@ -1,5 +1,9 @@
 $LogPath = Join-Path $PSScriptRoot ("import-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.log')
 $ErrorActionPreference = 'Stop'
+$Utf8 = New-Object System.Text.UTF8Encoding($false)
+[Console]::InputEncoding = $Utf8
+[Console]::OutputEncoding = $Utf8
+$OutputEncoding = $Utf8
 $ExitCode = 0
 $PasswordPointer = [IntPtr]::Zero
 Set-Content -Path $LogPath -Value ("Aozora import started " + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')) -Encoding UTF8
