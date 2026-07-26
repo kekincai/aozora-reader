@@ -25,6 +25,7 @@ const relatedWorks = [
 ]
 
 export function TopicsIndexPage() {
+  useEffect(() => { document.title = '特集一覧 — 青空しおり' }, [])
   return <main className="topics-index" lang="zh-CN">
     <section className="topics-index-hero"><p>特集 · TOKUSHŪ</p><h1>从一个问题出发，<br/>读懂日语的细部</h1><span>「特集」是日语中用于杂志、网站和书店专题策划的自然说法。这里先展示全部特集，再进入具体文章。</span></section>
     <section className="topics-index-list">
@@ -50,6 +51,7 @@ export function GivingReceivingTopicPage() {
   const [examples, setExamples] = useState<TopicExample[]>([])
   const [searching, setSearching] = useState(true)
   const [searchError, setSearchError] = useState('')
+  useEffect(() => { document.title = '授受動詞を原文から学ぶ — 青空しおり' }, [])
   useEffect(() => {
     let active = true
     const timer = window.setTimeout(() => {
