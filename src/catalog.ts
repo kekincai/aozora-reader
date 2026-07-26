@@ -15,6 +15,7 @@ export type WorkSummary = {
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
 export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
+export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string }
 
 type VocabularyReading = { term: string; reading: string }
 const KANJI = /[\p{Script=Han}々〆ヵヶ]/u
@@ -101,6 +102,15 @@ export async function searchWorks(filters: WorkSearch = {}) {
 export async function loadTodayWork() {
   const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date())
   return json<{ date: string; work: WorkSummary | null }>(await fetch(`/api/catalog/today?date=${date}&rotation=v2`))
+}
+
+export async function searchTopicExamples(form = 'all', query = '') {
+  const url = new URL('/api/catalog/topic-examples', window.location.origin)
+  url.searchParams.set('topic', 'giving-receiving')
+  url.searchParams.set('form', form)
+  if (query.trim()) url.searchParams.set('q', query.trim())
+  url.searchParams.set('limit', '24')
+  return json<{ examples: TopicExample[]; total: number }>(await fetch(url))
 }
 
 export async function loadWork(id: string): Promise<ReaderWork> {

@@ -5,7 +5,7 @@ import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUs
 import { loadTodayWork, loadWork, loadWorks, readingForToken, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import { AdminPage } from './AdminPage'
 import { FeedbackPage } from './FeedbackPage'
-import { TopicsPage } from './TopicsPage'
+import { GivingReceivingTopicPage, TopicsIndexPage } from './TopicsPage'
 import { trackEvent } from './operations'
 import './App.css'
 
@@ -55,7 +55,7 @@ function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus
     <Link className="brand" to="/" aria-label="青空しおり ホーム"><img className="brand-mark" src="/brand-mark.svg" alt=""/><span>青空しおり</span></Link>
     <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
     <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
-      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/topics">专题</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink><NavLink to={{pathname:'/feedback',search:`?from=${encodeURIComponent(location.pathname)}`}}>ご意見</NavLink>{user?.isAdmin && <NavLink to="/admin">管理</NavLink>}
+      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/topics">特集</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink><NavLink to={{pathname:'/feedback',search:`?from=${encodeURIComponent(location.pathname)}`}}>ご意見</NavLink>{user?.isAdmin && <NavLink to="/admin">管理</NavLink>}
       <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
     </nav>
     <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
@@ -303,7 +303,7 @@ function App() {
   useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
 
   const common = { user: auth.user, syncStatus, auth }
-  return <BrowserRouter><AnalyticsTracker/><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/topics" element={<Layout {...common}><TopicsPage/></Layout>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/><Route path="/feedback" element={<Layout {...common}><FeedbackPage/></Layout>}/><Route path="/admin" element={<Layout {...common}><AdminPage user={auth.user}/></Layout>}/></Routes></BrowserRouter>
+  return <BrowserRouter><AnalyticsTracker/><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/topics" element={<Layout {...common}><TopicsIndexPage/></Layout>}/><Route path="/topics/giving-receiving" element={<Layout {...common}><GivingReceivingTopicPage/></Layout>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/><Route path="/feedback" element={<Layout {...common}><FeedbackPage/></Layout>}/><Route path="/admin" element={<Layout {...common}><AdminPage user={auth.user}/></Layout>}/></Routes></BrowserRouter>
 }
 
 export default App

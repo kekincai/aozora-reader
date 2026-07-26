@@ -150,6 +150,54 @@ export async function listWorks(request: Request, env: CatalogEnv) {
   return response({ works: result.rows.slice(0, limit), page: { offset, limit, hasMore, nextOffset: hasMore ? offset + limit : null } })
 }
 
+export async function listTopicExamples(request: Request, env: CatalogEnv) {
+  const url = new URL(request.url)
+  const topic = url.searchParams.get('topic') === 'giving-receiving' ? 'giving-receiving' : ''
+  const allowedForms = new Set(['all', 'kureru', 'morau', 'ageru', 'causative'])
+  const requestedForm = url.searchParams.get('form') || 'all'
+  const form = allowedForms.has(requestedForm) ? requestedForm : 'all'
+  const query = (url.searchParams.get('q') || '').trim().replace(/[%_]/g, '').slice(0, 30)
+  const limit = numberParam(url.searchParams.get('limit'), 24, 1, 50)
+  if (!topic) return response({ error: '特集を確認できません。' }, 400)
+  return queryCatalog(env, async client => {
+    try {
+      const result = await client.query(`
+        with matches as (
+          select distinct on (te.paragraph_id)
+            te.paragraph_id, te.form_key, p.work_id, p.ordinal, p.plain_text
+          from catalog.topic_examples te
+          join catalog.paragraphs p on p.id = te.paragraph_id
+          where te.topic_key = $1
+            and ($2 = 'all' or te.form_key = $2)
+            and ($3 = '' or p.plain_text like '%' || $3 || '%')
+          order by te.paragraph_id,
+            case te.form_key when 'causative' then 1 when 'kureru' then 2 when 'morau' then 3 else 4 end
+        ), ranked as (
+          select matches.*, row_number() over(partition by work_id order by paragraph_id desc) as work_rank
+          from matches
+        )
+        select w.aozora_work_id::text as id, w.title,
+          coalesce(authors.author, '作者不詳') as author,
+          m.ordinal::integer, m.plain_text as text, m.form_key as form
+        from ranked m
+        join catalog.works w on w.id = m.work_id
+        left join lateral (
+          select string_agg(concat_ws(' ', pe.family_name, pe.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者') as author
+          from catalog.work_people wp join catalog.people pe on pe.id = wp.person_id
+          where wp.work_id = w.id
+        ) authors on true
+        where w.copyright_status = 'なし' and m.work_rank <= 2
+        order by m.paragraph_id desc
+        limit $4
+      `, [topic, form, query, limit])
+      return response({ examples: result.rows, total: result.rowCount })
+    } catch (cause) {
+      if (cause instanceof Error && cause.message.includes('topic_examples')) return response({ error: '用例索引正在准备中。' }, 503)
+      throw cause
+    }
+  })
+}
+
 export async function todayWork(request: Request, env: CatalogEnv) {
   const requested = new URL(request.url).searchParams.get('date') || ''
   const date = /^\d{4}-\d{2}-\d{2}$/.test(requested) ? requested : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date())

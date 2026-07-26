@@ -2,7 +2,7 @@ import { getSeoWork, listSitemapWorks, type CatalogEnv, type SeoWork } from './c
 
 const SITE_NAME = '青空しおり'
 const DEFAULT_DESCRIPTION = '青空文庫の公開作品を読みながら、N2・N1の語彙と文法を学べる日本語読書サイト。'
-const INDEXABLE_STATIC_PATHS = new Set(['/', '/articles', '/learn', '/topics'])
+const INDEXABLE_STATIC_PATHS = new Set(['/', '/articles', '/learn', '/topics', '/topics/giving-receiving'])
 
 type PageSeo = {
   title: string
@@ -29,7 +29,8 @@ function staticSeo(url: URL): PageSeo {
     '/': ['青空しおり — 読みながら学ぶ日本語', DEFAULT_DESCRIPTION, 'WebSite'],
     '/articles': ['作品を探す — 青空しおり', '青空文庫の公開作品を、題名・作者・JLPTレベル・長さから探せます。', 'CollectionPage'],
     '/learn': ['語彙と文法を学ぶ — 青空しおり', 'N2・N1の語彙と文法から、その表現が登場する青空文庫の作品を探して学べます。', 'LearningResource'],
-    '/topics': ['授受動詞を原文から学ぶ — 青空しおり', 'あげる・くれる・もらうの視点と恩恵の方向を、青空文庫の実例と中国語解説で学ぶ专题。', 'LearningResource'],
+    '/topics': ['特集一覧 — 青空しおり', '日本語の表現を一つの問いから深く学び、青空文庫の原文で確かめる特集一覧です。', 'CollectionPage'],
+    '/topics/giving-receiving': ['授受動詞を原文から学ぶ — 青空しおり', 'あげる・くれる・もらう、使役との組み合わせ、第三者の伝聞を青空文庫の実例と中国語解説で学ぶ特集。', 'LearningResource'],
     '/review': ['復習 — 青空しおり', '保存した語彙と文法を復習するページです。', 'WebPage'],
     '/record': ['読書記録 — 青空しおり', '自分の読書と学習の記録を確認するページです。', 'WebPage'],
     '/feedback': ['ご意見 — 青空しおり', '青空しおりへのご意見や不具合を送るページです。', 'WebPage'],
@@ -39,7 +40,7 @@ function staticSeo(url: URL): PageSeo {
   const title = page?.[0] || `${SITE_NAME} — ページが見つかりません`
   const description = page?.[1] || DEFAULT_DESCRIPTION
   const schemaType = page?.[2] || 'WebPage'
-  const preview = url.pathname === '/topics' ? '<main><article><h1>授受動詞 — 谁的立场，看见了这份恩惠</h1><p>あげる・くれる・もらう的区别，不只是“给”和“收”，更是说话者选择站在谁的一边。</p><h2>青空文庫の原文から学ぶ</h2><p>『坊っちゃん』『ごん狐』『檸檬』『注文の多い料理店』的真实用例，帮助读者理解授受表达的视点、恩惠方向与敬语选择。</p></article></main>' : undefined
+  const preview = url.pathname === '/topics' ? '<main><h1>特集一覧</h1><article><h2><a href="/topics/giving-receiving">授受動詞 — 谁的立场，看见了这份恩惠</a></h2><p>从视点、使役、转述与青空文库原文理解授受表达。</p></article></main>' : url.pathname === '/topics/giving-receiving' ? '<main><article><h1>授受動詞 — 谁的立场，看见了这份恩惠</h1><p>あげる・くれる・もらう的区别，不只是“给”和“收”，还涉及使役、许可和第三者转述时的视点。</p><h2>青空文庫の原文から学ぶ</h2><p>检索青空文库真实用例，观察作家如何选择授受表达。</p></article></main>' : undefined
   return {
     title,
     description,
@@ -118,6 +119,7 @@ export function sitemapXml(origin: string, works: Array<{ id: string; updatedOn:
     { path: '/articles', updatedOn: null },
     { path: '/learn', updatedOn: null },
     { path: '/topics', updatedOn: null },
+    { path: '/topics/giving-receiving', updatedOn: null },
     ...works.map(work => ({ path: `/read/${work.id}`, updatedOn: work.updatedOn })),
   ]
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map(entry => `  <url><loc>${escapeHtml(`${origin}${entry.path}`)}</loc>${entry.updatedOn ? `<lastmod>${escapeHtml(entry.updatedOn)}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>`

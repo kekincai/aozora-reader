@@ -5,7 +5,7 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
-import { catalogHealth, getWork, listGrammar, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
+import { catalogHealth, getWork, listGrammar, listTopicExamples, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
 import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
 import { handleSeoRequest } from './seo'
 
@@ -221,6 +221,7 @@ async function handle(request: Request, env: Env) {
   if (request.method === 'GET' && url.pathname === '/api/catalog/health') return catalogHealth(env)
   if (request.method === 'GET' && url.pathname === '/api/catalog/works') return listWorks(request, env)
   if (request.method === 'GET' && url.pathname === '/api/catalog/today') return todayWork(request, env)
+  if (request.method === 'GET' && url.pathname === '/api/catalog/topic-examples') return listTopicExamples(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/vocabulary') return listVocabulary(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/grammar') return listGrammar(request, env)
   const workMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/catalog\/works\/(\d+)$/) : null

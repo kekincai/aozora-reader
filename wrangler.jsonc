@@ -16,6 +16,7 @@
       "/articles",
       "/learn",
       "/topics",
+      "/topics/giving-receiving",
       "/read/*",
       "/review",
       "/record",
