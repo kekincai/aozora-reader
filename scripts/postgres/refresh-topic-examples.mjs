@@ -70,7 +70,7 @@ async function createFreshRun() {
         when position('江戸川乱歩' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 89
         when position('谷崎潤一郎' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 88
         when position('新美南吉' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 87
-        when position('梗井基次郎' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 86
+        when position('梶井基次郎' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 86
         when position('中島敦' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 85
         when position('泉鏡花' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 83
         when position('国木田独歩' in replace(coalesce(author_names.author, ''), ' ', '')) > 0 then 82

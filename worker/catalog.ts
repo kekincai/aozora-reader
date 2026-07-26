@@ -168,83 +168,47 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
   if (!topic) return response({ error: '特集を確認できません。' }, 400)
   return queryCatalog(env, async client => {
     try {
+      const rankScope = form === 'all'
+        ? 'examples.topic_work_rank <= 2'
+        : 'examples.form_key = $2 and examples.form_work_rank <= 2'
       const result = await client.query(`
-        with candidates as (
-          select te.paragraph_id, te.form_key, p.work_id, p.ordinal, p.plain_text,
-            case te.form_key
+        with selected as materialized (
+          select examples.paragraph_id, examples.form_key, examples.work_id,
+            examples.editorial_rank, examples.publication_year,
+            paragraphs.ordinal, paragraphs.plain_text,
+            regexp_instr(paragraphs.plain_text, case examples.form_key
               when 'kureru' then '(て|で)(くれ|呉れ|くださ|下さ)'
               when 'morau' then '(て|で)(もら|貰|いただ|戴|頂)'
               when 'ageru' then '(て|で)(あげ|上げ|やる|やり|やっ|やれ|差し上げ)'
               else '((させて)|([かがたなばまらわ]せて))(くれ|呉れ|くださ|下さ|もら|貰|いただ|戴|頂|あげ|上げ|やる|やり|やっ|やれ)'
-            end as pattern
-          from catalog.topic_examples te
-          join catalog.paragraphs p on p.id = te.paragraph_id
-          where te.topic_key = $1
-            and ($2 = 'all' or te.form_key = $2)
-            and ($3 = '' or p.plain_text like '%' || $3 || '%')
-        ), matches as (
-          select distinct on (te.paragraph_id)
-            te.paragraph_id, te.form_key, te.work_id, te.ordinal, te.plain_text,
-            regexp_instr(te.plain_text, te.pattern) as match_position
-          from candidates te
-          where te.plain_text ~ te.pattern
-          order by te.paragraph_id,
-            case te.form_key when 'causative' then 1 when 'kureru' then 2 when 'morau' then 3 else 4 end
-        ), ranked as (
-          select matches.*, row_number() over(partition by work_id order by paragraph_id desc) as work_rank
-          from matches
-        ), metadata as (
-          select m.*, w.aozora_work_id, w.title, w.copyright_status,
-            coalesce(authors.author, '作者不詳') as author,
-            coalesce(
-              nullif(substring(w.first_appearance from '[0-9]{4}'), '')::integer,
-              editions.publication_year,
-              extract(year from w.published_on)::integer,
-              0
-            ) as publication_year
-          from ranked m
-          join catalog.works w on w.id = m.work_id
-          left join lateral (
-            select string_agg(concat_ws(' ', pe.family_name, pe.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者') as author
-            from catalog.work_people wp join catalog.people pe on pe.id = wp.person_id
-            where wp.work_id = w.id
-          ) authors on true
-          left join lateral (
-            select max(nullif(substring(source.first_published_text from '[0-9]{4}'), '')::integer) as publication_year
-            from catalog.bibliographic_sources source where source.work_id = w.id
-          ) editions on true
-          where w.copyright_status = 'なし' and m.work_rank <= 2
-        ), editorial as (
-          select metadata.*,
-            case
-              when position('夏目漱石' in replace(author, ' ', '')) > 0 then 100
-              when position('芥川龍之介' in replace(author, ' ', '')) > 0 then 98
-              when position('太宰治' in replace(author, ' ', '')) > 0 then 96
-              when position('宮沢賢治' in replace(author, ' ', '')) > 0 then 95
-              when position('森鴎外' in replace(author, ' ', '')) > 0 then 93
-              when position('樋口一葉' in replace(author, ' ', '')) > 0 then 91
-              when position('江戸川乱歩' in replace(author, ' ', '')) > 0 then 89
-              when position('谷崎潤一郎' in replace(author, ' ', '')) > 0 then 88
-              when position('新美南吉' in replace(author, ' ', '')) > 0 then 87
-              when position('梗井基次郎' in replace(author, ' ', '')) > 0 then 86
-              when position('中島敦' in replace(author, ' ', '')) > 0 then 85
-              when position('泉鏡花' in replace(author, ' ', '')) > 0 then 83
-              when position('国木田独歩' in replace(author, ' ', '')) > 0 then 82
-              when position('小川未明' in replace(author, ' ', '')) > 0 then 80
-              else 10
-            end as editorial_rank
-          from metadata
+            end) as match_position
+          from catalog.topic_examples examples
+          join catalog.paragraphs paragraphs on paragraphs.id = examples.paragraph_id
+          where examples.topic_key = $1
+            and ${rankScope}
+            and ($3 = '' or paragraphs.plain_text like '%' || $3 || '%')
+            and ($5::boolean = false or (examples.editorial_rank, examples.publication_year, examples.paragraph_id) < ($6::integer, $7::integer, $8::bigint))
+          order by examples.editorial_rank desc, examples.publication_year desc, examples.paragraph_id desc
+          limit $4
         )
-        select aozora_work_id::text as id, title, author, ordinal::integer,
-          (case when match_position > 90 then '…' else '' end) ||
-          substring(plain_text from greatest(1, match_position - 90) for 280) ||
-          (case when length(plain_text) > greatest(1, match_position - 90) + 279 then '…' else '' end) as text,
-          form_key as form, editorial_rank as "editorialRank", publication_year as "publicationYear",
-          concat(editorial_rank, '|', publication_year, '|', paragraph_id) as cursor
-        from editorial
-        where ($5::boolean = false or (editorial_rank, publication_year, paragraph_id) < ($6::integer, $7::integer, $8::bigint))
-        order by editorial_rank desc, publication_year desc, paragraph_id desc
-        limit $4
+        select works.aozora_work_id::text as id, works.title,
+          coalesce(authors.author, '作者不詳') as author, selected.ordinal::integer,
+          (case when selected.match_position > 90 then '…' else '' end) ||
+          substring(selected.plain_text from greatest(1, selected.match_position - 90) for 280) ||
+          (case when length(selected.plain_text) > greatest(1, selected.match_position - 90) + 279 then '…' else '' end) as text,
+          selected.form_key as form, selected.editorial_rank as "editorialRank",
+          selected.publication_year as "publicationYear",
+          concat(selected.editorial_rank, '|', selected.publication_year, '|', selected.paragraph_id) as cursor
+        from selected
+        join catalog.works works on works.id = selected.work_id
+        left join lateral (
+          select string_agg(concat_ws(' ', people.family_name, people.given_name), '・' order by work_people.ordinal)
+            filter (where work_people.role = '著者') as author
+          from catalog.work_people work_people
+          join catalog.people people on people.id = work_people.person_id
+          where work_people.work_id = selected.work_id
+        ) authors on true
+        order by selected.editorial_rank desc, selected.publication_year desc, selected.paragraph_id desc
       `, [topic, form, query, limit + 1, Boolean(cursor), cursor?.editorialRank || 0, cursor?.publicationYear || 0, cursor?.paragraphID || '0'])
       const hasMore = result.rows.length > limit
       const examples = result.rows.slice(0, limit)
