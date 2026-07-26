@@ -14,8 +14,15 @@ function Write-Step([string]$Message, [ConsoleColor]$Color = [ConsoleColor]::Gra
 
 function Invoke-Npm([string]$Label, [string[]]$Arguments) {
   Write-Step "`n== $Label ==" Cyan
-  & npm.cmd @Arguments 2>&1 | ForEach-Object { Write-Host $_; Add-Content -Path $LogPath -Value $_ -Encoding UTF8 }
-  if ($LASTEXITCODE -ne 0) { throw "$Label failed with exit code $LASTEXITCODE" }
+  $PreviousErrorAction = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+  try {
+    & npm.cmd @Arguments 2>&1 | ForEach-Object { Write-Host $_; Add-Content -Path $LogPath -Value $_ -Encoding UTF8 }
+    $NpmExitCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $PreviousErrorAction
+  }
+  if ($NpmExitCode -ne 0) { throw "$Label failed with exit code $NpmExitCode" }
 }
 
 try {
