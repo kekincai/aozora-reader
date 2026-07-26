@@ -196,7 +196,6 @@ export function GivingReceivingTopicPage() {
     <section className="topic-related">
       <header><span>继续在原文里观察</span><h2>四篇适合带着“视点”重读的作品</h2></header>
       <div>{relatedWorks.map((work, index) => <Link to={`/read/${work.id}`} key={work.id}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{work.title}</strong><small>{work.author} · {work.focus}</small></div><ArrowRight size={16}/></Link>)}</div>
-      <p>本特集依据用户的授受动词研究整理，并用青空文库原文重新验证和组织；解释部分为中文学习说明。</p>
     </section>
   </main>
 }
