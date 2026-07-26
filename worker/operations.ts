@@ -34,13 +34,13 @@ function cleanString(value: unknown, max: number) {
 export function normalizePath(value: unknown) {
   const path = cleanString(value, 240).split('?')[0].split('#')[0]
   if (/^\/read\/\d+$/.test(path)) return '/read/:id'
-  return ['/','/articles','/learn','/review','/record','/feedback','/admin'].includes(path) ? path : '/other'
+  return ['/','/articles','/learn','/topics','/review','/record','/feedback','/admin'].includes(path) ? path : '/other'
 }
 
 export function normalizeFeedbackPath(value: unknown) {
   const path = cleanString(value, 240).split('?')[0].split('#')[0]
   if (/^\/read\/\d+$/.test(path)) return path
-  return ['/','/articles','/learn','/review','/record','/feedback'].includes(path) ? path : '/'
+  return ['/','/articles','/learn','/topics','/review','/record','/feedback'].includes(path) ? path : '/'
 }
 
 export function normalizeAnalyticsInput(data: Record<string, unknown>) {

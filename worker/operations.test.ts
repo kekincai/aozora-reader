@@ -5,6 +5,7 @@ describe('operations input boundaries', () => {
   it('groups article URLs without storing raw query strings', () => {
     expect(normalizePath('/read/3368?from=learn')).toBe('/read/:id')
     expect(normalizePath('/unknown?secret=value')).toBe('/other')
+    expect(normalizePath('/topics?from=home')).toBe('/topics')
   })
 
   it('accepts only allowlisted analytics fields', () => {

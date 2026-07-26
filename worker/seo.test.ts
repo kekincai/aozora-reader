@@ -11,6 +11,7 @@ describe('sitemapXml', () => {
     expect(xml).toContain('<loc>https://example.jp/</loc>')
     expect(xml).toContain('<loc>https://example.jp/articles</loc>')
     expect(xml).toContain('<loc>https://example.jp/learn</loc>')
+    expect(xml).toContain('<loc>https://example.jp/topics</loc>')
     expect(xml).toContain('<loc>https://example.jp/read/637</loc><lastmod>2026-07-23</lastmod>')
     expect(xml).toContain('<loc>https://example.jp/read/42</loc></url>')
     expect(xml).not.toContain('/admin')

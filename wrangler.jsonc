@@ -15,6 +15,7 @@
       "/",
       "/articles",
       "/learn",
+      "/topics",
       "/read/*",
       "/review",
       "/record",
