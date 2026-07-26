@@ -33,5 +33,11 @@ describe('topic example index migration', () => {
       { form_key: 'kureru', count: 2 },
       { form_key: 'morau', count: 1 },
     ])
+    const snippet = await database.query<{ position: number; text: string }>(`
+      select regexp_instr('前置き。先生が私に発表させてくれた。後続。', '((させて)|([かがたなばまらわ]せて))(くれ|くださ|もら|いただ|あげ|やる)')::integer as position,
+        substring('前置き。先生が私に発表させてくれた。後続。' from greatest(1, regexp_instr('前置き。先生が私に発表させてくれた。後続。', 'させてくれ') - 4) for 18) as text
+    `)
+    expect(snippet.rows[0].position).toBeGreaterThan(0)
+    expect(snippet.rows[0].text).toContain('発表させてくれた')
   })
 })

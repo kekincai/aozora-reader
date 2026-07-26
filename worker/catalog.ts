@@ -162,14 +162,25 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
   return queryCatalog(env, async client => {
     try {
       const result = await client.query(`
-        with matches as (
-          select distinct on (te.paragraph_id)
-            te.paragraph_id, te.form_key, p.work_id, p.ordinal, p.plain_text
+        with candidates as (
+          select te.paragraph_id, te.form_key, p.work_id, p.ordinal, p.plain_text,
+            case te.form_key
+              when 'kureru' then '(て|で)(くれ|呉れ|くださ|下さ)'
+              when 'morau' then '(て|で)(もら|貰|いただ|戴|頂)'
+              when 'ageru' then '(て|で)(あげ|上げ|やる|やり|やっ|やれ|差し上げ)'
+              else '((させて)|([かがたなばまらわ]せて))(くれ|呉れ|くださ|下さ|もら|貰|いただ|戴|頂|あげ|上げ|やる|やり|やっ|やれ)'
+            end as pattern
           from catalog.topic_examples te
           join catalog.paragraphs p on p.id = te.paragraph_id
           where te.topic_key = $1
             and ($2 = 'all' or te.form_key = $2)
             and ($3 = '' or p.plain_text like '%' || $3 || '%')
+        ), matches as (
+          select distinct on (te.paragraph_id)
+            te.paragraph_id, te.form_key, te.work_id, te.ordinal, te.plain_text,
+            regexp_instr(te.plain_text, te.pattern) as match_position
+          from candidates te
+          where te.plain_text ~ te.pattern
           order by te.paragraph_id,
             case te.form_key when 'causative' then 1 when 'kureru' then 2 when 'morau' then 3 else 4 end
         ), ranked as (
@@ -178,7 +189,11 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
         )
         select w.aozora_work_id::text as id, w.title,
           coalesce(authors.author, '作者不詳') as author,
-          m.ordinal::integer, m.plain_text as text, m.form_key as form
+          m.ordinal::integer,
+          (case when m.match_position > 90 then '…' else '' end) ||
+          substring(m.plain_text from greatest(1, m.match_position - 90) for 280) ||
+          (case when length(m.plain_text) > greatest(1, m.match_position - 90) + 279 then '…' else '' end) as text,
+          m.form_key as form
         from ranked m
         join catalog.works w on w.id = m.work_id
         left join lateral (
