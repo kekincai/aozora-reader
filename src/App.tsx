@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BrowserRouter, Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Cloud, KeyRound, Library, ListFilter, LoaderCircle, LogOut, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
-import { loadCloudState, passkeyAvailable, saveCloudState, useAuth, type CloudUser } from './auth'
+import { BrowserRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Library, ListFilter, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
+import { loadCloudState, saveCloudState, useAuth, type CloudUser } from './auth'
 import { loadTodayWork, loadWork, loadWorks, readingForToken, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import { AdminPage } from './AdminPage'
 import { FeedbackPage } from './FeedbackPage'
 import { GivingReceivingTopicPage, TopicsIndexPage } from './TopicsPage'
+import { AnalyticsTracker, AppShell, type AuthState } from './components/AppShell'
+import { Pagination } from './components/Pagination'
 import { trackEvent } from './operations'
 import './App.css'
+import './styles/navigation-pagination.css'
 
 type SavedWord = { word: string; reading: string; meaning: string; level: string; savedAt: number }
 type ReaderState = { progress: Record<string, number>; words: SavedWord[]; minutes: number }
@@ -31,56 +34,6 @@ function useReaderState() {
   return [state, setState] as const
 }
 
-type AuthState = ReturnType<typeof useAuth>
-
-function Header({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
-  const location = useLocation()
-  const [open, setOpen] = useState(false)
-  const [authOpen, setAuthOpen] = useState(false)
-  const [displayName, setDisplayName] = useState('')
-  const [working, setWorking] = useState(false)
-  const [message, setMessage] = useState('')
-  const action = async (kind: 'register' | 'login' | 'logout') => {
-    setWorking(true); setMessage('')
-    try {
-      if (kind === 'register') await auth.register(displayName)
-      if (kind === 'login') await auth.login()
-      if (kind === 'logout') await auth.logout()
-      if (kind !== 'logout') setMessage('この端末の記録を同期しました。')
-      else setAuthOpen(false)
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : '完了できませんでした。') }
-    finally { setWorking(false) }
-  }
-  return <header className="site-header">
-    <Link className="brand" to="/" aria-label="青空しおり ホーム"><img className="brand-mark" src="/brand-mark.svg" alt=""/><span>青空しおり</span></Link>
-    <button className="icon-button mobile-only" onClick={() => setOpen(!open)} aria-label="メニュー"><Menu size={20} /></button>
-    <nav className={open ? 'nav open' : 'nav'} onClick={() => setOpen(false)}>
-      <NavLink to="/">読む</NavLink><NavLink to="/articles">文章</NavLink><NavLink to="/learn">学ぶ</NavLink><NavLink to="/topics">特集</NavLink><NavLink to="/review">復習</NavLink><NavLink to="/record">記録</NavLink><NavLink to={{pathname:'/feedback',search:`?from=${encodeURIComponent(location.pathname)}`}}>ご意見</NavLink>{user?.isAdmin && <NavLink to="/admin">管理</NavLink>}
-      <button className="mobile-sync-button" onClick={() => setAuthOpen(true)}><KeyRound size={14}/>{user ? user.displayName : '記録を同期'}</button>
-    </nav>
-    <div className="header-actions"><button className="icon-button" aria-label="検索"><Search size={18}/></button><button className="google-button" onClick={() => setAuthOpen(true)}>{user ? <><Cloud size={14}/> {user.displayName}</> : <><KeyRound size={14}/> 無料で同期</>}</button></div>
-    {authOpen && <div className="auth-scrim" onClick={() => setAuthOpen(false)}><section className="auth-dialog" role="dialog" aria-modal="true" aria-label="学習記録の同期" onClick={event => event.stopPropagation()}><button className="sheet-close" onClick={() => setAuthOpen(false)} aria-label="閉じる"><X size={20}/></button>
-      {user ? <><div className="auth-symbol"><Cloud/></div><h2>{user.displayName}さん</h2><p>読書の進み具合と復習語彙を、このパスキーで安全に同期しています。</p><div className={`sync-state ${syncStatus}`}><i/>{syncStatus === 'saving' ? '保存しています…' : syncStatus === 'error' ? '同期を再試行します' : 'クラウドに保存済み'}</div><button className="secondary-button logout-button" onClick={() => void action('logout')} disabled={working}><LogOut size={16}/> この端末からログアウト</button></> : <><div className="auth-symbol"><KeyRound/></div><h2>記録を持ち歩く</h2><p>パスワードもメールも不要です。端末の Face ID、Touch ID、Windows Hello などでパスキーを作ります。</p><label className="name-field"><span>呼ばれたい名前</span><input value={displayName} onChange={event => setDisplayName(event.target.value)} maxLength={40} placeholder="例：けい" autoComplete="nickname"/></label><button className="primary-button auth-primary" onClick={() => void action('register')} disabled={working || !displayName.trim() || !passkeyAvailable()}>{working ? <LoaderCircle className="spin" size={17}/> : <KeyRound size={17}/>} 新しく登録する</button><button className="text-button" onClick={() => void action('login')} disabled={working || !passkeyAvailable()}>すでにパスキーを持っている</button><small>生体情報は端末の外へ送信されません。Google ログインは後から追加できます。</small></>}
-      {message && <p className="auth-message" role="status">{message}</p>}
-    </section></div>}
-  </header>
-}
-
-function Layout({ children, user, syncStatus, auth }: { children: React.ReactNode; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
-  return <div className="app-shell"><Header user={user} syncStatus={syncStatus} auth={auth}/>{children}<footer><span>青空文庫の公開作品を、学びやすい読書体験へ。</span><a href="https://www.aozora.gr.jp/" target="_blank" rel="noreferrer">青空文庫について</a></footer></div>
-}
-
-function AnalyticsTracker() {
-  const location = useLocation()
-  const lastPath = useRef('')
-  useEffect(() => {
-    if (lastPath.current === location.pathname) return
-    lastPath.current = location.pathname
-    trackEvent('page_view', { path: location.pathname })
-  }, [location.pathname])
-  return null
-}
-
 function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const [works, setWorks] = useState<WorkSummary[]>([])
   const [filter, setFilter] = useState('すべて')
@@ -94,7 +47,7 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
   useEffect(() => { void loadTodayWork().then(result => setToday(result.work)).catch(() => setToday(null)) }, [])
   const visible = works.filter(w => query || filter === 'すべて' || (filter === 'N2核心' ? w.level === 'N2' : filter === 'N2→N1' ? w.level !== 'N2' && w.level !== '未分類' : w.genre.includes(filter)))
   const featured = today || works.find(w => w.id === '637')
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main>
+  return <AppShell user={user} syncStatus={syncStatus} auth={auth}><main>
     <section className="hero-section">
       <div className="hero-copy"><div className="eyebrow"><Sparkles size={15}/> 今日の一篇</div><h1>{featured?.title || '手袋を買いに'}</h1><p className="author">{featured?.author || '新美 南吉'}</p><p className="hero-summary">{featured?.summary || '雪の夜、子狐は初めて人間の町へ。やさしさと怖さが同居する、冬の短篇。'}</p><div className="meta-line"><span>{featured?.level || 'N2'} ウォームアップ</span><span>約{featured?.minutes || 8}分</span><span>{featured?.genre || '童話'}</span></div><Link className="primary-button" to={`/read/${featured?.id || '637'}`}>読みはじめる <ChevronRight size={17}/></Link></div>
       <div className="hero-art" aria-hidden="true"><div className="moon"/><div className="branch branch-one"/><div className="branch branch-two"/><span className="snow s1">·</span><span className="snow s2">·</span><span className="snow s3">·</span></div>
@@ -107,7 +60,7 @@ function Home({ state, user, syncStatus, auth }: { state: ReaderState; user: Clo
       {loadError && <p className="catalog-error">{loadError}</p>}
     </section>
     {featured && <section className="source-note"><Library size={20}/><div><strong>作品の出典を明記しています</strong><p>公開作品だけを収録し、原文と青空文庫へのリンクを各作品に表示します。</p></div></section>}
-  </main></Layout>
+  </main></AppShell>
 }
 
 function ArticlesPage({ user, syncStatus, auth }: { user: CloudUser | null; syncStatus: string; auth: AuthState }) {
@@ -118,31 +71,33 @@ function ArticlesPage({ user, syncStatus, auth }: { user: CloudUser | null; sync
   const [sort, setSort] = useState<'shortest'|'title'|'newest'>('shortest')
   const [works, setWorks] = useState<WorkSummary[]>([])
   const [offset, setOffset] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setLoading(true)
       void searchWorks({ query, level, genre, maxCharacters: Number(length), sort, offset, limit: 30 })
-        .then(result => { setWorks(result.works); setHasMore(result.page.hasMore); setMessage(''); if (query.trim()) trackEvent('search', { value: result.works.length, path: '/articles' }) })
+        .then(result => { setWorks(result.works); setTotal(result.page.total); setMessage(''); if (query.trim()) trackEvent('search', { value: result.works.length, path: '/articles' }) })
         .catch(() => setMessage('作品数据库に接続できません。しばらくしてからもう一度お試しください。'))
         .finally(() => setLoading(false))
     }, query ? 250 : 0)
     return () => window.clearTimeout(timer)
   }, [query, level, genre, length, sort, offset])
   const changeFilter = (action: () => void) => { setOffset(0); action() }
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="articles-page">
+  const currentPage = Math.floor(offset / 30) + 1
+  const totalPages = Math.max(1, Math.ceil(total / 30))
+  return <AppShell user={user} syncStatus={syncStatus} auth={auth}><main className="articles-page">
     <section className="catalog-intro"><span className="kicker">AOZORA CATALOG</span><h1>文章を探す</h1><p>青空文庫の公開作品を、題名・作者・長さ・学習レベルから探せます。</p></section>
     <section className="article-search-panel">
       <label className="article-query"><Search size={19}/><input value={query} onChange={event => changeFilter(() => setQuery(event.target.value))} placeholder="題名・作者・読みで検索"/></label>
       <div className="article-filters"><label><span>難易度</span><select value={level} onChange={event => changeFilter(() => setLevel(event.target.value))}><option value="">すべて</option><option>N2</option><option value="N2+">N2→N1</option><option>N1</option></select></label><label><span>種類</span><select value={genre} onChange={event => changeFilter(() => setGenre(event.target.value))}><option value="">すべて</option><option>短篇</option><option>童話</option><option>随筆</option><option>幻想</option></select></label><label><span>長さ</span><select value={length} onChange={event => changeFilter(() => setLength(event.target.value))}><option value="5000">約10分以内</option><option value="10000">約20分以内</option><option value="20000">短め</option><option value="2000000">制限なし</option></select></label><label><span>並び順</span><select value={sort} onChange={event => changeFilter(() => setSort(event.target.value as typeof sort))}><option value="shortest">短い順</option><option value="title">五十音順</option><option value="newest">更新順</option></select></label></div>
-      <div className="catalog-result-meta"><strong>{offset + 1}–{offset + works.length}</strong><span>全17,831作品のデータベースから検索</span></div>
+      <div className="catalog-result-meta"><strong>{total ? `${offset + 1}–${offset + works.length}` : '0'} 件目</strong><span>{total.toLocaleString()}作品から検索</span></div>
       <div className="work-list">{works.map((work, index) => <Link className="work-row" to={`/read/${work.id}`} key={work.id}><span className="work-index">{String(offset + index + 1).padStart(2,'0')}</span><div className="work-main"><div className="work-tags"><span>{work.level}</span><span>{work.genre}</span></div><h3>{work.title}</h3><p>{work.author}</p></div><p className="work-summary">{work.summary || `${work.characterCount?.toLocaleString() || '—'}字の青空文庫作品`}</p><span className="work-time"><Clock3 size={15}/>{work.minutes}分</span><ChevronRight className="row-arrow" size={19}/></Link>)}</div>
       {loading && <div className="loading">作品を探しています…</div>}{message && <p className="catalog-error">{message}</p>}
-      <div className="catalog-pagination"><button disabled={!offset} onClick={() => setOffset(Math.max(0, offset - 30))}>前へ</button><span>{Math.floor(offset / 30) + 1}ページ</span><button disabled={!hasMore} onClick={() => setOffset(offset + 30)}>次へ</button></div>
+      <Pagination page={currentPage} totalPages={totalPages} totalItems={total} label="文章检索分页" onPageChange={page => { setOffset((page - 1) * 30); window.scrollTo({ top: 250, behavior: 'smooth' }) }}/>
     </section>
-  </main></Layout>
+  </main></AppShell>
 }
 
 function Reader({ state, setState }: { state: ReaderState; setState: React.Dispatch<React.SetStateAction<ReaderState>> }) {
@@ -243,7 +198,7 @@ function LearnPage({ user, syncStatus, auth }: { user: CloudUser | null; syncSta
   }, [index, tab, query, level, kana, category, vocabCategory, corpusOnly])
   const visibleEntries = databaseEntries ?? entries
   useEffect(() => { setQuery(''); setLevel('すべて') }, [tab])
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="learn-page">
+  return <AppShell user={user} syncStatus={syncStatus} auth={auth}><main className="learn-page">
     <section className="learn-intro"><div><span className="kicker">N2 · N1 STUDY MAP</span><h1>文章から、ことばを学ぶ。</h1><p>N2を固めてからN1へ。品詞と文法の働きごとに進み、実際の作品で使い方を確かめます。</p></div><div className="learn-totals"><strong>{index ? index.vocabulary.length.toLocaleString() : '—'}<small>語彙</small></strong><strong>{index ? index.grammar.length.toLocaleString() : '—'}<small>文法</small></strong></div></section>
     <section className="learn-workspace">
       <div className="study-path"><div><span>01</span><strong>N2 核心語彙</strong><small>名词・动词・形容词</small></div><div><span>02</span><strong>N2 文法機能</strong><small>条件・原因・对比</small></div><div><span>03</span><strong>N1への橋渡し</strong><small>书面语・抽象表达</small></div><div><span>04</span><strong>作品で定着</strong><small>检索・阅读・复习</small></div></div>
@@ -256,17 +211,17 @@ function LearnPage({ user, syncStatus, auth }: { user: CloudUser | null; syncSta
       {!databaseEntries && entries.length > 220 && <p className="result-limit">最初の220項目を表示中。検索または分類で絞り込めます。</p>}
       {index && <p className="dataset-notice">{index.notice}</p>}
     </section>
-  </main></Layout>
+  </main></AppShell>
 }
 
 function Review({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
   const cards = state.words.length ? state.words : fallbackCards; const [index, setIndex] = useState(0); const [show, setShow] = useState(false); const card = cards[index % cards.length]
   const rate = () => { setIndex(index + 1); setShow(false); trackEvent('review_complete', { value:index + 1, path:'/review' }) }
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={rate}>もう一度</button><button onClick={rate}>むずかしい</button><button onClick={rate}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></Layout>
+  return <AppShell user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page"><span className="kicker">REVIEW</span><h1>今日の復習</h1><p className="page-lead">読書中に拾った言葉を、忘れる少し前にもう一度。</p><div className="review-card"><span>{index + 1} / {cards.length}</span><h2>{card.word}</h2><p className="reading">{card.reading}</p>{show ? <><div className="answer-rule"/><p className="answer">{card.meaning}</p><div className="rating"><button onClick={rate}>もう一度</button><button onClick={rate}>むずかしい</button><button onClick={rate}>わかった</button></div></> : <button className="primary-button" onClick={() => setShow(true)}>答えを見る</button>}</div><p className="micro-copy">{user ? '復習記録はクラウドにも保存されます。' : '登録なしでも、この端末に学習記録を保存します。'}</p></main></AppShell>
 }
 
 function RecordPage({ state, user, syncStatus, auth }: { state: ReaderState; user: CloudUser | null; syncStatus: string; auth: AuthState }) {
-  return <Layout user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page record-page"><span className="kicker">YOUR RECORD</span><h1>読書の記録</h1><p className="page-lead">速さより、続けた日と出会った言葉を大切に。</p><div className="stats"><div><strong>{Object.keys(state.progress).length}</strong><span>読んだ作品</span></div><div><strong>{state.words.length}</strong><span>集めた言葉</span></div><div><strong>{Math.max(8, state.minutes)}</strong><span>読書時間（分）</span></div></div><section className="record-note"><BookOpen/><div><h2>{user ? `${user.displayName}さんの記録` : '次の一篇'}</h2><p>{user ? 'この記録はパスキーで保護され、別の対応端末からも続けられます。' : '短い作品を一つ読み切ると、ここに読書の流れが育っていきます。'}</p><Link to="/">作品を選ぶ</Link></div></section></main></Layout>
+  return <AppShell user={user} syncStatus={syncStatus} auth={auth}><main className="simple-page record-page"><span className="kicker">YOUR RECORD</span><h1>読書の記録</h1><p className="page-lead">速さより、続けた日と出会った言葉を大切に。</p><div className="stats"><div><strong>{Object.keys(state.progress).length}</strong><span>読んだ作品</span></div><div><strong>{state.words.length}</strong><span>集めた言葉</span></div><div><strong>{Math.max(8, state.minutes)}</strong><span>読書時間（分）</span></div></div><section className="record-note"><BookOpen/><div><h2>{user ? `${user.displayName}さんの記録` : '次の一篇'}</h2><p>{user ? 'この記録はパスキーで保護され、別の対応端末からも続けられます。' : '短い作品を一つ読み切ると、ここに読書の流れが育っていきます。'}</p><Link to="/">作品を選ぶ</Link></div></section></main></AppShell>
 }
 
 function App() {
@@ -303,7 +258,7 @@ function App() {
   useEffect(() => { if (!auth.user) { hydratedUser.current = null; setSyncStatus('local') } }, [auth.user])
 
   const common = { user: auth.user, syncStatus, auth }
-  return <BrowserRouter><AnalyticsTracker/><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/topics" element={<Layout {...common}><TopicsIndexPage/></Layout>}/><Route path="/topics/giving-receiving" element={<Layout {...common}><GivingReceivingTopicPage/></Layout>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/><Route path="/feedback" element={<Layout {...common}><FeedbackPage/></Layout>}/><Route path="/admin" element={<Layout {...common}><AdminPage user={auth.user}/></Layout>}/></Routes></BrowserRouter>
+  return <BrowserRouter><AnalyticsTracker/><Routes><Route path="/" element={<Home state={state} {...common}/>}/><Route path="/articles" element={<ArticlesPage {...common}/>}/><Route path="/learn" element={<LearnPage {...common}/>}/><Route path="/topics" element={<AppShell {...common}><TopicsIndexPage/></AppShell>}/><Route path="/topics/giving-receiving" element={<AppShell {...common}><GivingReceivingTopicPage/></AppShell>}/><Route path="/read/:id" element={<Reader state={state} setState={setState}/>}/><Route path="/review" element={<Review state={state} {...common}/>}/><Route path="/record" element={<RecordPage state={state} {...common}/>}/><Route path="/feedback" element={<AppShell {...common}><FeedbackPage/></AppShell>}/><Route path="/admin" element={<AppShell {...common}><AdminPage user={auth.user}/></AppShell>}/></Routes></BrowserRouter>
 }
 
 export default App

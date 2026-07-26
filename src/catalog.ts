@@ -96,7 +96,7 @@ export async function searchWorks(filters: WorkSearch = {}) {
   if (filters.sort) url.searchParams.set('sort', filters.sort)
   url.searchParams.set('offset', String(filters.offset || 0))
   url.searchParams.set('limit', String(filters.limit || 30))
-  return json<{ works: WorkSummary[]; page: { offset: number; limit: number; hasMore: boolean; nextOffset: number | null } }>(await fetch(url))
+  return json<{ works: WorkSummary[]; page: { offset: number; limit: number; total: number; totalPages: number; hasMore: boolean; nextOffset: number | null } }>(await fetch(url))
 }
 
 export async function loadTodayWork() {
@@ -104,14 +104,14 @@ export async function loadTodayWork() {
   return json<{ date: string; work: WorkSummary | null }>(await fetch(`/api/catalog/today?date=${date}&rotation=v2`))
 }
 
-export async function searchTopicExamples(form = 'all', query = '', cursor?: string, limit = 12) {
+export async function searchTopicExamples(form = 'all', query = '', page = 1, limit = 12) {
   const url = new URL('/api/catalog/topic-examples', window.location.origin)
   url.searchParams.set('topic', 'giving-receiving')
   url.searchParams.set('form', form)
   if (query.trim()) url.searchParams.set('q', query.trim())
-  if (cursor) url.searchParams.set('cursor', cursor)
+  url.searchParams.set('page', String(page))
   url.searchParams.set('limit', String(limit))
-  return json<{ examples: TopicExample[]; page: { limit: number; hasMore: boolean; nextCursor: string | null } }>(await fetch(url))
+  return json<{ examples: TopicExample[]; page: { page: number; limit: number; total: number; totalPages: number } }>(await fetch(url))
 }
 
 export async function loadWork(id: string): Promise<ReaderWork> {

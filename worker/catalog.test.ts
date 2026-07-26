@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dailyIndex, parseTopicCursor } from './catalog'
+import { dailyIndex, topicPageParams } from './catalog'
 
 describe('daily recommendation', () => {
   it('always rotates to the next curated work on adjacent Japan dates', () => {
@@ -8,10 +8,13 @@ describe('daily recommendation', () => {
   })
 })
 
-describe('topic example cursor', () => {
-  it('accepts only the stable editorial sort tuple', () => {
-    expect(parseTopicCursor('98|1924|12345')).toEqual({ editorialRank: 98, publicationYear: 1924, paragraphID: '12345' })
-    expect(parseTopicCursor('98|1924|12345 extra')).toBeNull()
-    expect(parseTopicCursor(null)).toBeNull()
+describe('topic example page parameters', () => {
+  it('converts a visible page number into an offset', () => {
+    expect(topicPageParams(new URL('https://example.test?limit=12&page=6'))).toEqual({ page: 6, limit: 12, offset: 60 })
+  })
+
+  it('clamps unsafe or invalid values', () => {
+    expect(topicPageParams(new URL('https://example.test?limit=999&page=-3'))).toEqual({ page: 1, limit: 24, offset: 0 })
+    expect(topicPageParams(new URL('https://example.test?page=oops'))).toEqual({ page: 1, limit: 12, offset: 0 })
   })
 })

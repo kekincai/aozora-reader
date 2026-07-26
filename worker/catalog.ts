@@ -92,10 +92,10 @@ function numberParam(value: string | null, fallback: number, minimum: number, ma
   return Number.isFinite(parsed) ? Math.min(maximum, Math.max(minimum, parsed)) : fallback
 }
 
-export function parseTopicCursor(value: string | null) {
-  const match = value?.match(/^(\d{1,3})\|(\d{1,4})\|(\d{1,20})$/)
-  if (!match) return null
-  return { editorialRank: Number(match[1]), publicationYear: Number(match[2]), paragraphID: match[3] }
+export function topicPageParams(url: URL) {
+  const limit = numberParam(url.searchParams.get('limit'), 12, 1, 24)
+  const page = numberParam(url.searchParams.get('page'), 1, 1, 10_000)
+  return { page, limit, offset: (page - 1) * limit }
 }
 
 export async function catalogHealth(env: CatalogEnv) {
@@ -134,7 +134,8 @@ export async function listWorks(request: Request, env: CatalogEnv) {
       w.card_url as "sourceUrl",
       '青空文庫' as attribution,
       w.paragraph_count::integer as "paragraphCount",
-      w.character_count::integer as "characterCount"
+      w.character_count::integer as "characterCount",
+      count(*) over()::integer as "__total"
     from catalog.works w
     left join catalog.work_people wp on wp.work_id = w.id
     left join catalog.people p on p.id = wp.person_id
@@ -152,8 +153,10 @@ export async function listWorks(request: Request, env: CatalogEnv) {
       w.aozora_work_id
     limit $2 offset $3
   `, [query, limit + 1, offset, level, genre, maxCharacters, sort]))
-  const hasMore = result.rows.length > limit
-  return response({ works: result.rows.slice(0, limit), page: { offset, limit, hasMore, nextOffset: hasMore ? offset + limit : null } })
+  const total = Number(result.rows[0]?.__total || 0)
+  const works = result.rows.slice(0, limit).map(({ __total: _total, ...work }) => work)
+  const hasMore = offset + works.length < total
+  return response({ works, page: { offset, limit, total, totalPages: Math.ceil(total / limit), hasMore, nextOffset: hasMore ? offset + limit : null } })
 }
 
 export async function listTopicExamples(request: Request, env: CatalogEnv) {
@@ -163,14 +166,25 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
   const requestedForm = url.searchParams.get('form') || 'all'
   const form = allowedForms.has(requestedForm) ? requestedForm : 'all'
   const query = (url.searchParams.get('q') || '').trim().replace(/[%_]/g, '').slice(0, 30)
-  const limit = numberParam(url.searchParams.get('limit'), 12, 1, 24)
-  const cursor = parseTopicCursor(url.searchParams.get('cursor'))
+  const { page, limit } = topicPageParams(url)
   if (!topic) return response({ error: '特集を確認できません。' }, 400)
   return queryCatalog(env, async client => {
     try {
       const rankScope = form === 'all'
         ? "$2::text = 'all' and examples.topic_work_rank <= 2"
         : 'examples.form_key = $2 and examples.form_work_rank <= 2'
+      const countResult = await client.query(`
+        select count(*)::integer as total
+        from catalog.topic_examples examples
+        join catalog.paragraphs paragraphs on paragraphs.id = examples.paragraph_id
+        where examples.topic_key = $1
+          and ${rankScope}
+          and ($3 = '' or paragraphs.plain_text like '%' || $3 || '%')
+      `, [topic, form, query])
+      const total = Number(countResult.rows[0]?.total || 0)
+      const totalPages = Math.max(1, Math.ceil(total / limit))
+      const safePage = Math.min(page, totalPages)
+      const safeOffset = (safePage - 1) * limit
       const result = await client.query(`
         with selected as materialized (
           select examples.paragraph_id, examples.form_key, examples.work_id,
@@ -187,9 +201,8 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
           where examples.topic_key = $1
             and ${rankScope}
             and ($3 = '' or paragraphs.plain_text like '%' || $3 || '%')
-            and ($5::boolean = false or (examples.editorial_rank, examples.publication_year, examples.paragraph_id) < ($6::integer, $7::integer, $8::bigint))
           order by examples.editorial_rank desc, examples.publication_year desc, examples.paragraph_id desc
-          limit $4
+          limit $4 offset $5
         )
         select works.aozora_work_id::text as id, works.title,
           coalesce(authors.author, '作者不詳') as author, selected.ordinal::integer,
@@ -197,8 +210,7 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
           substring(selected.plain_text from greatest(1, selected.match_position - 90) for 280) ||
           (case when length(selected.plain_text) > greatest(1, selected.match_position - 90) + 279 then '…' else '' end) as text,
           selected.form_key as form, selected.editorial_rank as "editorialRank",
-          selected.publication_year as "publicationYear",
-          concat(selected.editorial_rank, '|', selected.publication_year, '|', selected.paragraph_id) as cursor
+          selected.publication_year as "publicationYear"
         from selected
         join catalog.works works on works.id = selected.work_id
         left join lateral (
@@ -209,11 +221,8 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
           where work_people.work_id = selected.work_id
         ) authors on true
         order by selected.editorial_rank desc, selected.publication_year desc, selected.paragraph_id desc
-      `, [topic, form, query, limit + 1, Boolean(cursor), cursor?.editorialRank || 0, cursor?.publicationYear || 0, cursor?.paragraphID || '0'])
-      const hasMore = result.rows.length > limit
-      const examples = result.rows.slice(0, limit)
-      const nextCursor = hasMore ? examples.at(-1)?.cursor || null : null
-      return response({ examples: examples.map(({ cursor: _cursor, ...example }) => example), page: { limit, hasMore, nextCursor } })
+      `, [topic, form, query, limit, safeOffset])
+      return response({ examples: result.rows, page: { page: safePage, limit, total, totalPages } })
     } catch (cause) {
       if (cause instanceof Error && cause.message.includes('topic_examples')) return response({ error: '用例索引正在准备中。' }, 503)
       throw cause
