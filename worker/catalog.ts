@@ -210,8 +210,8 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
             where wp.work_id = w.id
           ) authors on true
           left join lateral (
-            select max(nullif(substring(ed.first_published_text from '[0-9]{4}'), '')::integer) as publication_year
-            from catalog.editions ed where ed.work_id = w.id
+            select max(nullif(substring(source.first_published_text from '[0-9]{4}'), '')::integer) as publication_year
+            from catalog.bibliographic_sources source where source.work_id = w.id
           ) editions on true
           where w.copyright_status = 'なし' and m.work_rank <= 2
         ), editorial as (
