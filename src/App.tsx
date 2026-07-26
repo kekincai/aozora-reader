@@ -9,7 +9,7 @@ import { GivingReceivingTopicPage, TopicsIndexPage } from './TopicsPage'
 import { AnalyticsTracker, AppShell, type AuthState } from './components/AppShell'
 import { Pagination } from './components/Pagination'
 import { trackEvent } from './operations'
-import { parseReaderTarget } from './reader-links'
+import { findTopicFocusRange, parseReaderTarget } from './reader-links'
 import './App.css'
 import './styles/navigation-pagination.css'
 
@@ -106,6 +106,7 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   const [searchParams] = useSearchParams()
   const targetParagraph = parseReaderTarget(searchParams.get('paragraph'))
   const focusForm = searchParams.get('focus') || ''
+  const focusText = (searchParams.get('text') || '').slice(0, 40)
   const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
   const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(Boolean(targetParagraph)); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
@@ -117,9 +118,9 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
   }, [id, targetParagraph])
   useEffect(() => {
     if (!work || !targetParagraph) return
-    const frame = window.requestAnimationFrame(() => document.getElementById(`paragraph-${targetParagraph}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
+    const frame = window.requestAnimationFrame(() => (document.getElementById('topic-focus') || document.getElementById(`paragraph-${targetParagraph}`))?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
     return () => window.cancelAnimationFrame(frame)
-  }, [work, targetParagraph])
+  }, [work, targetParagraph, focusText])
   const trackedWork = useRef('')
   useEffect(() => { if (work) { document.title = `${work.title} — 青空しおり`; setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})); if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
   const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
@@ -157,16 +158,25 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
       <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => {
         const ordinal = work.paragraphOrdinals?.[paragraphIndex] || paragraphIndex + 1
         const isTarget = ordinal === targetParagraph
+        const focusRange = isTarget ? findTopicFocusRange(paragraph.map(token => token.text).join(''), focusText) : null
+        let tokenOffset = 0
+        let focusAnchorAssigned = false
         return <p id={`paragraph-${ordinal}`} className={isTarget ? 'target-paragraph' : undefined} data-focus={isTarget ? focusForm : undefined} key={ordinal}>{paragraph.map((token, tokenIndex) => {
+        const tokenStart = tokenOffset
+        tokenOffset += token.text.length
+        const isFocusedToken = Boolean(focusRange && tokenStart < focusRange.end && tokenOffset > focusRange.start)
+        const focusID = isFocusedToken && !focusAnchorAssigned ? 'topic-focus' : undefined
+        if (focusID) focusAnchorAssigned = true
         const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
         const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
         const vocabVisible = vocab && levels[vocab.level]
         const grammarVisible = grammar && showGrammar && levels[grammar.level]
         const annotationClasses = [vocabVisible ? `vocab-${vocab.level.toLowerCase()}` : '', grammarVisible ? `grammar-token grammar-${grammar.level.toLowerCase()}` : ''].filter(Boolean)
-        const className = annotationClasses.length ? `learning-token ${annotationClasses.join(' ')}` : ''
+        const learningClassName = annotationClasses.length ? `learning-token ${annotationClasses.join(' ')}` : ''
+        const className = [learningClassName, isFocusedToken ? 'topic-focus-token' : ''].filter(Boolean).join(' ')
         const reading = readingForToken(token, vocab)
         const content = reading ? <ruby>{token.text}<rt>{reading}</rt></ruby> : token.text
-        return className ? <button type="button" className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span key={tokenIndex}>{content}</span>
+        return learningClassName ? <button type="button" id={focusID} className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span id={focusID} className={className || undefined} key={tokenIndex}>{content}</span>
       })}{isTarget && <span className="target-paragraph-label"><LocateFixed size={12}/> 特集の用例</span>}</p>})}</article>
       <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>

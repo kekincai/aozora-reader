@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { trackEvent } from './operations'
 import { Pagination } from './components/Pagination'
 import { useTopicExamples } from './hooks/useTopicExamples'
-import { topicExampleReaderLink } from './reader-links'
+import { topicExampleReaderLink, topicFocusText } from './reader-links'
 
 const families = [
   { number: '01', title: 'あげる系', words: 'やる・あげる・差し上げる', role: '给予者作主语', direction: '我方／给予者 → 对方', note: '把施惠者的意志放在前景。「てあげる」有时会显得居高临下。' },
@@ -13,10 +13,10 @@ const families = [
 ]
 
 const readings = [
-  { family: 'くれる', work: '坊っちゃん', author: '夏目 漱石', id: '752', quote: '折々は自分の小遣いで金鍔や紅梅焼を買ってくれる。寒い夜などは……枕元へ蕎麦湯を持って来てくれる。', analysis: '接连出现的「くれる」，不是简单罗列清做过什么，而是把一件件照顾都写成“流向我”的恩惠。读者因此从少年的视点体会清的亲近。' },
-  { family: 'くれる', work: 'ごん狐', author: '新美 南吉', id: '628', quote: 'ごん、お前だったのか。いつも栗をくれたのは', analysis: '真相揭晓时用的是「くれた」。兵十终于把那些栗子理解成“为我而做”的好意；这个视点来得太迟，也让结尾格外悲凉。' },
-  { family: 'もらう', work: '檸檬', author: '梶井 基次郎', id: '46349', quote: '蓄音器を聽かせて貰ひにわざわざ出かけて行つても……', analysis: '「貰ひに」把受益者放在中心，后面的「わざわざ出かけて」又显示他主动去取得这次体验。原文保留旧假名与旧字体。' },
-  { family: 'やる', work: '注文の多い料理店', author: '宮沢 賢治', id: '43754', quote: '来た人を西洋料理にして、食べてやる家', analysis: '「てやる」并不天然等于善意。这里反而带着支配和恶意，说明授受形式表达的是说话者如何评价动作方向，而不是一律表示“帮忙”。' },
+  { family: 'くれる', form: 'kureru', focusText: '買ってくれる', ordinal: 10, work: '坊っちゃん', author: '夏目 漱石', id: '752', quote: '折々は自分の小遣いで金鍔や紅梅焼を買ってくれる。寒い夜などは……枕元へ蕎麦湯を持って来てくれる。', analysis: '接连出现的「くれる」，不是简单罗列清做过什么，而是把一件件照顾都写成“流向我”的恩惠。读者因此从少年的视点体会清的亲近。' },
+  { family: 'くれる', form: 'kureru', focusText: '栗をくれた', ordinal: 80, work: 'ごん狐', author: '新美 南吉', id: '628', quote: 'ごん、お前だったのか。いつも栗をくれたのは', analysis: '真相揭晓时用的是「くれた」。兵十终于把那些栗子理解成“为我而做”的好意；这个视点来得太迟，也让结尾格外悲凉。' },
+  { family: 'もらう', form: 'morau', focusText: '聽かせて貰ひ', ordinal: 1, work: '檸檬', author: '梶井 基次郎', id: '46349', quote: '蓄音器を聽かせて貰ひにわざわざ出かけて行つても……', analysis: '「貰ひに」把受益者放在中心，后面的「わざわざ出かけて」又显示他主动去取得这次体验。原文保留旧假名与旧字体。' },
+  { family: 'やる', form: 'ageru', focusText: '食べてやる', ordinal: 92, work: '注文の多い料理店', author: '宮沢 賢治', id: '43754', quote: '来た人を西洋料理にして、食べてやる家', analysis: '「てやる」并不天然等于善意。这里反而带着支配和恶意，说明授受形式表达的是说话者如何评价动作方向，而不是一律表示“帮忙”。' },
 ]
 
 const relatedWorks = [
@@ -136,7 +136,7 @@ export function GivingReceivingTopicPage() {
       <header className="topic-heading"><div><span>五</span><h2>小说里，作者怎样选择视点</h2></div><p>先看四个经过核对的例子，再从数据库里检索更多青空文库原句。</p></header>
       <div className="reading-examples">
         {readings.map((item, index) => <article key={`${item.id}-${item.family}`}>
-          <div className="example-source"><span>{String(index + 1).padStart(2, '0')}</span><p>{item.author}</p><h3>『{item.work}』</h3><Link to={`/read/${item.id}`}>进入原文 <ArrowRight size={13}/></Link></div>
+          <div className="example-source"><span>{String(index + 1).padStart(2, '0')}</span><p>{item.author}</p><h3>『{item.work}』</h3><Link to={topicExampleReaderLink(item.id, item.ordinal, item.form, item.focusText)}>进入原文对应位置 <ArrowRight size={13}/></Link></div>
           <blockquote lang="ja">「{item.quote}」</blockquote>
           <div className="example-analysis"><span>{item.family}</span><p>{item.analysis}</p></div>
         </article>)}
@@ -145,7 +145,7 @@ export function GivingReceivingTopicPage() {
       <div className="corpus-search">
         <header><div><span>全库用例检索</span><h3>看看作家实际怎么写</h3></div><p>检索范围只包括青空文库中已入库的授受相关段落。结果是语言材料，不代表每一处都具有相同的恩惠含义。</p></header>
         <div className="example-search-tools"><div>{searchForms.map(item => <button key={item.key} className={searchForm === item.key ? 'active' : ''} onClick={() => { setSearchForm(item.key); topicExamples.resetPage() }}>{item.label}</button>)}</div><label><Search size={15}/><input value={searchQuery} onChange={event => { setSearchQuery(event.target.value); topicExamples.resetPage() }} placeholder="在结果中追加词语，如：先生、母、許可"/></label></div>
-        {topicExamples.loading ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : topicExamples.error ? <div className="example-error">{topicExamples.error}</div> : <div className="example-results">{topicExamples.examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String((topicExamples.page - 1) * topicPageSize + index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={topicExampleReaderLink(item.id, item.ordinal, item.form)}>{item.author}『{item.title}』の該当箇所へ<ArrowRight size={13}/></Link></article>)}</div>}
+        {topicExamples.loading ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : topicExamples.error ? <div className="example-error">{topicExamples.error}</div> : <div className="example-results">{topicExamples.examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String((topicExamples.page - 1) * topicPageSize + index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={topicExampleReaderLink(item.id, item.ordinal, item.form, topicFocusText(item.text, item.form))}>{item.author}『{item.title}』の該当箇所へ<ArrowRight size={13}/></Link></article>)}</div>}
         {!topicExamples.loading && !topicExamples.error && !topicExamples.examples.length && <p className="example-empty">没有找到相符段落，请缩短追加词语或切换形式。</p>}
         {!topicExamples.loading && !topicExamples.error && topicExamples.examples.length > 0 && <Pagination
           page={topicExamples.page}

@@ -178,15 +178,22 @@ export function isInteractiveReaderRequest(url: URL) {
   return /^\/read\/\d{1,6}$/.test(url.pathname) && url.searchParams.get('view') === 'reader' && /^\d{1,7}$/.test(url.searchParams.get('paragraph') || '')
 }
 
+function freshAppShellRequest(request: Request) {
+  const shellUrl = new URL(request.url)
+  shellUrl.pathname = '/index.html'
+  shellUrl.search = ''
+  // A fresh index cache key prevents an old shell from referencing retired hashes.
+  shellUrl.searchParams.set('__app_shell', crypto.randomUUID())
+  return new Request(shellUrl, request)
+}
+
 export async function handleSeoRequest(request: Request, env: CatalogEnv & { ASSETS: Fetcher }, ctx: ExecutionContext) {
   const url = new URL(request.url)
   if (url.pathname === '/robots.txt') return serveRobots(url)
   if (url.pathname === '/sitemap.xml') return serveSitemap(request, env, ctx)
   if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method Not Allowed', { status: 405 })
   if (isInteractiveReaderRequest(url)) {
-    // The route-specific URL avoids reusing a stale cached /index.html shell
-    // whose hashed JS asset may have been retired by a newer deployment.
-    const shellResponse = await env.ASSETS.fetch(request)
+    const shellResponse = await env.ASSETS.fetch(freshAppShellRequest(request))
     const headers = new Headers(shellResponse.headers)
     headers.set('cache-control', 'no-cache, no-store, must-revalidate')
     headers.set('x-robots-tag', 'noindex, follow')
@@ -194,10 +201,7 @@ export async function handleSeoRequest(request: Request, env: CatalogEnv & { ASS
   }
   const readMatch = url.pathname.match(/^\/read\/(\d{1,6})$/)
   const seo = readMatch ? workSeo(url, await getSeoWork(env, readMatch[1])) : staticSeo(url)
-  // Always transform the canonical app shell. Fetching the requested SPA path can
-  // reuse an older route-specific fallback from the static asset cache.
-  const shellRequest = new Request(new URL('/index.html', url.origin), request)
-  const assetResponse = await env.ASSETS.fetch(shellRequest)
+  const assetResponse = await env.ASSETS.fetch(freshAppShellRequest(request))
   if (!assetResponse.headers.get('content-type')?.includes('text/html')) return assetResponse
   return transformHtml(assetResponse, seo)
 }
