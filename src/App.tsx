@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BrowserRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Library, ListFilter, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
+import { BrowserRouter, Link, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Bookmark, BookOpen, Check, ChevronRight, Clock3, Library, ListFilter, LocateFixed, Menu, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { loadCloudState, saveCloudState, useAuth, type CloudUser } from './auth'
 import { loadTodayWork, loadWork, loadWorks, readingForToken, searchWorks, type AnnotatedToken, type ReaderWork as Work, type WorkSummary } from './catalog'
 import { AdminPage } from './AdminPage'
@@ -9,6 +9,7 @@ import { GivingReceivingTopicPage, TopicsIndexPage } from './TopicsPage'
 import { AnalyticsTracker, AppShell, type AuthState } from './components/AppShell'
 import { Pagination } from './components/Pagination'
 import { trackEvent } from './operations'
+import { parseReaderTarget } from './reader-links'
 import './App.css'
 import './styles/navigation-pagination.css'
 
@@ -102,12 +103,25 @@ function ArticlesPage({ user, syncStatus, auth }: { user: CloudUser | null; sync
 
 function Reader({ state, setState }: { state: ReaderState; setState: React.Dispatch<React.SetStateAction<ReaderState>> }) {
   const { id = '637' } = useParams(); const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const targetParagraph = parseReaderTarget(searchParams.get('paragraph'))
+  const focusForm = searchParams.get('focus') || ''
   const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
-  const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(false); const [selected, setSelected] = useState<SelectedEntry | null>(null)
+  const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(Boolean(targetParagraph)); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
-  useEffect(() => { Promise.all([loadWork(id), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }); window.scrollTo(0,0) }, [id])
+  useEffect(() => {
+    setWork(null)
+    setFull(Boolean(targetParagraph))
+    Promise.all([loadWork(id, targetParagraph), fetch('/learning/index.json').then(r => r.json())]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) })
+    window.scrollTo(0,0)
+  }, [id, targetParagraph])
+  useEffect(() => {
+    if (!work || !targetParagraph) return
+    const frame = window.requestAnimationFrame(() => document.getElementById(`paragraph-${targetParagraph}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
+    return () => window.cancelAnimationFrame(frame)
+  }, [work, targetParagraph])
   const trackedWork = useRef('')
-  useEffect(() => { if (work) { setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})); if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
+  useEffect(() => { if (work) { document.title = `${work.title} — 青空しおり`; setState(s => ({...s, progress: {...s.progress, [id]: Math.max(s.progress[id] || 0, 18)}})); if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
   const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
   const grammarMap = useMemo(() => new Map(learning?.grammar.map(entry => [entry.id, entry]) || []), [learning])
   const saveWord = () => {
@@ -139,7 +153,11 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
     <header className="reader-header"><button className="reader-back" onClick={() => navigate(-1)}><ArrowLeft size={19}/><span>戻る</span></button><div className="reader-title"><strong>{work.title}</strong><span>{state.progress[id] || 18}%</span></div><div className="reader-progress"><i style={{width: `${state.progress[id] || 18}%`}}/></div><button className="icon-button"><Menu size={19}/></button></header>
     <div className="reader-controls"><button className={furigana ? 'active ruby-control' : ''} onClick={() => setFurigana(!furigana)}>ふりがな</button><button className={levels.N2 ? 'active n2-control' : ''} onClick={() => setLevels(value => ({...value,N2:!value.N2}))}>N2 語彙</button><button className={levels.N1 ? 'active n1-control' : ''} onClick={() => setLevels(value => ({...value,N1:!value.N1}))}>N1 語彙</button><button className={showGrammar ? 'active grammar-control' : ''} onClick={() => setShowGrammar(!showGrammar)}>N2・N1 文法</button></div>
     <main className="reader-layout"><section className="reading-wrap"><div className="reading-meta"><span>{work.genre}</span><h1>{work.title}</h1><p>{work.author}</p></div>
-      <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph.map((token, tokenIndex) => {
+      {targetParagraph && <div className="reader-deep-link-note"><LocateFixed size={15}/><span>特集で選んだ用例まで移動しました</span></div>}
+      <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => {
+        const ordinal = work.paragraphOrdinals?.[paragraphIndex] || paragraphIndex + 1
+        const isTarget = ordinal === targetParagraph
+        return <p id={`paragraph-${ordinal}`} className={isTarget ? 'target-paragraph' : undefined} data-focus={isTarget ? focusForm : undefined} key={ordinal}>{paragraph.map((token, tokenIndex) => {
         const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
         const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
         const vocabVisible = vocab && levels[vocab.level]
@@ -149,7 +167,7 @@ function Reader({ state, setState }: { state: ReaderState; setState: React.Dispa
         const reading = readingForToken(token, vocab)
         const content = reading ? <ruby>{token.text}<rt>{reading}</rt></ruby> : token.text
         return className ? <button type="button" className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span key={tokenIndex}>{content}</span>
-      })}</p>)}</article>
+      })}{isTarget && <span className="target-paragraph-label"><LocateFixed size={12}/> 特集の用例</span>}</p>})}</article>
       <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>

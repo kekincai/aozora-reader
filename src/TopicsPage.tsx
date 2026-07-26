@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { trackEvent } from './operations'
 import { Pagination } from './components/Pagination'
 import { useTopicExamples } from './hooks/useTopicExamples'
+import { topicExampleReaderLink } from './reader-links'
 
 const families = [
   { number: '01', title: 'あげる系', words: 'やる・あげる・差し上げる', role: '给予者作主语', direction: '我方／给予者 → 对方', note: '把施惠者的意志放在前景。「てあげる」有时会显得居高临下。' },
@@ -144,7 +145,7 @@ export function GivingReceivingTopicPage() {
       <div className="corpus-search">
         <header><div><span>全库用例检索</span><h3>看看作家实际怎么写</h3></div><p>检索范围只包括青空文库中已入库的授受相关段落。结果是语言材料，不代表每一处都具有相同的恩惠含义。</p></header>
         <div className="example-search-tools"><div>{searchForms.map(item => <button key={item.key} className={searchForm === item.key ? 'active' : ''} onClick={() => { setSearchForm(item.key); topicExamples.resetPage() }}>{item.label}</button>)}</div><label><Search size={15}/><input value={searchQuery} onChange={event => { setSearchQuery(event.target.value); topicExamples.resetPage() }} placeholder="在结果中追加词语，如：先生、母、許可"/></label></div>
-        {topicExamples.loading ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : topicExamples.error ? <div className="example-error">{topicExamples.error}</div> : <div className="example-results">{topicExamples.examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String((topicExamples.page - 1) * topicPageSize + index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={`/read/${item.id}`}>{item.author}『{item.title}』<ArrowRight size={13}/></Link></article>)}</div>}
+        {topicExamples.loading ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : topicExamples.error ? <div className="example-error">{topicExamples.error}</div> : <div className="example-results">{topicExamples.examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String((topicExamples.page - 1) * topicPageSize + index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={topicExampleReaderLink(item.id, item.ordinal, item.form)}>{item.author}『{item.title}』の該当箇所へ<ArrowRight size={13}/></Link></article>)}</div>}
         {!topicExamples.loading && !topicExamples.error && !topicExamples.examples.length && <p className="example-empty">没有找到相符段落，请缩短追加词语或切换形式。</p>}
         {!topicExamples.loading && !topicExamples.error && topicExamples.examples.length > 0 && <Pagination
           page={topicExamples.page}

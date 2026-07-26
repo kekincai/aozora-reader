@@ -14,7 +14,7 @@ export type WorkSummary = {
   learning?: LearningStats
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
-export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
+export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][]; paragraphOrdinals?: number[] }
 export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string; editorialRank: number; publicationYear: number }
 
 type VocabularyReading = { term: string; reading: string }
@@ -32,7 +32,7 @@ type GrammarOccurrence = { startOffset: number; endOffset: number; grammarId: st
 type CatalogWorkResponse = {
   work: WorkSummary
   paragraphs: { ordinal: number; text: string; rubies: Ruby[]; vocabulary?: VocabularyOccurrence[]; grammar?: GrammarOccurrence[] }[]
-  page: { hasMore: boolean }
+  page: { from: number; limit: number; hasMore: boolean; nextFrom: number | null }
 }
 
 async function json<T>(response: Response): Promise<T> {
@@ -114,17 +114,23 @@ export async function searchTopicExamples(form = 'all', query = '', page = 1, li
   return json<{ examples: TopicExample[]; page: { page: number; limit: number; total: number; totalPages: number } }>(await fetch(url))
 }
 
-export async function loadWork(id: string): Promise<ReaderWork> {
-  const apiPromise = fetch(`/api/catalog/works/${encodeURIComponent(id)}?limit=220`).then(json<CatalogWorkResponse>)
+export async function loadWork(id: string, targetParagraph?: number | null): Promise<ReaderWork> {
+  const from = targetParagraph ? Math.max(1, targetParagraph - 20) : 1
+  const limit = targetParagraph ? 80 : 220
+  const apiPromise = fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=${from}&limit=${limit}`).then(json<CatalogWorkResponse>)
   const curatedPromise = fetch(`/corpus/works/${encodeURIComponent(id)}.json`).then(response => response.ok ? response.json() as Promise<ReaderWork> : null).catch(() => null)
   try {
     const [api, curated] = await Promise.all([apiPromise, curatedPromise])
-    if (curated) return { ...curated, ...api.work, learning: curated.learning }
-    return {
+    const databaseWork: ReaderWork = {
       ...api.work,
       paragraphs: api.paragraphs.map(paragraph => paragraph.text),
       annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
+      paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
     }
+    // Deep links must use the database window that actually contains the target.
+    if (targetParagraph) return { ...databaseWork, learning: curated?.learning || databaseWork.learning }
+    if (curated) return { ...curated, ...api.work, learning: curated.learning, paragraphOrdinals: curated.annotatedParagraphs.map((_, index) => index + 1) }
+    return databaseWork
   } catch (error) {
     const curated = await curatedPromise
     if (curated) return curated

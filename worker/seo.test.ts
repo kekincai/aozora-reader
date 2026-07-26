@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sitemapXml } from './seo'
+import { isInteractiveReaderRequest, sitemapXml } from './seo'
 
 describe('sitemapXml', () => {
   it('includes the public discovery pages and every supplied work', () => {
@@ -22,5 +22,13 @@ describe('sitemapXml', () => {
   it('escapes an origin before inserting it into XML', () => {
     const xml = sitemapXml('https://example.jp?language=ja&mode=read', [])
     expect(xml).toContain('language=ja&amp;mode=read')
+  })
+})
+
+describe('interactive reader shell', () => {
+  it('recognizes only explicit paragraph deep links', () => {
+    expect(isInteractiveReaderRequest(new URL('https://example.jp/read/755?paragraph=1842&view=reader&focus=kureru'))).toBe(true)
+    expect(isInteractiveReaderRequest(new URL('https://example.jp/read/755?paragraph=1842'))).toBe(false)
+    expect(isInteractiveReaderRequest(new URL('https://example.jp/topics?paragraph=1842&view=reader'))).toBe(false)
   })
 })

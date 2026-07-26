@@ -168,9 +168,14 @@ function transformHtml(response: Response, seo: PageSeo) {
   if (seo.preview) transformed.on('#root', { element: element => element.setInnerContent(seo.preview!, { html: true }) })
   const result = transformed.transform(response)
   const headers = new Headers(result.headers)
-  headers.set('cache-control', seo.robots.startsWith('index') ? 'public, max-age=300, s-maxage=3600' : 'no-store')
+  // HTML contains hashed asset names, so it must never outlive a deployment.
+  headers.set('cache-control', 'no-cache, no-store, must-revalidate')
   headers.set('x-robots-tag', seo.robots)
   return new Response(result.body, { status: seo.status || result.status, headers })
+}
+
+export function isInteractiveReaderRequest(url: URL) {
+  return /^\/read\/\d{1,6}$/.test(url.pathname) && url.searchParams.get('view') === 'reader' && /^\d{1,7}$/.test(url.searchParams.get('paragraph') || '')
 }
 
 export async function handleSeoRequest(request: Request, env: CatalogEnv & { ASSETS: Fetcher }, ctx: ExecutionContext) {
@@ -178,6 +183,15 @@ export async function handleSeoRequest(request: Request, env: CatalogEnv & { ASS
   if (url.pathname === '/robots.txt') return serveRobots(url)
   if (url.pathname === '/sitemap.xml') return serveSitemap(request, env, ctx)
   if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method Not Allowed', { status: 405 })
+  if (isInteractiveReaderRequest(url)) {
+    // The route-specific URL avoids reusing a stale cached /index.html shell
+    // whose hashed JS asset may have been retired by a newer deployment.
+    const shellResponse = await env.ASSETS.fetch(request)
+    const headers = new Headers(shellResponse.headers)
+    headers.set('cache-control', 'no-cache, no-store, must-revalidate')
+    headers.set('x-robots-tag', 'noindex, follow')
+    return new Response(shellResponse.body, { status: shellResponse.status, headers })
+  }
   const readMatch = url.pathname.match(/^\/read\/(\d{1,6})$/)
   const seo = readMatch ? workSeo(url, await getSeoWork(env, readMatch[1])) : staticSeo(url)
   // Always transform the canonical app shell. Fetching the requested SPA path can
