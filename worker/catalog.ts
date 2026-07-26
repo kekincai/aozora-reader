@@ -92,6 +92,12 @@ function numberParam(value: string | null, fallback: number, minimum: number, ma
   return Number.isFinite(parsed) ? Math.min(maximum, Math.max(minimum, parsed)) : fallback
 }
 
+export function parseTopicCursor(value: string | null) {
+  const match = value?.match(/^(\d{1,3})\|(\d{1,4})\|(\d{1,20})$/)
+  if (!match) return null
+  return { editorialRank: Number(match[1]), publicationYear: Number(match[2]), paragraphID: match[3] }
+}
+
 export async function catalogHealth(env: CatalogEnv) {
   const result = await queryCatalog(env, client => client.query(`
     select
@@ -157,7 +163,8 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
   const requestedForm = url.searchParams.get('form') || 'all'
   const form = allowedForms.has(requestedForm) ? requestedForm : 'all'
   const query = (url.searchParams.get('q') || '').trim().replace(/[%_]/g, '').slice(0, 30)
-  const limit = numberParam(url.searchParams.get('limit'), 24, 1, 50)
+  const limit = numberParam(url.searchParams.get('limit'), 12, 1, 24)
+  const cursor = parseTopicCursor(url.searchParams.get('cursor'))
   if (!topic) return response({ error: '特集を確認できません。' }, 400)
   return queryCatalog(env, async client => {
     try {
@@ -186,26 +193,63 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
         ), ranked as (
           select matches.*, row_number() over(partition by work_id order by paragraph_id desc) as work_rank
           from matches
+        ), metadata as (
+          select m.*, w.aozora_work_id, w.title, w.copyright_status,
+            coalesce(authors.author, '作者不詳') as author,
+            coalesce(
+              nullif(substring(w.first_appearance from '[0-9]{4}'), '')::integer,
+              editions.publication_year,
+              extract(year from w.published_on)::integer,
+              0
+            ) as publication_year
+          from ranked m
+          join catalog.works w on w.id = m.work_id
+          left join lateral (
+            select string_agg(concat_ws(' ', pe.family_name, pe.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者') as author
+            from catalog.work_people wp join catalog.people pe on pe.id = wp.person_id
+            where wp.work_id = w.id
+          ) authors on true
+          left join lateral (
+            select max(nullif(substring(ed.first_published_text from '[0-9]{4}'), '')::integer) as publication_year
+            from catalog.editions ed where ed.work_id = w.id
+          ) editions on true
+          where w.copyright_status = 'なし' and m.work_rank <= 2
+        ), editorial as (
+          select metadata.*,
+            case
+              when position('夏目漱石' in replace(author, ' ', '')) > 0 then 100
+              when position('芥川龍之介' in replace(author, ' ', '')) > 0 then 98
+              when position('太宰治' in replace(author, ' ', '')) > 0 then 96
+              when position('宮沢賢治' in replace(author, ' ', '')) > 0 then 95
+              when position('森鴎外' in replace(author, ' ', '')) > 0 then 93
+              when position('樋口一葉' in replace(author, ' ', '')) > 0 then 91
+              when position('江戸川乱歩' in replace(author, ' ', '')) > 0 then 89
+              when position('谷崎潤一郎' in replace(author, ' ', '')) > 0 then 88
+              when position('新美南吉' in replace(author, ' ', '')) > 0 then 87
+              when position('梗井基次郎' in replace(author, ' ', '')) > 0 then 86
+              when position('中島敦' in replace(author, ' ', '')) > 0 then 85
+              when position('泉鏡花' in replace(author, ' ', '')) > 0 then 83
+              when position('国木田独歩' in replace(author, ' ', '')) > 0 then 82
+              when position('小川未明' in replace(author, ' ', '')) > 0 then 80
+              else 10
+            end as editorial_rank
+          from metadata
         )
-        select w.aozora_work_id::text as id, w.title,
-          coalesce(authors.author, '作者不詳') as author,
-          m.ordinal::integer,
-          (case when m.match_position > 90 then '…' else '' end) ||
-          substring(m.plain_text from greatest(1, m.match_position - 90) for 280) ||
-          (case when length(m.plain_text) > greatest(1, m.match_position - 90) + 279 then '…' else '' end) as text,
-          m.form_key as form
-        from ranked m
-        join catalog.works w on w.id = m.work_id
-        left join lateral (
-          select string_agg(concat_ws(' ', pe.family_name, pe.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者') as author
-          from catalog.work_people wp join catalog.people pe on pe.id = wp.person_id
-          where wp.work_id = w.id
-        ) authors on true
-        where w.copyright_status = 'なし' and m.work_rank <= 2
-        order by m.paragraph_id desc
+        select aozora_work_id::text as id, title, author, ordinal::integer,
+          (case when match_position > 90 then '…' else '' end) ||
+          substring(plain_text from greatest(1, match_position - 90) for 280) ||
+          (case when length(plain_text) > greatest(1, match_position - 90) + 279 then '…' else '' end) as text,
+          form_key as form, editorial_rank as "editorialRank", publication_year as "publicationYear",
+          concat(editorial_rank, '|', publication_year, '|', paragraph_id) as cursor
+        from editorial
+        where ($5::boolean = false or (editorial_rank, publication_year, paragraph_id) < ($6::integer, $7::integer, $8::bigint))
+        order by editorial_rank desc, publication_year desc, paragraph_id desc
         limit $4
-      `, [topic, form, query, limit])
-      return response({ examples: result.rows, total: result.rowCount })
+      `, [topic, form, query, limit + 1, Boolean(cursor), cursor?.editorialRank || 0, cursor?.publicationYear || 0, cursor?.paragraphID || '0'])
+      const hasMore = result.rows.length > limit
+      const examples = result.rows.slice(0, limit)
+      const nextCursor = hasMore ? examples.at(-1)?.cursor || null : null
+      return response({ examples: examples.map(({ cursor: _cursor, ...example }) => example), page: { limit, hasMore, nextCursor } })
     } catch (cause) {
       if (cause instanceof Error && cause.message.includes('topic_examples')) return response({ error: '用例索引正在准备中。' }, 503)
       throw cause

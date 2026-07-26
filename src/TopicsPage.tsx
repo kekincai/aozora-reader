@@ -44,6 +44,8 @@ const searchForms = [
   { key: 'ageru', label: 'てあげる・てやる系' }, { key: 'causative', label: '使役＋授受' },
 ]
 
+const topicPageSize = 12
+
 export function GivingReceivingTopicPage() {
   const [answer, setAnswer] = useState<string | null>(null)
   const [searchForm, setSearchForm] = useState('all')
@@ -51,17 +53,39 @@ export function GivingReceivingTopicPage() {
   const [examples, setExamples] = useState<TopicExample[]>([])
   const [searching, setSearching] = useState(true)
   const [searchError, setSearchError] = useState('')
+  const [examplePage, setExamplePage] = useState(0)
+  const [exampleCursor, setExampleCursor] = useState<string>()
+  const [cursorHistory, setCursorHistory] = useState<Array<string | undefined>>([undefined])
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [hasMoreExamples, setHasMoreExamples] = useState(false)
   useEffect(() => { document.title = '授受動詞を原文から学ぶ — 青空しおり' }, [])
   useEffect(() => {
     let active = true
     const timer = window.setTimeout(() => {
       setSearching(true)
-      void searchTopicExamples(searchForm, searchQuery).then(result => { if (active) { setExamples(result.examples); setSearchError('') } })
-        .catch(error => { if (active) { setExamples([]); setSearchError(error instanceof Error ? error.message : '用例を読み込めませんでした。') } })
+      void searchTopicExamples(searchForm, searchQuery, exampleCursor, topicPageSize).then(result => { if (active) { setExamples(result.examples); setNextCursor(result.page.nextCursor); setHasMoreExamples(result.page.hasMore); setSearchError('') } })
+        .catch(error => { if (active) { setExamples([]); setNextCursor(null); setHasMoreExamples(false); setSearchError(error instanceof Error ? error.message : '用例を読み込めませんでした。') } })
         .finally(() => { if (active) setSearching(false) })
     }, searchQuery ? 300 : 0)
     return () => { active = false; window.clearTimeout(timer) }
-  }, [searchForm, searchQuery])
+  }, [searchForm, searchQuery, exampleCursor])
+  const resetExampleSearch = () => {
+    setExamplePage(0)
+    setExampleCursor(undefined)
+    setCursorHistory([undefined])
+  }
+  const showNextExamples = () => {
+    if (!nextCursor) return
+    setCursorHistory(history => [...history.slice(0, examplePage + 1), nextCursor])
+    setExamplePage(page => page + 1)
+    setExampleCursor(nextCursor)
+  }
+  const showPreviousExamples = () => {
+    if (examplePage <= 0) return
+    const previousPage = examplePage - 1
+    setExamplePage(previousPage)
+    setExampleCursor(cursorHistory[previousPage])
+  }
   const choose = (value: string) => {
     setAnswer(value)
     trackEvent('learning_open', { path: '/topics/giving-receiving', label: `giving-receiving-quiz:${value}` })
@@ -152,9 +176,10 @@ export function GivingReceivingTopicPage() {
       <p className="source-caution">引文依据本站收录的青空文库公开文本；省略处以“……”表示，没有改写成现代假名。</p>
       <div className="corpus-search">
         <header><div><span>全库用例检索</span><h3>看看作家实际怎么写</h3></div><p>检索范围只包括青空文库中已入库的授受相关段落。结果是语言材料，不代表每一处都具有相同的恩惠含义。</p></header>
-        <div className="example-search-tools"><div>{searchForms.map(item => <button key={item.key} className={searchForm === item.key ? 'active' : ''} onClick={() => setSearchForm(item.key)}>{item.label}</button>)}</div><label><Search size={15}/><input value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder="在结果中追加词语，如：先生、母、許可"/></label></div>
-        {searching ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : searchError ? <div className="example-error">{searchError}</div> : <div className="example-results">{examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String(index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={`/read/${item.id}`}>{item.author}『{item.title}』<ArrowRight size={13}/></Link></article>)}</div>}
+        <div className="example-search-tools"><div>{searchForms.map(item => <button key={item.key} className={searchForm === item.key ? 'active' : ''} onClick={() => { setSearchForm(item.key); resetExampleSearch() }}>{item.label}</button>)}</div><label><Search size={15}/><input value={searchQuery} onChange={event => { setSearchQuery(event.target.value); resetExampleSearch() }} placeholder="在结果中追加词语，如：先生、母、許可"/></label></div>
+        {searching ? <div className="example-loading"><LoaderCircle className="spin" size={18}/> 正在查找原文…</div> : searchError ? <div className="example-error">{searchError}</div> : <div className="example-results">{examples.map((item, index) => <article key={`${item.id}-${item.ordinal}-${item.form}`}><span>{String(examplePage * topicPageSize + index + 1).padStart(2,'0')} · {searchForms.find(form => form.key === item.form)?.label || item.form}</span><blockquote lang="ja">{item.text}</blockquote><Link to={`/read/${item.id}`}>{item.author}『{item.title}』<ArrowRight size={13}/></Link></article>)}</div>}
         {!searching && !searchError && !examples.length && <p className="example-empty">没有找到相符段落，请缩短追加词语或切换形式。</p>}
+        {!searching && !searchError && examples.length > 0 && (examplePage > 0 || hasMoreExamples) && <nav className="example-pagination" aria-label="用例分页"><button onClick={showPreviousExamples} disabled={examplePage === 0}><ArrowLeft size={14}/> 上一页</button><span>第 {examplePage + 1} 页</span><button onClick={showNextExamples} disabled={!hasMoreExamples}>下一页 <ArrowRight size={14}/></button></nav>}
       </div>
     </section>
 

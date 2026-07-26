@@ -15,7 +15,7 @@ export type WorkSummary = {
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
 export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][] }
-export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string }
+export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string; editorialRank: number; publicationYear: number }
 
 type VocabularyReading = { term: string; reading: string }
 const KANJI = /[\p{Script=Han}々〆ヵヶ]/u
@@ -104,13 +104,14 @@ export async function loadTodayWork() {
   return json<{ date: string; work: WorkSummary | null }>(await fetch(`/api/catalog/today?date=${date}&rotation=v2`))
 }
 
-export async function searchTopicExamples(form = 'all', query = '') {
+export async function searchTopicExamples(form = 'all', query = '', cursor?: string, limit = 12) {
   const url = new URL('/api/catalog/topic-examples', window.location.origin)
   url.searchParams.set('topic', 'giving-receiving')
   url.searchParams.set('form', form)
   if (query.trim()) url.searchParams.set('q', query.trim())
-  url.searchParams.set('limit', '24')
-  return json<{ examples: TopicExample[]; total: number }>(await fetch(url))
+  if (cursor) url.searchParams.set('cursor', cursor)
+  url.searchParams.set('limit', String(limit))
+  return json<{ examples: TopicExample[]; page: { limit: number; hasMore: boolean; nextCursor: string | null } }>(await fetch(url))
 }
 
 export async function loadWork(id: string): Promise<ReaderWork> {
