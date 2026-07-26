@@ -169,7 +169,7 @@ export async function listTopicExamples(request: Request, env: CatalogEnv) {
   return queryCatalog(env, async client => {
     try {
       const rankScope = form === 'all'
-        ? 'examples.topic_work_rank <= 2'
+        ? "$2::text = 'all' and examples.topic_work_rank <= 2"
         : 'examples.form_key = $2 and examples.form_work_rank <= 2'
       const result = await client.query(`
         with selected as materialized (
