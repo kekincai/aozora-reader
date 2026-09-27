@@ -86,7 +86,7 @@ export function ReaderPage() {
     <header className="reader-header"><button className="reader-back" onClick={() => navigate(-1)}><ArrowLeft size={19}/><span>戻る</span></button><div className="reader-title"><strong>{work.title}</strong><span>{state.progress[id] || 0}%</span></div><div className="reader-progress"><i style={{width: `${state.progress[id] || 0}%`}}/></div><Link className="icon-button" to="/" aria-label="今日の一頁へ"><BookOpenText size={18}/></Link></header>
     <div className="reader-controls"><button className={furigana ? 'active ruby-control' : ''} onClick={() => setFurigana(!furigana)}>ふりがな</button><button className={levels.N2 ? 'active n2-control' : ''} onClick={() => setLevels(value => ({...value,N2:!value.N2}))}>N2 語彙</button><button className={levels.N1 ? 'active n1-control' : ''} onClick={() => setLevels(value => ({...value,N1:!value.N1}))}>N1 語彙</button><button className={showGrammar ? 'active grammar-control' : ''} onClick={() => setShowGrammar(!showGrammar)}>N2・N1 文法</button></div>
     <main className="reader-layout"><section className="reading-wrap"><div className="reading-meta"><span>{work.genre}</span><h1>{work.title}</h1><p>{work.author}</p></div>
-      {targetParagraph && <div className="reader-deep-link-note"><LocateFixed size={15}/><span>特集で選んだ用例まで移動しました</span></div>}
+      {targetParagraph && <div className="reader-deep-link-note"><LocateFixed size={15}/><span>{focusForm ? '特集で選んだ用例まで移動しました' : '選んだ言葉が出てくる段落です'}</span></div>}
       <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => {
         const ordinal = work.paragraphOrdinals?.[paragraphIndex] || paragraphIndex + 1
         const isTarget = ordinal === targetParagraph
@@ -109,7 +109,7 @@ export function ReaderPage() {
         const reading = readingForToken(token)
         const content = reading ? <ruby>{token.text}<rt>{reading}</rt></ruby> : token.text
         return learningClassName ? <button type="button" id={focusID} className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span id={focusID} className={className || undefined} key={tokenIndex}>{content}</span>
-      })}{isTarget && <span className="target-paragraph-label"><LocateFixed size={12}/> 特集の用例</span>}</p>})}</article>
+      })}{isTarget && <span className="target-paragraph-label"><LocateFixed size={12}/> {focusForm ? '特集の用例' : 'ここに出てきます'}</span>}</p>})}</article>
       <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>

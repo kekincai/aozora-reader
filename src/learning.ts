@@ -1,8 +1,8 @@
 import { annotateLearning, type AnnotatedToken, type WorkSummary } from './catalog'
 
-export type ArticleRef = { id: string; title: string; author: string; count: number }
-export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaKey?: string; category?: string; annotationSafe?: boolean; articles?: ArticleRef[] }
-export type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles?: ArticleRef[] }
+export type ArticleRef = { id: string; title: string; author: string; count: number; ordinal?: number | null; text?: string | null }
+export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaKey?: string; category?: string; annotationSafe?: boolean; articles?: ArticleRef[]; workCount?: number }
+export type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles?: ArticleRef[]; workCount?: number }
 /** The dictionary entries a work (or a window of it) actually uses. */
 export type WorkEntries = { vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
 export type LearningSummary = { vocabulary: number; grammar: number; vocabularyCategories: string[]; grammarCategories: string[] }

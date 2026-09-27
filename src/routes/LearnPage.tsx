@@ -1,11 +1,39 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ListFilter, Search } from 'lucide-react'
-import { loadLearningSummary, type GrammarEntry, type LearningSummary, type VocabularyEntry } from '../learning'
+import { Check, ChevronDown, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
+import { EntryArticles } from '../components/EntryArticles'
+import { loadLearningSummary, type GrammarEntry, type LearningSummary, type SelectedEntry, type VocabularyEntry } from '../learning'
+import { addCard, useApp } from '../state/context'
 
-const PAGE_SIZE = 120
-const NOTICE = 'JLPT公式は完全な語彙・文法リストを公開していません。N1/N2は公開学習資料に基づく参考分類です。'
+const PAGE_SIZE = 60
+const GOJUON = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん','他']
+type Tab = 'vocabulary' | 'grammar'
 type Entry = VocabularyEntry | GrammarEntry
+
+function EntryRow({ entry, open, onToggle }: { entry: Entry; open: boolean; onToggle: () => void }) {
+  const { state, setState } = useApp()
+  const selected: SelectedEntry = 'term' in entry ? { kind: 'vocabulary', entry } : { kind: 'grammar', entry }
+  const word = 'term' in entry ? entry.term : entry.pattern
+  const saved = Boolean(state.cards[`${selected.kind}:${entry.id}`])
+  const save = () => setState(current => addCard(current, {
+    kind: selected.kind, entryId: entry.id, word,
+    reading: 'term' in entry ? entry.reading : entry.formation,
+    meaning: entry.meaning, level: entry.level,
+  }))
+  return <li className={`study-row ${open ? 'is-open' : ''}`}>
+    <button className="study-row-head" onClick={onToggle} aria-expanded={open}>
+      <span className="study-word">{word}{'term' in entry && entry.reading !== entry.term && <small>{entry.reading}</small>}</span>
+      <span className={`level-chip ${entry.level === 'N1' ? 'n1' : ''}`}>{entry.level}</span>
+      <span className="study-meaning">{entry.meaning}</span>
+      <ChevronDown className="study-chevron" size={16}/>
+    </button>
+    {open && <div className="study-detail">
+      {'formation' in entry && <p className="study-formation">{entry.formation}</p>}
+      {'examples' in entry && entry.examples[0] && <p className="study-example">{entry.examples[0].jp}{entry.examples[0].zh && <small>{entry.examples[0].zh}</small>}</p>}
+      <EntryArticles selected={selected} className="study-articles" label="作品の中で読む"/>
+      <button className={`daily-button ${saved ? 'is-quiet' : 'is-accent'} study-save`} onClick={save} disabled={saved}>{saved ? <><Check size={16}/> 単語帳に入れました</> : <><Plus size={16}/> 単語帳に入れる</>}</button>
+    </div>}
+  </li>
+}
 
 export function LearnPage() {
   const [summary, setSummary] = useState<LearningSummary | null>(null)
@@ -13,23 +41,26 @@ export function LearnPage() {
   const [hasMore, setHasMore] = useState(false)
   const [offset, setOffset] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [tab, setTab] = useState<'vocabulary'|'grammar'>('vocabulary')
-  const [query, setQuery] = useState(''); const [level, setLevel] = useState<'すべて'|'N2'|'N1'>('すべて')
-  const [kana, setKana] = useState('すべて'); const [category, setCategory] = useState('すべて'); const [vocabCategory, setVocabCategory] = useState('すべて'); const [corpusOnly, setCorpusOnly] = useState(true)
+  const [tab, setTab] = useState<Tab>('vocabulary')
+  const [query, setQuery] = useState('')
+  const [level, setLevel] = useState<'' | 'N2' | 'N1'>('')
+  const [kana, setKana] = useState('')
+  const [category, setCategory] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [openID, setOpenID] = useState<string | null>(null)
+
   useEffect(() => { void loadLearningSummary().then(setSummary).catch(() => setSummary(null)) }, [])
-  // Any filter change starts again from the first page.
-  useEffect(() => { setOffset(0) }, [tab, query, level, kana, category, vocabCategory, corpusOnly])
+  useEffect(() => { setOffset(0); setOpenID(null) }, [tab, query, level, kana, category])
+  useEffect(() => { setKana(''); setCategory('') }, [tab])
   useEffect(() => {
     let active = true
     setStatus('loading')
     const timer = window.setTimeout(() => {
       const url = new URL(`/api/learning/${tab}`, window.location.origin)
       if (query.trim()) url.searchParams.set('q', query.trim())
-      if (level !== 'すべて') url.searchParams.set('level', level)
-      if (tab === 'vocabulary' && kana !== 'すべて') url.searchParams.set('kana', kana)
-      const selectedCategory = tab === 'vocabulary' ? vocabCategory : category
-      if (selectedCategory !== 'すべて') url.searchParams.set('category', selectedCategory)
-      url.searchParams.set('corpusOnly', String(corpusOnly))
+      if (level) url.searchParams.set('level', level)
+      if (tab === 'vocabulary' && kana) url.searchParams.set('kana', kana)
+      if (category) url.searchParams.set('category', category)
       url.searchParams.set('limit', String(PAGE_SIZE))
       url.searchParams.set('offset', String(offset))
       void fetch(url).then(response => {
@@ -41,28 +72,54 @@ export function LearnPage() {
         setHasMore(result.page.hasMore)
         setStatus('ready')
       }).catch(() => { if (active) setStatus('error') })
-    }, query ? 220 : 0)
+    }, query ? 250 : 0)
     return () => { active = false; window.clearTimeout(timer) }
-  }, [tab, query, level, kana, category, vocabCategory, corpusOnly, offset])
-  const categories = summary?.grammarCategories || []
-  const vocabularyCategories = summary?.vocabularyCategories || []
-  const gojuon = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん']
-  const visibleEntries = entries
-  useEffect(() => { setQuery(''); setLevel('すべて') }, [tab])
-  return <main className="learn-page">
-    <section className="learn-intro"><div><span className="kicker">N2 · N1 STUDY MAP</span><h1>文章から、ことばを学ぶ。</h1><p>N2を固めてからN1へ。品詞と文法の働きごとに進み、実際の作品で使い方を確かめます。</p></div><div className="learn-totals"><strong>{summary ? summary.vocabulary.toLocaleString() : '—'}<small>語彙</small></strong><strong>{summary ? summary.grammar.toLocaleString() : '—'}<small>文法</small></strong></div></section>
-    <section className="learn-workspace">
-      <div className="study-path"><div><span>01</span><strong>N2 核心語彙</strong><small>名词・动词・形容词</small></div><div><span>02</span><strong>N2 文法機能</strong><small>条件・原因・对比</small></div><div><span>03</span><strong>N1への橋渡し</strong><small>书面语・抽象表达</small></div><div><span>04</span><strong>作品で定着</strong><small>检索・阅读・复习</small></div></div>
-      <div className="learn-tabs" role="tablist"><button className={tab === 'vocabulary' ? 'active' : ''} onClick={() => setTab('vocabulary')}>語彙<span>五十音順</span></button><button className={tab === 'grammar' ? 'active' : ''} onClick={() => setTab('grammar')}>文法<span>働き別</span></button></div>
-      <div className="learn-search"><Search size={18}/><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'vocabulary' ? '漢字・読み・意味で検索' : '文型・意味・接続で検索'}/><label><input type="checkbox" checked={corpusOnly} onChange={event => setCorpusOnly(event.target.checked)}/> 収録作品にある項目</label></div>
-      <div className="learn-filter-row"><ListFilter size={16}/><div className="level-switch">{['すべて','N2','N1'].map(item => <button key={item} className={level === item ? 'active' : ''} onClick={() => setLevel(item as typeof level)}>{item}</button>)}</div>{tab === 'vocabulary' ? <select value={vocabCategory} onChange={event => setVocabCategory(event.target.value)}><option>すべて</option>{vocabularyCategories.map(item => <option key={item}>{item}</option>)}</select> : <select value={category} onChange={event => setCategory(event.target.value)}><option>すべて</option>{categories.map(item => <option key={item}>{item}</option>)}</select>}</div>
-      {tab === 'vocabulary' && <div className="gojuon-filter" aria-label="五十音索引"><button className={kana === 'すべて' ? 'active' : ''} onClick={() => setKana('すべて')}>全</button>{gojuon.map(item => <button key={item} className={kana === item ? 'active' : ''} onClick={() => setKana(item)}>{item}</button>)}<button className={kana === '他' ? 'active' : ''} onClick={() => setKana('他')}>他</button></div>}
-      <div className="result-heading"><strong>{status === 'error' ? '読み込めませんでした' : `${visibleEntries.length.toLocaleString()}項目${hasMore ? '以上' : ''}`}</strong><span>JLPT参考分類 · 公式リストではありません</span></div>
-      <div className="learning-list">{visibleEntries.map(entry => 'term' in entry ? <article className="learning-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.term}</h2><p>{entry.reading} · {entry.category || '其他'}</p></div><p className="entry-meaning">{entry.meaning}<small>{entry.meaningLanguage === 'en' && '英文原释义 · 中文化予定'}</small></p><div className="article-links">{entry.articles?.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article> : <article className="learning-row grammar-row" key={entry.id}><div className={`level-stamp ${entry.level.toLowerCase()}`}>{entry.level}</div><div className="entry-word"><h2>{entry.pattern}</h2><p>{entry.category}</p></div><div className="entry-meaning"><strong>{entry.meaning}</strong><small>{entry.formation}</small>{entry.meaningLanguage === 'en' && <small>英文原释义 · 中文化予定</small>}</div><div className="article-links">{entry.articles?.length ? entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title}<span>{article.count}回</span></Link>) : <span>収録作品では未登場</span>}</div></article>)}</div>
-      {status === 'loading' && <p className="result-limit">読み込んでいます…</p>}
-      {status === 'error' && <p className="result-limit">語彙データベースに接続できません。少し時間をおいて、もう一度お試しください。</p>}
-      {hasMore && status === 'ready' && <button className="daily-button is-quiet learn-more" onClick={() => setOffset(visibleEntries.length)}>さらに{PAGE_SIZE}項目を表示</button>}
-      <p className="dataset-notice">{NOTICE}</p>
-    </section>
+  }, [tab, query, level, kana, category, offset])
+
+  const categories = tab === 'vocabulary' ? summary?.vocabularyCategories || [] : summary?.grammarCategories || []
+  const activeFilters = Number(Boolean(kana)) + Number(Boolean(category))
+  return <main className="page-frame study-page">
+    <header className="page-head">
+      <span className="page-kicker">単語・文法の索引</span>
+      <h1>作品に出てくる言葉を引く</h1>
+      <p>N2・N1 の言葉を探して、青空文庫のどの一文に出てくるかを確かめられます。</p>
+    </header>
+
+    <label className="study-search"><Search size={18}/>
+      <input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'vocabulary' ? '漢字・読み・意味で探す' : '文型・意味で探す'} aria-label="検索"/>
+      {query && <button onClick={() => setQuery('')} aria-label="検索を消す"><X size={16}/></button>}
+    </label>
+
+    <div className="study-controls">
+      <div className="segmented" role="tablist">
+        {(['vocabulary', 'grammar'] as Tab[]).map(value => <button key={value} role="tab" aria-selected={tab === value} className={tab === value ? 'is-on' : ''} onClick={() => setTab(value)}>
+          {value === 'vocabulary' ? '語彙' : '文法'}<small>{summary ? (value === 'vocabulary' ? summary.vocabulary : summary.grammar).toLocaleString() : ''}</small>
+        </button>)}
+      </div>
+      <div className="segmented is-small">
+        {(['', 'N2', 'N1'] as const).map(value => <button key={value || 'all'} className={level === value ? 'is-on' : ''} onClick={() => setLevel(value)}>{value || 'すべて'}</button>)}
+      </div>
+      <button className={`study-filter-toggle ${filtersOpen || activeFilters ? 'is-on' : ''}`} onClick={() => setFiltersOpen(value => !value)} aria-expanded={filtersOpen}>
+        <SlidersHorizontal size={15}/> 絞り込み{activeFilters > 0 && <b>{activeFilters}</b>}
+      </button>
+    </div>
+
+    {filtersOpen && <div className="study-filters">
+      {tab === 'vocabulary' && <div className="study-kana" aria-label="五十音">
+        {GOJUON.map(item => <button key={item} className={kana === item ? 'is-on' : ''} onClick={() => setKana(kana === item ? '' : item)}>{item}</button>)}
+      </div>}
+      <div className="study-categories">
+        {categories.map(item => <button key={item} className={category === item ? 'is-on' : ''} onClick={() => setCategory(category === item ? '' : item)}>{item}</button>)}
+      </div>
+      {activeFilters > 0 && <button className="text-link" onClick={() => { setKana(''); setCategory('') }}>絞り込みを外す</button>}
+    </div>}
+
+    <ul className="study-list">{entries.map(entry => <EntryRow key={entry.id} entry={entry} open={openID === entry.id} onToggle={() => setOpenID(openID === entry.id ? null : entry.id)}/>)}</ul>
+
+    {status === 'loading' && <p className="study-status">読み込んでいます…</p>}
+    {status === 'error' && <p className="study-status">語彙データベースに接続できません。少し時間をおいて、もう一度お試しください。</p>}
+    {status === 'ready' && !entries.length && <p className="study-status">見つかりませんでした。言葉を短くするか、絞り込みを外してみてください。</p>}
+    {hasMore && status === 'ready' && <button className="daily-button is-quiet learn-more" onClick={() => setOffset(entries.length)}>もっと見る</button>}
+    <p className="study-notice">JLPT は公式の語彙・文法リストを公開していないため、N2・N1 は学習資料にもとづく目安です。語彙の意味は英語で、中国語訳は準備中です。</p>
   </main>
 }

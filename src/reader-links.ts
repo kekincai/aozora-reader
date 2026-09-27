@@ -29,3 +29,11 @@ export function findTopicFocusRange(paragraphText: string, focusText: string) {
   const start = focusText ? paragraphText.indexOf(focusText) : -1
   return start < 0 ? null : { start, end: start + focusText.length }
 }
+
+/** Opens the reader at the paragraph where a word or pattern appears, highlighting its text. */
+export function entryReaderLink(workID: string, paragraphOrdinal?: number | null, text = '') {
+  if (!paragraphOrdinal) return `/read/${encodeURIComponent(workID)}`
+  const params = new URLSearchParams({ paragraph: String(Math.max(1, Math.trunc(paragraphOrdinal))), view: 'reader' })
+  if (text.trim()) params.set('text', text.trim().slice(0, 40))
+  return `/read/${encodeURIComponent(workID)}?${params}`
+}

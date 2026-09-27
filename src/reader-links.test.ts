@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findTopicFocusRange, parseReaderTarget, topicExampleReaderLink, topicFocusText } from './reader-links'
+import { entryReaderLink, findTopicFocusRange, parseReaderTarget, topicExampleReaderLink, topicFocusText } from './reader-links'
 
 describe('topic reader deep links', () => {
   it('preserves the work, paragraph, and recognized topic form', () => {
@@ -23,5 +23,12 @@ describe('topic reader deep links', () => {
     expect(parseReaderTarget('0')).toBeNull()
     expect(parseReaderTarget('2.5')).toBeNull()
     expect(parseReaderTarget('abc')).toBeNull()
+  })
+})
+
+describe('entryReaderLink', () => {
+  it('opens the reader at the paragraph with the word highlighted', () => {
+    expect(entryReaderLink('637', 4, '刺さっ')).toBe('/read/637?paragraph=4&view=reader&text=%E5%88%BA%E3%81%95%E3%81%A3')
+    expect(entryReaderLink('637', null)).toBe('/read/637')
   })
 })

@@ -271,14 +271,9 @@ export async function listVocabulary(request: Request, env: CatalogEnv) {
       order by v.kana_key,v.reading,v.id limit $6 offset $7
     )
     select s.id,s.term,s.reading,s.meaning,s.meaning_language as "meaningLanguage",s.jlpt_level as level,s.kana_key as "kanaKey",s.category,s.annotation_safe as "annotationSafe",
-      coalesce(a.articles,'[]'::json) articles
-    from selected s left join lateral (
-      select json_agg(json_build_object('id',x.aozora_work_id::text,'title',x.title,'author',x.author,'count',x.occurrence_count) order by x.occurrence_count desc) articles from (
-        select w.aozora_work_id,w.title,coalesce(string_agg(concat_ws(' ',p.family_name,p.given_name),'・') filter(where wp.role='著者'),'作者不詳') author,ws.occurrence_count
-        from learning.work_vocabulary_stats ws join catalog.works w on w.id=ws.work_id left join catalog.work_people wp on wp.work_id=w.id left join catalog.people p on p.id=wp.person_id
-        where ws.vocabulary_id=s.id group by w.id,ws.occurrence_count order by ws.occurrence_count desc limit 3
-      ) x
-    ) a on true
+      (select count(*)::integer from learning.work_vocabulary_stats ws where ws.vocabulary_id = s.id) as "workCount"
+    from selected s
+    order by s.kana_key, s.reading, s.id
   `, [query, level, kana, category, corpusOnly, limit + 1, offset]))
   const hasMore = result.rows.length > limit
   return response({ entries: result.rows.slice(0, limit), page: { offset, limit, hasMore, nextOffset: hasMore ? offset + limit : null } })
@@ -301,14 +296,9 @@ export async function listGrammar(request: Request, env: CatalogEnv) {
       order by g.category,g.pattern,g.id limit $5 offset $6
     )
     select s.id,s.title,s.pattern,s.meaning,s.meaning_language as "meaningLanguage",s.formation,s.jlpt_level as level,s.category,s.examples,
-      coalesce(a.articles,'[]'::json) articles
-    from selected s left join lateral (
-      select json_agg(json_build_object('id',x.aozora_work_id::text,'title',x.title,'author',x.author,'count',x.occurrence_count) order by x.occurrence_count desc) articles from (
-        select w.aozora_work_id,w.title,coalesce(string_agg(concat_ws(' ',p.family_name,p.given_name),'・') filter(where wp.role='著者'),'作者不詳') author,ws.occurrence_count
-        from learning.work_grammar_stats ws join catalog.works w on w.id=ws.work_id left join catalog.work_people wp on wp.work_id=w.id left join catalog.people p on p.id=wp.person_id
-        where ws.grammar_id=s.id group by w.id,ws.occurrence_count order by ws.occurrence_count desc limit 3
-      ) x
-    ) a on true
+      (select count(*)::integer from learning.work_grammar_stats ws where ws.grammar_id = s.id) as "workCount"
+    from selected s
+    order by s.category, s.pattern, s.id
   `, [query, level, category, corpusOnly, limit + 1, offset]))
   const hasMore = result.rows.length > limit
   return response({ entries: result.rows.slice(0, limit), page: { offset, limit, hasMore, nextOffset: hasMore ? offset + limit : null } })
@@ -407,22 +397,41 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
   })
 }
 
-/** Works where a vocabulary or grammar entry appears most, loaded when a word sheet opens. */
+/**
+ * Works where a vocabulary or grammar entry appears most, with the first paragraph it appears
+ * in and the exact text, so a link can open the reader at that sentence.
+ */
 export async function entryArticles(env: CatalogEnv, kind: 'vocabulary' | 'grammar', entryID: string) {
   if (!/^[vg]\d{1,6}$/.test(entryID)) return response({ error: '項目IDが正しくありません。' }, 400)
-  const [table, column] = kind === 'vocabulary' ? ['learning.work_vocabulary_stats', 'vocabulary_id'] : ['learning.work_grammar_stats', 'grammar_id']
+  const [stats, column, occurrences, surface] = kind === 'vocabulary'
+    ? ['learning.work_vocabulary_stats', 'vocabulary_id', 'learning.paragraph_vocabulary_occurrences', 'o.surface_form']
+    : ['learning.work_grammar_stats', 'grammar_id', 'learning.paragraph_grammar_occurrences', 'substring(p.plain_text from o.start_offset + 1 for o.end_offset - o.start_offset)']
   const result = await queryCatalog(env, client => client.query(`
+    -- Learners get the easiest readable works first, not the longest novels with the most hits.
+    with top as (
+      select ws.work_id, ws.occurrence_count, coalesce(rd.serial_ok, false) as readable, coalesce(rd.score, 99) as score
+      from ${stats} ws left join app.work_readability rd on rd.work_id = ws.work_id
+      where ws.${column} = $1
+      order by coalesce(rd.serial_ok, false) desc, coalesce(rd.score, 99), ws.occurrence_count desc, ws.work_id
+      limit 3
+    )
     select w.aozora_work_id::text as id, w.title,
-      coalesce(string_agg(concat_ws(' ', p.family_name, p.given_name), '・') filter (where wp.role = '著者'), '作者不詳') as author,
-      ws.occurrence_count::integer as count
-    from ${table} ws
-    join catalog.works w on w.id = ws.work_id
-    left join catalog.work_people wp on wp.work_id = w.id
-    left join catalog.people p on p.id = wp.person_id
-    where ws.${column} = $1
-    group by w.id, ws.occurrence_count
-    order by ws.occurrence_count desc, w.aozora_work_id
-    limit 3
+      coalesce((select string_agg(concat_ws(' ', pe.family_name, pe.given_name), '・' order by wp.ordinal)
+        from catalog.work_people wp join catalog.people pe on pe.id = wp.person_id
+        where wp.work_id = w.id and wp.role = '著者'), '作者不詳') as author,
+      top.occurrence_count::integer as count, first.ordinal::integer as ordinal, first.text
+    from top
+    join catalog.works w on w.id = top.work_id
+    -- Walk the work's paragraphs in order and stop at the first one containing the entry.
+    left join lateral (
+      select p.ordinal, ${surface} as text
+      from catalog.paragraphs p
+      join lateral (select * from ${occurrences} o where o.paragraph_id = p.id and o.${column} = $1 order by o.ordinal limit 1) o on true
+      where p.work_id = w.id
+      order by p.ordinal
+      limit 1
+    ) first on true
+    order by top.readable desc, top.score, top.occurrence_count desc
   `, [entryID]))
   return response({ articles: result.rows })
 }
