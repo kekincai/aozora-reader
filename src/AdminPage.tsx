@@ -1,43 +1,33 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Activity, BookOpen, MessageCircle, RefreshCw, Users } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import type { CloudUser } from './auth'
 import { loadAdminOverview, setFeedbackStatus, type AdminOverview, type FeedbackStatus, type Retention } from './operations'
 
 const number = new Intl.NumberFormat('ja-JP')
-const date = new Intl.DateTimeFormat('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-const eventLabels: Record<string,string> = { page_view:'ページ閲覧', read_start:'読書開始', search:'文章検索', learning_open:'学習項目', review_complete:'復習完了', feedback_submitted:'ご意見', page_complete:'一頁読了', quiz_done:'確かめ完了' }
-const statusLabels: Record<FeedbackStatus,string> = { open:'未対応', reviewing:'確認中', resolved:'対応済み', closed:'終了' }
+const dateTime = new Intl.DateTimeFormat('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+const eventLabels: Record<string, string> = { page_view: 'ページ閲覧', read_start: '読書開始', page_complete: '一頁読了', quiz_done: '確かめ完了', search: '作品検索', learning_open: '言葉を開く', review_complete: '復習', feedback_submitted: 'ご意見' }
+const statusLabels: Record<FeedbackStatus, string> = { open: '未対応', reviewing: '確認中', resolved: '対応済み', closed: '終了' }
+const categoryLabels: Record<string, string> = { bug: '不具合', suggestion: '提案', content: '内容', other: 'その他' }
 
-function TrendChart({ data }: { data: AdminOverview['daily'] }) {
-  const points = useMemo(() => {
-    if (!data.length) return []
-    const max = Math.max(1, ...data.map(item => Number(item.readers) + Number(item.readStarts)))
-    return data.map((item, index) => ({ ...item, x: 34 + index * (632 / Math.max(1, data.length - 1)), y: 176 - ((Number(item.readers) + Number(item.readStarts)) / max) * 132 }))
-  }, [data])
-  if (!points.length) return <div className="admin-empty">データが集まると、ここに14日間の推移が表示されます。</div>
-  return <svg className="trend-chart" viewBox="0 0 700 220" role="img" aria-label="直近14日間の利用推移">
-    {[44,88,132,176].map(y => <line key={y} x1="34" y1={y} x2="666" y2={y}/>) }
-    <path d={points.map((point,index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ')}/>
-    {points.map(point => <g key={point.date}><circle cx={point.x} cy={point.y} r="4"/><text x={point.x} y="207" textAnchor="middle">{point.date.slice(5)}</text></g>)}
-  </svg>
+function rate(value?: Retention, day: 1 | 7 = 1) {
+  const cohort = Number(day === 1 ? value?.cohortDay1 : value?.cohortDay7) || 0
+  const returned = Number(day === 1 ? value?.returnedDay1 : value?.returnedDay7) || 0
+  return { text: cohort ? `${Math.round(100 * returned / cohort)}%` : '—', detail: `${number.format(returned)} / ${number.format(cohort)}人` }
 }
 
-function rate(returned?: number, cohort?: number) {
-  return cohort ? `${Math.round(100 * Number(returned || 0) / Number(cohort))}%` : '—'
+function Kpi({ label, value, note }: { label: string; value: string; note?: string }) {
+  return <div className="admin-kpi"><span>{label}</span><strong>{value}</strong>{note && <small>{note}</small>}</div>
 }
 
-function RetentionCard({ label, value }: { label: string; value?: Retention }) {
-  return <div className="retention-card"><span>{label}</span>
-    <div><strong>{rate(value?.returnedDay1, value?.cohortDay1)}</strong><small>翌日も来た（{number.format(Number(value?.returnedDay1 || 0))} / {number.format(Number(value?.cohortDay1 || 0))}人）</small></div>
-    <div><strong>{rate(value?.returnedDay7, value?.cohortDay7)}</strong><small>7日以内に戻った（{number.format(Number(value?.returnedDay7 || 0))} / {number.format(Number(value?.cohortDay7 || 0))}人）</small></div>
-  </div>
+function Panel({ title, note, children, className = '' }: { title: string; note?: string; children: React.ReactNode; className?: string }) {
+  return <section className={`admin-card ${className}`}><header><h2>{title}</h2>{note && <span>{note}</span>}</header>{children}</section>
 }
 
-function DailyReadingBars({ data }: { data: NonNullable<AdminOverview['dailyReading']> }) {
-  if (!data.length) return <div className="admin-empty">一頁を読み終えた記録が集まると、ここに表示されます。</div>
+function Bars({ data }: { data: NonNullable<AdminOverview['dailyReading']> }) {
+  if (!data.length) return <p className="admin-empty">一頁を読み終えた記録が集まると、ここに表示されます。</p>
   const max = Math.max(1, ...data.map(item => Number(item.pages)))
-  return <div className="reading-bars" role="img" aria-label="日ごとの一頁読了数">{data.map(item => <div key={item.date} title={`${item.date} ${item.pages}頁 · ${item.readers}人`}>
-    <i style={{ height: `${Math.max(4, Number(item.pages) / max * 100)}%` }}/><span>{item.date.slice(5)}</span><b>{item.readers}人</b>
+  return <div className="admin-bars" role="img" aria-label="日ごとの一頁読了数">{data.map(item => <div key={item.date} title={`${item.date}　${item.pages}頁 · ${item.readers}人`}>
+    <b>{item.readers}</b><i style={{ height: `${Math.max(4, Number(item.pages) / max * 100)}%` }}/><span>{item.date.slice(5).replace('-', '/')}</span>
   </div>)}</div>
 }
 
@@ -54,31 +44,65 @@ export function AdminPage({ user }: { user: CloudUser | null }) {
   }, [user?.isAdmin])
   useEffect(() => { void load() }, [load])
 
-  if (!user?.isAdmin) return <main className="admin-denied"><h1>管理者ページ</h1><p>このページを表示するには、管理者のパスキーでログインしてください。</p></main>
+  if (!user?.isAdmin) return <main className="page-frame"><header className="page-head is-center"><span className="page-kicker">管理</span><h1>管理者のパスキーでログインしてください</h1><p>運営の数字とご意見は、管理者だけが見られます。</p></header></main>
+
   const metrics = data?.metrics || {}
-  const changeStatus = async (id: string, status: FeedbackStatus) => { await setFeedbackStatus(id, status); await load() }
+  const today = data?.dailyReading?.at(-1)
+  const todayKey = new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 10)
+  const readersToday = today?.date === todayKey ? Number(today.readers) : 0
   const maxEvent = Math.max(1, ...(data?.events.map(item => Number(item.count)) || [1]))
-  return <main className="admin-page">
-    <header className="admin-heading"><div><h1>管理ダッシュボード</h1><p>読書の流れと、読者から届いた声を確認できます。</p></div><button onClick={() => void load()} disabled={loading}><RefreshCw className={loading ? 'spin' : ''} size={16}/>更新</button></header>
-    {error && <p className="form-error">{error}</p>}
-    <section className="metric-rail">
-      <div><Users/><span>登録ユーザー</span><strong>{number.format(metrics.totalUsers || 0)}</strong></div>
-      <div><Activity/><span>7日間の利用セッション</span><strong>{number.format(metrics.activeReaders7d || 0)}</strong></div>
-      <div><BookOpen/><span>7日間の読書開始</span><strong>{number.format(metrics.readStarts7d || 0)}</strong></div>
-      <div><MessageCircle/><span>未対応のご意見</span><strong>{number.format(metrics.openFeedback || 0)}</strong></div>
-    </section>
-    <section className="admin-panel habit-panel">
-      <div className="admin-panel-title"><h2>毎日の一頁</h2><span>直近5週間に初めて来た人 · 日本時間</span></div>
-      <div className="retention-grid"><RetentionCard label="一頁を読み終えた人" value={data?.retention?.readers}/><RetentionCard label="訪れた人" value={data?.retention?.visitors}/></div>
-      <DailyReadingBars data={data?.dailyReading || []}/>
-      <p className="admin-footnote">9月28日の更新より前は訪問ごとに別人として数えていたため、それ以前の回帰率は低く出ます。</p>
-    </section>
-    <section className="admin-grid">
-      <div className="admin-panel trend-panel"><div className="admin-panel-title"><h2>利用推移</h2><span>直近14日間</span></div><TrendChart data={data?.daily || []}/></div>
-      <div className="admin-panel"><div className="admin-panel-title"><h2>よく読まれている作品</h2><span>7日間</span></div><div className="admin-table top-works">{data?.topWorks.length ? data.topWorks.map((item,index) => <div key={item.workID}><b>{index + 1}</b><span>{item.title}</span><strong>{number.format(item.count)}回</strong></div>) : <div className="admin-empty">読書データはまだありません。</div>}</div></div>
-      <div className="admin-panel event-panel"><div className="admin-panel-title"><h2>イベント分布</h2><span>7日間</span></div>{data?.events.length ? data.events.map(item => <div className="event-row" key={item.eventName}><span>{eventLabels[item.eventName] || item.eventName}</span><i><b style={{width:`${Number(item.count) / maxEvent * 100}%`}}/></i><strong>{number.format(item.count)}</strong></div>) : <div className="admin-empty">イベントはまだありません。</div>}</div>
-      <div className="admin-panel user-panel"><div className="admin-panel-title"><h2>登録ユーザー</h2><span>{data?.users.length || 0}人</span></div><div className="admin-table users-table"><div className="table-head"><span>名前</span><span>登録日</span><span>最終利用</span><span>イベント</span></div>{data?.users.map(item => <div key={item.id}><strong>{item.displayName}</strong><span>{date.format(item.createdAt)}</span><span>{item.lastActiveAt ? date.format(item.lastActiveAt) : '—'}</span><span>{number.format(item.eventCount)}</span></div>)}</div></div>
-    </section>
-    <section className="admin-panel feedback-admin"><div className="admin-panel-title"><h2>最近のご意見</h2><span>{data?.feedback.length || 0}件</span></div><div className="feedback-admin-list">{data?.feedback.length ? data.feedback.map(item => <article key={item.id}><div><time>{date.format(item.createdAt)}</time><span>{item.displayName || '匿名'}</span><span>{item.pagePath}</span></div><p>{item.message}</p>{item.contact && <small>返信先：{item.contact}</small>}<select aria-label="対応状況" value={item.status} onChange={event => void changeStatus(item.id, event.target.value as FeedbackStatus)}>{(Object.keys(statusLabels) as FeedbackStatus[]).map(status => <option key={status} value={status}>{statusLabels[status]}</option>)}</select></article>) : <div className="admin-empty">ご意見はまだ届いていません。</div>}</div></section>
+  const changeStatus = async (id: string, status: FeedbackStatus) => { await setFeedbackStatus(id, status); await load() }
+  const readerDay1 = rate(data?.retention?.readers, 1)
+
+  return <main className="page-frame admin">
+    <header className="admin-top">
+      <div><span className="page-kicker">管理</span><h1>運営の様子</h1><p>{data ? `${dateTime.format(data.generatedAt)} 時点` : '読み込んでいます…'}</p></div>
+      <button className="daily-button is-quiet" onClick={() => void load()} disabled={loading}><RefreshCw className={loading ? 'spin' : ''} size={16}/> 更新</button>
+    </header>
+    {error && <p className="study-status">{error}</p>}
+
+    <div className="admin-kpis">
+      <Kpi label="今日読み終えた人" value={number.format(readersToday)} note={today?.date === todayKey ? `${number.format(Number(today.pages))}頁` : undefined}/>
+      <Kpi label="7日間の利用者" value={number.format(Number(metrics.activeReaders7d || 0))} note={`登録 ${number.format(Number(metrics.totalUsers || 0))}人`}/>
+      <Kpi label="翌日も読んだ人" value={readerDay1.text} note={readerDay1.detail}/>
+      <Kpi label="未対応のご意見" value={number.format(Number(metrics.openFeedback || 0))}/>
+    </div>
+
+    <Panel title="毎日の一頁" note="直近14日 · 日本時間 · 棒は頁数、数字は人数" className="admin-wide">
+      <Bars data={data?.dailyReading || []}/>
+      <div className="admin-retention">
+        {([['一頁を読み終えた人', data?.retention?.readers], ['訪れた人', data?.retention?.visitors]] as const).map(([label, value]) => <div key={label}>
+          <span>{label}</span>
+          <p><strong>{rate(value, 1).text}</strong> 翌日 <small>{rate(value, 1).detail}</small></p>
+          <p><strong>{rate(value, 7).text}</strong> 7日以内 <small>{rate(value, 7).detail}</small></p>
+        </div>)}
+      </div>
+      <p className="admin-footnote">9月28日より前は訪問ごとに別人として数えていたため、それ以前に来た人の回帰率は低く出ます。</p>
+    </Panel>
+
+    <div className="admin-grid-2">
+      <Panel title="よく読まれている作品" note="7日間 · 読書開始">
+        {data?.topWorks.length ? <ol className="admin-rank">{data.topWorks.map(item => <li key={item.workID}><span>{item.title}</span><b>{number.format(item.count)}</b></li>)}</ol> : <p className="admin-empty">読書データはまだありません。</p>}
+      </Panel>
+      <Panel title="イベント" note="7日間">
+        {data?.events.length ? <ul className="admin-events">{data.events.map(item => <li key={item.eventName}><span>{eventLabels[item.eventName] || item.eventName}</span><i><b style={{ width: `${Number(item.count) / maxEvent * 100}%` }}/></i><strong>{number.format(item.count)}</strong></li>)}</ul> : <p className="admin-empty">イベントはまだありません。</p>}
+      </Panel>
+    </div>
+
+    <Panel title="ご意見" note={`${data?.feedback.length || 0}件`} className="admin-wide">
+      {data?.feedback.length ? <ul className="admin-feedback">{data.feedback.map(item => <li key={item.id} className={`is-${item.status}`}>
+        <div className="admin-feedback-meta"><span className="level-chip">{categoryLabels[item.category] || item.category}</span><time>{dateTime.format(item.createdAt)}</time><span>{item.displayName || '匿名'}</span><span>{item.pagePath}</span></div>
+        <p>{item.message}</p>
+        {item.contact && <small>返信先：{item.contact}</small>}
+        <select aria-label="対応状況" value={item.status} onChange={event => void changeStatus(item.id, event.target.value as FeedbackStatus)}>{(Object.keys(statusLabels) as FeedbackStatus[]).map(status => <option key={status} value={status}>{statusLabels[status]}</option>)}</select>
+      </li>)}</ul> : <p className="admin-empty">ご意見はまだ届いていません。</p>}
+    </Panel>
+
+    <Panel title="登録ユーザー" note={`${data?.users.length || 0}人`} className="admin-wide">
+      {data?.users.length ? <div className="admin-table-wrap"><table className="admin-table">
+        <thead><tr><th>名前</th><th>登録</th><th>最終利用</th><th>イベント</th><th>同期</th></tr></thead>
+        <tbody>{data.users.map(item => <tr key={item.id}><td>{item.displayName}</td><td>{dateTime.format(item.createdAt)}</td><td>{item.lastActiveAt ? dateTime.format(item.lastActiveAt) : '—'}</td><td>{number.format(item.eventCount)}</td><td>{item.hasCloudState ? '済' : '—'}</td></tr>)}</tbody>
+      </table></div> : <p className="admin-empty">登録ユーザーはまだいません。</p>}
+    </Panel>
   </main>
 }
