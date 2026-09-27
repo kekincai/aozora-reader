@@ -1,7 +1,7 @@
 import { annotateLearning, type AnnotatedToken, type WorkSummary } from './catalog'
 
 export type ArticleRef = { id: string; title: string; author: string; count: number; ordinal?: number | null; text?: string | null }
-export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaKey?: string; category?: string; annotationSafe?: boolean; articles?: ArticleRef[]; workCount?: number }
+export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningZh?: string | null; meaningLanguage?: string; level: 'N1'|'N2'; kanaKey?: string; category?: string; annotationSafe?: boolean; articles?: ArticleRef[]; workCount?: number }
 export type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles?: ArticleRef[]; workCount?: number }
 /** The dictionary entries a work (or a window of it) actually uses. */
 export type WorkEntries = { vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
@@ -71,6 +71,16 @@ export function sentenceAround(text: string, offset: number) {
   while (start > 0 && !'。！？'.includes(characters[start - 1])) start -= 1
   while (end < characters.length && !'。！？'.includes(characters[end])) end += 1
   return characters.slice(start, Math.min(characters.length, end + 1)).join('').trim()
+}
+
+/** Chinese when the lexicon has it (grammar always does), otherwise the English reference meaning. */
+export function meaningOf(entry: VocabularyEntry | GrammarEntry) {
+  return 'meaningZh' in entry && entry.meaningZh ? entry.meaningZh : entry.meaning
+}
+
+/** The English meaning to show under a Chinese one, if there is one. */
+export function englishMeaning(entry: VocabularyEntry | GrammarEntry) {
+  return 'meaningZh' in entry && entry.meaningZh ? entry.meaning : null
 }
 
 export function entryWord(selected: SelectedEntry) {

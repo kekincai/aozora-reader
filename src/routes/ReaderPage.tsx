@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, BookOpenText, Check, ChevronRight, LocateFixed, RotateCcw, X } from 'lucide-react'
 import { loadWork, readingForToken, type AnnotatedToken, type ReaderWork as Work } from '../catalog'
 import { EntryArticles } from '../components/EntryArticles'
-import { entryWord, type SelectedEntry } from '../learning'
+import { englishMeaning, entryWord, meaningOf, type SelectedEntry } from '../learning'
 import { trackEvent } from '../operations'
 import { findTopicFocusRange, parseReaderTarget } from '../reader-links'
 import { addCard, useApp, useReadingTimer } from '../state/context'
@@ -41,7 +41,7 @@ export function ReaderPage() {
     setState(current => addCard(current, {
       kind: selected.kind, entryId: selected.entry.id, word: entryWord(selected),
       reading: selected.kind === 'vocabulary' ? selected.entry.reading : selected.entry.formation,
-      meaning: selected.entry.meaning, level: selected.entry.level, workId: id,
+      meaning: meaningOf(selected.entry), level: selected.entry.level, workId: id,
     }))
   }
   const visibleParagraphs = useMemo(() => {
@@ -114,6 +114,6 @@ export function ReaderPage() {
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>
     <Link className="mobile-learning-bar" to="/learn"><span>この章：{work.learning?.vocabularyUnique || 0}語彙・{work.learning?.grammarUnique || 0}文法</span><strong>一覧 <ChevronRight size={14}/></strong></Link>
-    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる"><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{selected.entry.meaning}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}{selected.entry.examples[0].zh && <><br/><small>{selected.entry.examples[0].zh}</small></>}</p>}<EntryArticles selected={selected} className="appears-in" label="この表現がある作品"/><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.cards[`${selected.kind}:${selected.entry.id}`] ? <><Check size={17}/> 単語帳に入れました</> : <><RotateCcw size={17}/> 単語帳に入れる</>}</button></div></section></div>}
+    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる"><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{meaningOf(selected.entry)}{englishMeaning(selected.entry) && <><br/><small>{englishMeaning(selected.entry)}</small></>}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}{selected.entry.examples[0].zh && <><br/><small>{selected.entry.examples[0].zh}</small></>}</p>}<EntryArticles selected={selected} className="appears-in" label="この表現がある作品"/><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.cards[`${selected.kind}:${selected.entry.id}`] ? <><Check size={17}/> 単語帳に入れました</> : <><RotateCcw size={17}/> 単語帳に入れる</>}</button></div></section></div>}
   </div>
 }

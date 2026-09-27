@@ -270,7 +270,7 @@ export async function listVocabulary(request: Request, env: CatalogEnv) {
         (not $5::boolean or exists(select 1 from learning.work_vocabulary_stats ws where ws.vocabulary_id=v.id))
       order by v.kana_key,v.reading,v.id limit $6 offset $7
     )
-    select s.id,s.term,s.reading,s.meaning,s.meaning_language as "meaningLanguage",s.jlpt_level as level,s.kana_key as "kanaKey",s.category,s.annotation_safe as "annotationSafe",
+    select s.id,s.term,s.reading,s.meaning,s.meaning_zh as "meaningZh",s.meaning_language as "meaningLanguage",s.jlpt_level as level,s.kana_key as "kanaKey",s.category,s.annotation_safe as "annotationSafe",
       (select count(*)::integer from learning.work_vocabulary_stats ws where ws.vocabulary_id = s.id) as "workCount"
     from selected s
     order by s.kana_key, s.reading, s.id
@@ -374,7 +374,7 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
     const vocabularyIDs = [...new Set(vocabulary.rows.map(item => String(item.vocabId)))]
     const grammarIDs = [...new Set(grammar.rows.map(item => String(item.grammarId)))]
     const vocabularyEntries = vocabularyIDs.length ? await client.query(`
-      select id, term, reading, meaning, meaning_language as "meaningLanguage", jlpt_level as level, category
+      select id, term, reading, meaning, meaning_zh as "meaningZh", meaning_language as "meaningLanguage", jlpt_level as level, category
       from learning.vocabulary where id = any($1::text[])
     `, [vocabularyIDs]) : { rows: [] }
     const grammarEntries = grammarIDs.length ? await client.query(`

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
 import { EntryArticles } from '../components/EntryArticles'
-import { loadLearningSummary, type GrammarEntry, type LearningSummary, type SelectedEntry, type VocabularyEntry } from '../learning'
+import { englishMeaning, loadLearningSummary, meaningOf, type GrammarEntry, type LearningSummary, type SelectedEntry, type VocabularyEntry } from '../learning'
 import { addCard, useApp } from '../state/context'
 
 const PAGE_SIZE = 60
@@ -17,16 +17,17 @@ function EntryRow({ entry, open, onToggle }: { entry: Entry; open: boolean; onTo
   const save = () => setState(current => addCard(current, {
     kind: selected.kind, entryId: entry.id, word,
     reading: 'term' in entry ? entry.reading : entry.formation,
-    meaning: entry.meaning, level: entry.level,
+    meaning: meaningOf(entry), level: entry.level,
   }))
   return <li className={`study-row ${open ? 'is-open' : ''}`}>
     <button className="study-row-head" onClick={onToggle} aria-expanded={open}>
       <span className="study-word">{word}{'term' in entry && entry.reading !== entry.term && <small>{entry.reading}</small>}</span>
       <span className={`level-chip ${entry.level === 'N1' ? 'n1' : ''}`}>{entry.level}</span>
-      <span className="study-meaning">{entry.meaning}</span>
+      <span className="study-meaning">{meaningOf(entry)}</span>
       <ChevronDown className="study-chevron" size={16}/>
     </button>
     {open && <div className="study-detail">
+      {englishMeaning(entry) && <p className="study-formation">{englishMeaning(entry)}</p>}
       {'formation' in entry && <p className="study-formation">{entry.formation}</p>}
       {'examples' in entry && entry.examples[0] && <p className="study-example">{entry.examples[0].jp}{entry.examples[0].zh && <small>{entry.examples[0].zh}</small>}</p>}
       <EntryArticles selected={selected} className="study-articles" label="作品の中で読む"/>
@@ -120,6 +121,6 @@ export function LearnPage() {
     {status === 'error' && <p className="study-status">語彙データベースに接続できません。少し時間をおいて、もう一度お試しください。</p>}
     {status === 'ready' && !entries.length && <p className="study-status">見つかりませんでした。言葉を短くするか、絞り込みを外してみてください。</p>}
     {hasMore && status === 'ready' && <button className="daily-button is-quiet learn-more" onClick={() => setOffset(entries.length)}>もっと見る</button>}
-    <p className="study-notice">JLPT は公式の語彙・文法リストを公開していないため、N2・N1 は学習資料にもとづく目安です。語彙の意味は英語で、中国語訳は準備中です。</p>
+    <p className="study-notice">JLPT は公式の語彙・文法リストを公開していないため、N2・N1 は学習資料にもとづく目安です。語彙の中国語訳は JMdict（© EDRDG）をもとにした Tomoshi 辞書データ（© Y1Z, CC BY-SA 4.0）の機械翻訳で、人の校閲前のものを含みます。</p>
   </main>
 }

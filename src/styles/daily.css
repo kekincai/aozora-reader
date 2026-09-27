@@ -424,3 +424,4 @@ button.today-tile { grid-template-columns: 20px 1fr; }
   .study-chevron { grid-row: 1; grid-column: 4; }
   .study-filter-toggle { margin-left: 0; }
 }
+.word-panel-meaning small { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }

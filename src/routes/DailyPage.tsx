@@ -11,7 +11,7 @@ import { ReminderInvite } from '../daily/ReminderSettings'
 import { markReadForReminder } from '../push'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
-import { entryForToken, entryWord, loadSerialWork, type WorkEntries } from '../learning'
+import { entryForToken, entryWord, loadSerialWork, meaningOf, type WorkEntries } from '../learning'
 import { trackEvent } from '../operations'
 import { addCard, useApp, useReadingTimer } from '../state/context'
 import { japanDate, Rating, reviewCard, streakSummary, type ReaderState, type SerialPosition } from '../state/store'
@@ -26,9 +26,10 @@ function quizSources(paragraphs: ReturnType<typeof pageText>, learning: WorkEntr
     const text = paragraph.tokens.map(token => token.text).join('')
     return paragraph.tokens.flatMap(token => {
       const selected = entryForToken(token, vocabulary, grammar)
-      if (!selected) return []
+      // Only words with a Chinese meaning, so the right answer never stands out by language.
+      if (!selected || (selected.kind === 'vocabulary' && !selected.entry.meaningZh)) return []
       const context = sentences(text).find(sentence => sentence.includes(token.text)) || text
-      return [{ id: `${selected.kind}:${selected.entry.id}`, surface: token.text, word: entryWord(selected), answer: selected.entry.meaning, context, level: selected.entry.level, kind: selected.kind }]
+      return [{ id: `${selected.kind}:${selected.entry.id}`, surface: token.text, word: entryWord(selected), answer: meaningOf(selected.entry), context, level: selected.entry.level, kind: selected.kind }]
     })
   })
 }
@@ -65,7 +66,7 @@ export function DailyPage() {
     const seed = `${position?.workId}:${page?.ordinals[0]}`
     return buildQuiz(quizSources(paragraphs, learning), {
       // Distractors come from other words in the same work, which keeps them plausible.
-      vocabulary: learning.vocabulary.map(entry => entry.meaning),
+      vocabulary: learning.vocabulary.filter(entry => entry.meaningZh).map(entry => meaningOf(entry)),
       grammar: learning.grammar.map(entry => entry.meaning),
     }, seed)
   }, [learning, paragraphs, position, page])
@@ -150,7 +151,7 @@ export function DailyPage() {
       const [kind, entryId] = question.id.split(':') as ['vocabulary' | 'grammar', string]
       const entry = kind === 'vocabulary' ? vocabulary.get(entryId) : grammar.get(entryId)
       if (!entry) return current
-      return addCard(current, { kind, entryId, word: 'term' in entry ? entry.term : entry.pattern, reading: 'term' in entry ? entry.reading : entry.formation, meaning: entry.meaning, level: entry.level, context: question.context, workId: position?.workId, ordinal: undefined })
+      return addCard(current, { kind, entryId, word: 'term' in entry ? entry.term : entry.pattern, reading: 'term' in entry ? entry.reading : entry.formation, meaning: meaningOf(entry), level: entry.level, context: question.context, workId: position?.workId, ordinal: undefined })
     })
     window.setTimeout(() => {
       if (questionIndex < quiz.length - 1) setQuestionIndex(questionIndex + 1)
@@ -168,7 +169,7 @@ export function DailyPage() {
     setState(current => addCard(current, {
       kind: selected.kind, entryId: selected.entry.id, word: entryWord(selected),
       reading: selected.kind === 'vocabulary' ? selected.entry.reading : selected.entry.formation,
-      meaning: selected.entry.meaning, level: selected.entry.level, context, workId: work?.id, ordinal,
+      meaning: meaningOf(selected.entry), level: selected.entry.level, context, workId: work?.id, ordinal,
     }))
     trackEvent('learning_open', { label: `save_${selected.kind}`, path: '/daily' })
   }

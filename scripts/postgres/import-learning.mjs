@@ -10,6 +10,7 @@ const limit = Math.max(0, Number(process.env.AOZORA_LEARNING_LIMIT || 0))
 const force = process.env.AOZORA_LEARNING_FORCE === 'true'
 const progressEvery = Math.max(1, Number(process.env.AOZORA_LEARNING_PROGRESS_EVERY || 25))
 const index = JSON.parse(await readFile(resolve(root, 'data/lexicon/index.json'), 'utf8'))
+const vocabularyZh = JSON.parse(await readFile(resolve(root, 'data/lexicon/vocabulary-zh.json'), 'utf8').catch(() => '{}'))
 const manifest = JSON.parse(await readFile(resolve(root, 'public/corpus/manifest.json'), 'utf8'))
 // v4: vocabulary matches must also agree on reading (僕 as ぼく is not 僕 as しもべ).
 const version = `learning-v4:${index.generatedAt}`
@@ -71,11 +72,11 @@ async function insertRows(client, table, fields, rows) {
 
 async function seedLexicon(client) {
   await client.query(`
-    insert into learning.vocabulary(id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level)
-    select id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level
-    from jsonb_to_recordset($1::jsonb) as x(id text,term text,reading text,meaning text,meaning_language text,jlpt_level text,kana_key text,category text,annotation_safe boolean,annotation_note text,source_name text,lower_level text)
-    on conflict(id) do update set term=excluded.term,reading=excluded.reading,meaning=excluded.meaning,meaning_language=excluded.meaning_language,jlpt_level=excluded.jlpt_level,kana_key=excluded.kana_key,category=excluded.category,annotation_safe=excluded.annotation_safe,annotation_note=excluded.annotation_note,source_name=excluded.source_name,lower_level=excluded.lower_level,updated_at=now()
-  `, [JSON.stringify(index.vocabulary.map(entry => ({ id: entry.id, term: entry.term, reading: entry.reading, meaning: entry.meaning, meaning_language: entry.meaningLanguage || 'en', jlpt_level: entry.level, kana_key: entry.kanaKey, category: entry.category, annotation_safe: entry.annotationSafe, annotation_note: entry.annotationNote || null, source_name: entry.source, lower_level: entry.lowerLevel || null })))])
+    insert into learning.vocabulary(id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level,meaning_zh,meaning_zh_source)
+    select id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level,meaning_zh,meaning_zh_source
+    from jsonb_to_recordset($1::jsonb) as x(id text,term text,reading text,meaning text,meaning_language text,jlpt_level text,kana_key text,category text,annotation_safe boolean,annotation_note text,source_name text,lower_level text,meaning_zh text,meaning_zh_source text)
+    on conflict(id) do update set term=excluded.term,reading=excluded.reading,meaning=excluded.meaning,meaning_language=excluded.meaning_language,jlpt_level=excluded.jlpt_level,kana_key=excluded.kana_key,category=excluded.category,annotation_safe=excluded.annotation_safe,annotation_note=excluded.annotation_note,source_name=excluded.source_name,lower_level=excluded.lower_level,meaning_zh=excluded.meaning_zh,meaning_zh_source=excluded.meaning_zh_source,updated_at=now()
+  `, [JSON.stringify(index.vocabulary.map(entry => ({ id: entry.id, term: entry.term, reading: entry.reading, meaning: entry.meaning, meaning_language: entry.meaningLanguage || 'en', jlpt_level: entry.level, kana_key: entry.kanaKey, category: entry.category, annotation_safe: entry.annotationSafe, annotation_note: entry.annotationNote || null, source_name: entry.source, lower_level: entry.lowerLevel || null, meaning_zh: vocabularyZh[entry.id]?.meaningZh || null, meaning_zh_source: vocabularyZh[entry.id]?.source || null })))])
   await client.query(`
     insert into learning.grammar_patterns(id,title,pattern,match_parts,meaning,meaning_language,formation,jlpt_level,category,examples,annotation_safe,source_name)
     select id,title,pattern,match_parts,meaning,meaning_language,formation,jlpt_level,category,examples,annotation_safe,source_name
