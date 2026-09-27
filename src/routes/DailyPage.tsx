@@ -48,6 +48,7 @@ export function DailyPage() {
   const [outcome, setOutcome] = useState<Outcome | null>(null)
   const [readRatio, setReadRatio] = useState(0)
   const [copied, setCopied] = useState(false)
+  const [marks, setMarks] = useState(true)
   const takeSeconds = useReadingTimer(seconds => setState(current => ({ ...current, readingSeconds: current.readingSeconds + seconds })))
   const today = japanDate()
 
@@ -178,7 +179,11 @@ export function DailyPage() {
 
     {phase === 'read' && <main className="daily-reading">
       <div className="daily-heading"><span>{work.author}</span><h1>{work.title}</h1></div>
-      <AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selectedKey} onSelect={selection => { setSelection(selection); trackEvent('learning_open', { label: selection.selected.kind, path: '/daily' }) }}/>
+      <div className="daily-legend">
+        {marks ? <><span className="legend-n2">N2 語彙</span><span className="legend-n1">N1 語彙</span><span className="legend-grammar">文法</span><small>タップで意味</small></> : <small>印を隠しています</small>}
+        <button onClick={() => setMarks(value => !value)} aria-pressed={!marks}>{marks ? '印を隠す' : '印を表示'}</button>
+      </div>
+      <div className={marks ? undefined : 'marks-hidden'}><AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selectedKey} onSelect={selection => { setSelection(selection); trackEvent('learning_open', { label: selection.selected.kind, path: '/daily' }) }}/></div>
       <div className="daily-cliff">
         {nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。</p></>}
       </div>

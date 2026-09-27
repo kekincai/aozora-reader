@@ -27,7 +27,7 @@ export function AnnotatedText({ paragraphs, vocabulary, grammar, furigana, activ
       if (!selected) return <span key={index}>{content}</span>
       const key = `${selected.kind}:${selected.entry.id}`
       return <button type="button" key={index}
-        className={`daily-word ${selected.kind === 'grammar' ? 'is-grammar' : ''} ${activeKey === key ? 'is-active' : ''}`}
+        className={`daily-word ${selected.kind === 'grammar' ? 'is-grammar' : `is-${selected.entry.level.toLowerCase()}`} ${activeKey === key ? 'is-active' : ''}`}
         onClick={() => onSelect({ selected, context: sentenceAround(text, start), ordinal: paragraph.ordinal, surface: token.text })}>{content}</button>
     })}</p>
   })}</div>
