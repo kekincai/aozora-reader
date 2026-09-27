@@ -16,6 +16,7 @@
     "db:verify": "node scripts/postgres/verify.mjs",
     "db:verify:learning": "node scripts/postgres/verify-learning.mjs",
     "db:refresh:topics": "node scripts/postgres/refresh-topic-examples.mjs",
+    "db:readability": "node scripts/postgres/compute-readability.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",

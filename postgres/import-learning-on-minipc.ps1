@@ -40,6 +40,7 @@ try {
   Invoke-Npm 'Apply learning database migration' @('run', 'db:migrate')
   Invoke-Npm 'Analyze all works for N2/N1 learning data' @('run', 'db:import:learning')
   Invoke-Npm 'Verify learning database' @('run', 'db:verify:learning')
+  Invoke-Npm 'Compute work difficulty for levels and serials' @('run', 'db:readability')
   Write-Step "`nLearning import completed. Log: $LogPath" Green
 } catch {
   $ExitCode = 1

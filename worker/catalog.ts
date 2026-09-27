@@ -48,7 +48,7 @@ export async function getSeoWork(env: CatalogEnv, workID: string): Promise<SeoWo
         string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal),
         '作者不詳'
       ) as author,
-      coalesce(pr.jlpt_level, '未分類') as level,
+      coalesce(pr.jlpt_level, rd.level, '未分類') as level,
       coalesce(pr.genres[1], '文学') as genre,
       coalesce(pr.summary_ja, '') as summary,
       w.card_url as "sourceUrl",
@@ -59,6 +59,7 @@ export async function getSeoWork(env: CatalogEnv, workID: string): Promise<SeoWo
     left join catalog.work_people wp on wp.work_id = w.id
     left join catalog.people p on p.id = wp.person_id
     left join app.work_profiles pr on pr.work_id = w.id
+    left join app.work_readability rd on rd.work_id = w.id
     left join lateral (
       select string_agg(sample.plain_text, E'\n' order by sample.ordinal) as excerpt
       from (
@@ -70,7 +71,7 @@ export async function getSeoWork(env: CatalogEnv, workID: string): Promise<SeoWo
       ) sample
     ) preview on true
     where w.aozora_work_id = $1 and w.copyright_status = 'なし' and w.has_content
-    group by w.id, pr.work_id, preview.excerpt
+    group by w.id, pr.work_id, rd.work_id, preview.excerpt
   `, [Number(workID)]))
   if (!result.rowCount) return null
   const work = result.rows[0] as SeoWork
@@ -127,7 +128,7 @@ export async function listWorks(request: Request, env: CatalogEnv) {
         string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal),
         '作者不詳'
       ) as author,
-      coalesce(pr.jlpt_level, '未分類') as level,
+      coalesce(pr.jlpt_level, rd.level, '未分類') as level,
       coalesce(pr.genres[1], '文学') as genre,
       greatest(1, ceil(w.character_count / 500.0))::integer as minutes,
       coalesce(pr.summary_ja, '') as summary,
@@ -140,12 +141,13 @@ export async function listWorks(request: Request, env: CatalogEnv) {
     left join catalog.work_people wp on wp.work_id = w.id
     left join catalog.people p on p.id = wp.person_id
     left join app.work_profiles pr on pr.work_id = w.id
+    left join app.work_readability rd on rd.work_id = w.id
     where w.copyright_status = 'なし' and w.has_content
       and ($1::text = '' or w.title ilike '%' || $1 || '%' or w.title_reading ilike '%' || $1 || '%' or concat_ws(' ', p.family_name, p.given_name) ilike '%' || $1 || '%')
-      and ($4::text = '' or pr.jlpt_level = $4)
+      and ($4::text = '' or coalesce(pr.jlpt_level, rd.level) = $4)
       and ($5::text = '' or $5 = any(pr.genres))
       and w.character_count <= $6
-    group by w.id, pr.work_id
+    group by w.id, pr.work_id, rd.work_id
     order by pr.is_curated desc nulls last,
       case when $7 = 'shortest' then w.character_count end asc,
       case when $7 = 'title' then w.sort_reading end asc,
@@ -315,7 +317,8 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
   if (!/^\d{1,6}$/.test(workID)) return response({ error: '作品IDが正しくありません。' }, 400)
   const url = new URL(request.url)
   const from = numberParam(url.searchParams.get('from'), 1, 1, 1_000_000)
-  const limit = numberParam(url.searchParams.get('limit'), 180, 1, 800)
+  // Serial works are at most 30,000 characters with 30+ per paragraph, so 1,200 covers a whole one.
+  const limit = numberParam(url.searchParams.get('limit'), 180, 1, 1200)
   return queryCatalog(env, async client => {
     const workResult = await client.query(`
       select
@@ -325,7 +328,7 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
           string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal),
           '作者不詳'
         ) as author,
-        coalesce(pr.jlpt_level, '未分類') as level,
+        coalesce(pr.jlpt_level, rd.level, '未分類') as level,
         coalesce(pr.genres[1], '文学') as genre,
         greatest(1, ceil(w.character_count / 500.0))::integer as minutes,
         coalesce(pr.summary_ja, '') as summary,
@@ -335,8 +338,9 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
       left join catalog.work_people wp on wp.work_id = w.id
       left join catalog.people p on p.id = wp.person_id
       left join app.work_profiles pr on pr.work_id = w.id
+      left join app.work_readability rd on rd.work_id = w.id
       where w.aozora_work_id = $1 and w.copyright_status = 'なし' and w.has_content
-      group by w.id, pr.work_id
+      group by w.id, pr.work_id, rd.work_id
     `, [Number(workID)])
     if (!workResult.rowCount) return response({ error: '作品が見つかりません。' }, 404)
     const work = workResult.rows[0]
@@ -432,4 +436,57 @@ export async function learningSummary(env: CatalogEnv) {
       (select coalesce(array_agg(distinct category order by category), '{}') from learning.grammar_patterns) as "grammarCategories"
   `))
   return response(result.rows[0])
+}
+
+/**
+ * Three next books for a reader who finished `after`: serial-sized works a little harder
+ * than that one, by different authors, rotating daily so the list is not always the same.
+ */
+export async function serialCandidates(request: Request, env: CatalogEnv) {
+  const url = new URL(request.url)
+  const after = /^\d{1,6}$/.test(url.searchParams.get('after') || '') ? Number(url.searchParams.get('after')) : null
+  const exclude = (url.searchParams.get('exclude') || '').split(',').filter(id => /^\d{1,6}$/.test(id)).slice(0, 400).map(Number)
+  const limit = numberParam(url.searchParams.get('limit'), 3, 1, 6)
+  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date())
+  const result = await queryCatalog(env, client => client.query(`
+    with anchor as (
+      -- An editorial level outranks the computed score (高瀬舟 is N1 even if its kanji share is low).
+      select coalesce((
+        select greatest(rd.score, case pr.jlpt_level when 'N2' then 26 when 'N2+' then 33 when 'N1' then 41 else 0 end)
+        from catalog.works w
+        left join app.work_readability rd on rd.work_id = w.id
+        left join app.work_profiles pr on pr.work_id = w.id
+        where w.aozora_work_id = $1
+      ), 26)::numeric as score
+    ),
+    pool as (
+      select w.id, w.aozora_work_id, w.title, w.character_count, w.paragraph_count, w.card_url, rd.score, rd.level,
+        coalesce(pr.genres[1], '文学') as genre, coalesce(pr.summary_ja, '') as summary,
+        coalesce(string_agg(concat_ws(' ', p.family_name, p.given_name), '・' order by wp.ordinal) filter (where wp.role = '著者'), '作者不詳') as author
+      from app.work_readability rd
+      join catalog.works w on w.id = rd.work_id
+      left join app.work_profiles pr on pr.work_id = w.id
+      left join catalog.work_people wp on wp.work_id = w.id
+      left join catalog.people p on p.id = wp.person_id
+      cross join anchor
+      where rd.serial_ok and w.aozora_work_id <> all($2::int[])
+        -- Stories keep people coming back; essays and studies stay searchable but are not offered as serials.
+        and exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^K?913')
+        -- A little harder than the last book, never a jump of more than one band.
+        and rd.score between anchor.score - 2 and anchor.score + 6
+      group by w.id, rd.work_id, pr.work_id
+    ),
+    one_per_author as (
+      select distinct on (author) *, abs(score - (select score from anchor) - 1.5) as distance
+      from pool order by author, abs(score - (select score from anchor) - 1.5)
+    )
+    select aozora_work_id::text as id, title, author, level, genre, summary, card_url as "sourceUrl", '青空文庫' as attribution,
+      greatest(1, ceil(character_count / 500.0))::integer as minutes, paragraph_count::integer as "paragraphCount",
+      character_count::integer as "characterCount", score::float as score
+    from one_per_author
+    -- Nearest in difficulty first, with a daily shuffle among close candidates.
+    order by round(distance), md5(aozora_work_id::text || $3)
+    limit $4
+  `, [after, exclude, date, limit]))
+  return response({ works: result.rows })
 }

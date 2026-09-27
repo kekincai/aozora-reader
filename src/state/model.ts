@@ -18,11 +18,14 @@ export type WordCard = {
   srs: StoredCard
 }
 export type SerialPosition = { workId: string; ordinal: number }
+export type BookRecord = { title: string; author: string }
 export type ReaderState = {
   version: 2
   pace: Pace
   serial: SerialPosition | null
   finished: string[]
+  /** Titles of works read as serials, so the shelf can show books beyond the first ten. */
+  books: Record<string, BookRecord>
   days: Record<string, DayRecord>
   cards: Record<string, WordCard>
   progress: Record<string, number>
@@ -36,7 +39,7 @@ type LegacyState = { progress?: Record<string, number>; words?: LegacyWord[]; mi
 const scheduler = fsrs({ enable_fuzz: false, enable_short_term: false })
 
 export function emptyState(): ReaderState {
-  return { version: 2, pace: 5, serial: null, finished: [], days: {}, cards: {}, progress: {}, readingSeconds: 0 }
+  return { version: 2, pace: 5, serial: null, finished: [], books: {}, days: {}, cards: {}, progress: {}, readingSeconds: 0 }
 }
 
 /** Calendar date in Japan, which is the day boundary for the daily page. */
@@ -133,9 +136,10 @@ export function migrateState(raw: unknown): ReaderState {
   return state
 }
 
+/** How far a reader has come: books finished first, then the paragraph within the current one. */
 function serialRank(position: SerialPosition | null, finished: string[], order: string[]) {
-  if (!position) return finished.length * 100_000
-  return (Math.max(0, order.indexOf(position.workId)) * 100_000) + position.ordinal
+  const orderHint = position ? Math.max(0, order.indexOf(position.workId)) : 0
+  return finished.length * 1_000_000 + orderHint * 10_000 + (position?.ordinal || 0)
 }
 
 /** Merges two devices' records without losing reading days, cards or progress. */
@@ -161,6 +165,7 @@ export function mergeStates(localRaw: unknown, cloudRaw: unknown, serialOrder: s
     pace: local.pace,
     serial: localAhead ? local.serial : cloud.serial,
     finished: Array.from(new Set([...cloud.finished, ...local.finished])),
+    books: { ...cloud.books, ...local.books },
     days,
     cards,
     progress,

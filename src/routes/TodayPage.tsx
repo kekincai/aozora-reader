@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, BookMarked, RotateCcw } from 'lucide-react'
 import { openingLine, SERIAL_ORDER, startingPosition, PACE_CHARACTERS } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
+import { NextBookChooser } from '../daily/NextBookChooser'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
 import { useApp } from '../state/context'
@@ -44,12 +45,7 @@ export function TodayPage() {
       <h1 className="today-hello">{record ? `おつかれさま${name ? `、${name}さん` : ''}。` : `${greeting()}${name ? ` ${name}さん` : ''}`}</h1>
       <StreakStrip days={state.days} today={today}/>
 
-      {!position ? <article className="serial-card">
-        <span className="serial-kicker">本棚</span>
-        <h2>十冊すべて読み終えました</h2>
-        <p className="serial-teaser">17,831作品のなかから、次の一冊を選べます。</p>
-        <Link className="daily-button is-light" to="/articles">作品を探す <ArrowRight size={17}/></Link>
-      </article> : <article className="serial-card" aria-busy={!page && !error}>
+      {!position ? <NextBookChooser after={state.finished[state.finished.length - 1] || null} note="読み終えた本より少しだけ難しい本を、作者が重ならないように選んでいます。"/> : <article className="serial-card" aria-busy={!page && !error}>
         <span className="serial-kicker">{record ? `今日の一頁 · 読了（${record.pages}頁）` : '連載 · 今日の一頁'}</span>
         <h2>{work?.title || '　'}</h2>
         <p className="serial-author">{work?.author}{page && `　第${page.number}頁 / 全${page.total}頁`}</p>

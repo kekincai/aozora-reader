@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Search, Sparkles } from 'lucide-react'
 import { loadWorks, type WorkSummary } from '../catalog'
 import { SERIAL_ORDER, startingPosition } from '../daily/serial'
+import { NextBookChooser } from '../daily/NextBookChooser'
 import { useApp } from '../state/context'
 
 const SPINE_COLORS = ['#2f5a4d', '#7d4a3a', '#8a6a2c', '#3f5670', '#5c3f5e', '#4d6b5a', '#8b3b2e', '#2f3d4e', '#5a4b33', '#39535a']
@@ -13,6 +14,8 @@ export function ShelfPage() {
   useEffect(() => { void loadWorks().then(setWorks).catch(() => setWorks([])) }, [])
   const byId = new Map(works.map(work => [work.id, work]))
   const current = (state.serial || startingPosition(state.finished))?.workId
+  // Serials chosen after the first ten: finished ones plus the one being read now.
+  const extra = [...state.finished, ...(current ? [current] : [])].filter((id, index, ids) => !SERIAL_ORDER.includes(id) && ids.indexOf(id) === index)
   const status = (id: string) => state.finished.includes(id) ? 'finished' : id === current ? 'reading' : 'next'
   return <main className="shelf-page page-frame">
     <header className="page-head">
@@ -31,6 +34,17 @@ export function ShelfPage() {
     </div>
     <p className="shelf-caption">読了 {state.finished.length} 冊 · 点線はこれから並ぶ本</p>
 
+    {extra.length > 0 && <>
+      <h2 className="shelf-heading">十冊のあとに読んだ本</h2>
+      <div className="shelf is-extra" aria-label="十冊のあとに読んだ本">{extra.map((id, index) => {
+        const book = state.books[id]
+        const kind = status(id)
+        return <Link key={id} to={`/read/${id}`} className={`spine is-${kind === 'next' ? 'finished' : kind}`} style={{ '--spine': SPINE_COLORS[(index + 3) % SPINE_COLORS.length], '--height': `${124 + (index * 13) % 40}px` } as React.CSSProperties} title={book?.title}>
+          <span>{book?.title || '　'}</span>{kind === 'reading' && <i aria-label="連載中"/>}
+        </Link>
+      })}</div>
+    </>}
+
     <ol className="serial-list">{SERIAL_ORDER.map((id, index) => {
       const work = byId.get(id)
       const kind = status(id)
@@ -40,6 +54,8 @@ export function ShelfPage() {
         <span className="serial-list-state">{kind === 'finished' ? '読了' : kind === 'reading' ? '連載中' : 'これから'}</span>
       </li>
     })}</ol>
+
+    <NextBookChooser after={current || state.finished[state.finished.length - 1] || null} title={current ? '別の本を連載にする' : '次の一冊を選ぶ'} note={current ? '今の連載を替えると、明日からは選んだ本の一頁目から始まります。' : undefined}/>
 
     <div className="shelf-more">
       <Link className="today-tile" to="/articles"><Search size={18}/><div><strong>17,831作品から探す</strong><span>題名・作者・長さ・レベルで絞り込み</span></div><ArrowRight size={16}/></Link>

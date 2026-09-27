@@ -26,6 +26,7 @@
 - `learning.paragraph_*_occurrences`：正文中的安全命中位置；短假名和功能词不会自动标注
 - `learning.work_*_stats`：从词汇或文法反查实际出现过的作品
 - `learning.work_analysis`：可续跑的作品分析进度和版本
+- `app.work_readability`：每部作品的难度分数、推算级别（N2 / N2+ / N1 / N1+）和是否适合做每日连载；人工级别仍在 `app.work_profiles`，网站优先使用人工级别
 
 正文偏移量统一使用 Unicode code point，而不是 UTF-16 字节位置。
 
@@ -52,7 +53,10 @@ npm run db:verify
 ```bash
 npm run db:import:learning
 npm run db:verify:learning
+npm run db:readability
 ```
+
+`db:readability` 依据汉字比例、作者注音密度、N1 词汇密度、旧假名 / 旧字体和句长计算难度，约 13 分钟跑完全库，可重复执行。
 
 Mini PC 上只需在 `G:\git\aozora-reader` 更新代码后双击 `postgres\import-learning-on-minipc.cmd`。它不会重新导入青空文库正文，也不会遍历 G 盘；中断后再次运行会跳过相同分析版本中已经完成的作品。
 

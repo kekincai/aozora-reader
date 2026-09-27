@@ -243,6 +243,7 @@ button.today-tile { grid-template-columns: 20px 1fr; }
 .spine:hover { transform: translateY(-6px); }
 .spine span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-height: 100%; }
 .spine.is-next { background: transparent; color: var(--muted); border: 1px dashed #bfc2b5; border-bottom: 0; box-shadow: none; }
+.spine.is-reading { padding-top: 36px; }
 .spine.is-reading i { position: absolute; top: -2px; left: 50%; width: 12px; height: 30px; margin-left: -6px; background: var(--beni); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%); }
 .shelf-caption { font-size: 12px; color: var(--muted); margin: 14px 0 34px; }
 .serial-list { list-style: none; padding: 0; margin: 0 0 34px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
@@ -327,3 +328,20 @@ button.today-tile { grid-template-columns: 20px 1fr; }
   .seal, .streak-marks i, .word-panel { animation: none !important; }
 }
 .learn-more { width: 100%; margin-top: 18px; }
+
+/* ---------- next book chooser ---------- */
+.next-books { margin-top: 28px; }
+.next-books h2 { font: 600 20px var(--serif); letter-spacing: .06em; margin: 0 0 6px; }
+.next-books-note { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+.next-books-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.next-book { display: flex; flex-direction: column; gap: 4px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); }
+.next-book .level-chip { align-self: flex-start; }
+.next-book h3 { font: 600 19px/1.4 var(--serif); letter-spacing: .05em; margin: 6px 0 0; }
+.next-book-author { margin: 0; font-size: 13px; color: var(--ink); }
+.next-book-meta { margin: 0 0 12px; font-size: 12px; color: var(--muted); }
+.next-book-actions { margin-top: auto; display: grid; gap: 8px; }
+.next-book-actions .daily-button { width: 100%; min-height: 42px; font-size: 13px; padding: 10px 12px; }
+.next-book-peek { justify-self: center; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); text-decoration: none; }
+@media (max-width: 899px) { .next-books-list { grid-template-columns: 1fr; } }
+.shelf-heading { font: 600 18px var(--serif); letter-spacing: .06em; margin: 8px 0 12px; }
+.shelf.is-extra { margin-bottom: 30px; }

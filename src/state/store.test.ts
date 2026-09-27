@@ -81,6 +81,15 @@ describe('mergeStates', () => {
     expect(mergeStates(local, once)).toEqual(once)
   })
 
+  it('ranks serials beyond the first ten by books finished', () => {
+    const order = ['637', '92']
+    const ahead = { ...emptyState(), finished: ['637', '92', '1000'], serial: { workId: '2000', ordinal: 3 }, books: { '2000': { title: '次の本', author: '誰か' } } }
+    const behind = { ...emptyState(), finished: ['637', '92'], serial: { workId: '1000', ordinal: 40 } }
+    const merged = mergeStates(behind, ahead, order)
+    expect(merged.serial).toEqual({ workId: '2000', ordinal: 3 })
+    expect(merged.books['2000'].title).toBe('次の本')
+  })
+
   it('survives a stale device saving without today', () => {
     const phone = { ...emptyState(), days: days('2026-09-26', '2026-09-27') }
     const stalePc = { ...emptyState(), days: days('2026-09-26') }

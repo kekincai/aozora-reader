@@ -43,7 +43,7 @@ const serialWorks = new Map<string, Promise<SerialWork>>()
 /** The whole annotated work; serial works are short enough to paginate on the client. */
 export function loadSerialWork(id: string) {
   if (!serialWorks.has(id)) {
-    serialWorks.set(id, fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=1&limit=800`).then(async response => {
+    serialWorks.set(id, fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=1&limit=1200`).then(async response => {
       if (!response.ok) throw new Error('作品を読み込めませんでした。')
       const data = await response.json() as WorkResponse
       return {

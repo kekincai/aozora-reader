@@ -5,6 +5,7 @@ import { AnnotatedText, type TokenSelection } from '../components/AnnotatedText'
 import { WordSheet } from '../components/WordSheet'
 import { advance, buildQuiz, openingLine, pageAt, pickQuote, sentences, SERIAL_ORDER, startingPosition, type QuizQuestion, type QuizSource } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
+import { NextBookChooser } from '../daily/NextBookChooser'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
 import { entryForToken, entryWord, loadSerialWork, type WorkEntries } from '../learning'
@@ -112,6 +113,7 @@ export function DailyPage() {
         ...current,
         serial: next,
         finished: finishedWork && !current.finished.includes(finishedWork) ? [...current.finished, finishedWork] : current.finished,
+        books: { ...current.books, [work.id]: { title: work.title, author: work.author } },
         readingSeconds: current.readingSeconds + seconds,
         days: { ...current.days, [today]: previous
           ? { ...previous, pages: previous.pages + 1, correct: previous.correct + correct, total: previous.total + total, seconds: previous.seconds + seconds }
@@ -196,7 +198,7 @@ export function DailyPage() {
       </div>
       <div className={marks ? undefined : 'marks-hidden'}><AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selectedKey} onSelect={selection => { setSelection(selection); trackEvent('learning_open', { label: selection.selected.kind, path: '/daily' }) }}/></div>
       <div className="daily-cliff">
-        {!page.isLast && nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。{nextWork && `明日からは「${nextWork.title}」。`}</p></>}
+        {!page.isLast && nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。{nextWork ? `明日からは「${nextWork.title}」。` : '次の一冊は、あなたに合う候補から選べます。'}</p></>}
       </div>
       <button className="daily-button is-accent daily-finish" onClick={startQuiz}>{quiz.length ? `読みおわった · ${quiz.length}語を確かめる` : '読みおわった'} <ArrowRight size={17}/></button>
       <p className="daily-hint">下線の言葉をタップすると、意味と原文の一文が出ます。</p>
@@ -224,6 +226,7 @@ export function DailyPage() {
       {outcome.finishedTitle && <p className="done-shelf">「{outcome.finishedTitle}」を読み終えました。<Link to="/shelf">本棚を見る</Link></p>}
       {outcome.quote && <figure className="quote-card"><blockquote>{outcome.quote}</blockquote><figcaption>{work.author}「{work.title}」 · 第{page.number}頁</figcaption></figure>}
       {outcome.quote && <button className="daily-button is-quiet" onClick={() => void copyQuote()}><Copy size={16}/> {copied ? 'コピーしました' : 'この一文をコピーして送る'}</button>}
+      {outcome.finishedTitle && !state.serial && <NextBookChooser after={work.id}/>}
       {outcome.nextLine && <div className="done-tomorrow"><span>{outcome.nextTitle ? `明日から「${outcome.nextTitle}」` : '明日の一行目'}</span><p>{outcome.nextLine}</p></div>}
       <div className="done-actions">
         <Link className="daily-button is-accent" to="/">今日を閉じる</Link>

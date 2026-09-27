@@ -128,3 +128,13 @@ export async function loadWork(id: string, targetParagraph?: number | null): Pro
     paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
   }
 }
+
+export type SerialCandidate = WorkSummary & { score: number }
+
+/** Next books a little harder than `after`, excluding works already read. */
+export async function loadSerialCandidates(after: string | null, exclude: string[]) {
+  const url = new URL('/api/catalog/serial-candidates', window.location.origin)
+  if (after) url.searchParams.set('after', after)
+  if (exclude.length) url.searchParams.set('exclude', exclude.join(','))
+  return json<{ works: SerialCandidate[] }>(await fetch(url)).then(result => result.works)
+}
