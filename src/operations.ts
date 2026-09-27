@@ -6,8 +6,11 @@ export type FeedbackItem = {
   id: string; category: FeedbackCategory; message: string; contact?: string | null; pagePath: string
   status: FeedbackStatus; createdAt: number; displayName?: string | null
 }
+export type Retention = { cohortDay1?: number; returnedDay1?: number; cohortDay7?: number; returnedDay7?: number }
 export type AdminOverview = {
   generatedAt: number
+  dailyReading?: Array<{ date: string; pages: number; readers: number }>
+  retention?: { visitors: Retention; readers: Retention }
   metrics: { totalUsers?: number; activeReaders7d?: number; readStarts7d?: number; openFeedback?: number }
   daily: Array<{ date: string; readers: number; readStarts: number }>
   topWorks: Array<{ workID: string; title: string; count: number }>
@@ -16,13 +19,14 @@ export type AdminOverview = {
   users: Array<{ id: string; displayName: string; createdAt: number; lastActiveAt?: number | null; eventCount: number; hasCloudState: number }>
 }
 
+// A random id kept on this device so return visits can be counted; no personal data, hashed on the server.
 const visitorID = (() => {
-  const key = 'aozora-analytics-session'
+  const key = 'aozora-visitor'
   try {
-    const existing = sessionStorage.getItem(key)
+    const existing = localStorage.getItem(key)
     if (existing) return existing
     const created = crypto.randomUUID()
-    sessionStorage.setItem(key, created)
+    localStorage.setItem(key, created)
     return created
   } catch { return crypto.randomUUID() }
 })()
@@ -67,4 +71,10 @@ export function setFeedbackStatus(id: string, status: FeedbackStatus) {
   return api<{ updated: true }>(`/api/admin/feedback/${encodeURIComponent(id)}`, {
     method: 'PATCH', body: JSON.stringify({ status }),
   })
+}
+
+export async function loadDailyStats() {
+  const response = await fetch('/api/daily/stats')
+  if (!response.ok) throw new Error('stats unavailable')
+  return response.json() as Promise<{ readersToday: number }>
 }

@@ -6,12 +6,13 @@ import {
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
 import { catalogHealth, entryArticles, getWork, learningSummary, serialCandidates, listGrammar, listTopicExamples, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
-import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
+import { adminOverview, dailyStats, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
 import { handleSeoRequest } from './seo'
+import { pushRoute, sendDailyReminders, type PushEnv } from './push'
 import { mergeStates } from '../src/state/model'
 import { SERIAL_ORDER } from '../src/daily/serial'
 
-interface Env extends CatalogEnv {
+interface Env extends CatalogEnv, PushEnv {
   DB: D1Database
   ASSETS: Fetcher
 }
@@ -131,7 +132,7 @@ async function registerOptions(request: Request, env: Env) {
   const { rpID, origin } = requestSite(request)
   const userID = crypto.randomUUID()
   const options = await generateRegistrationOptions({
-    rpName: '青空しおり', rpID, userID: new TextEncoder().encode(userID), userName: displayName,
+    rpName: '青空しおり', rpID, userID: new TextEncoder().encode(userID) as Uint8Array<ArrayBuffer>, userName: displayName,
     userDisplayName: displayName, attestationType: 'none',
     authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
     preferredAuthenticatorType: 'localDevice',
@@ -233,6 +234,7 @@ async function handle(request: Request, env: Env) {
   if (request.method === 'GET' && url.pathname === '/api/learning/vocabulary') return listVocabulary(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/grammar') return listGrammar(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/summary') return learningSummary(env)
+  if (request.method === 'GET' && url.pathname === '/api/daily/stats') return dailyStats(env)
   if (request.method === 'GET' && url.pathname === '/api/catalog/serial-candidates') return serialCandidates(request, env)
   const articlesMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/learning\/(vocabulary|grammar)\/([vg]\d{1,6})\/articles$/) : null
   if (articlesMatch) return entryArticles(env, articlesMatch[1] as 'vocabulary' | 'grammar', articlesMatch[2])
@@ -250,6 +252,11 @@ async function handle(request: Request, env: Env) {
     const token = cookie(request, 'aozora_session')
     if (token) await env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await sha256(token)).run()
     return json({ ok: true }, 200, { 'set-cookie': sessionCookie(request, '', 0) })
+  }
+  if (url.pathname.startsWith('/api/push/')) {
+    const user = request.method === 'POST' && url.pathname === '/api/push/subscribe' ? await currentUser(request, env) : null
+    const result = await pushRoute(request, env, url, user?.id || null)
+    if (result) return result
   }
   if (url.pathname === '/api/state' && (request.method === 'GET' || request.method === 'PUT')) return stateRoute(request, env)
   if (request.method === 'POST' && url.pathname === '/api/analytics') return recordAnalytics(request, env, await currentUser(request, env))
@@ -274,5 +281,8 @@ export default {
       if (cause instanceof ApiError || cause instanceof OperationsError) return error(cause.message, cause.status)
       return error('処理を完了できませんでした。', 500)
     }
+  },
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(sendDailyReminders(env).then(result => console.log('daily reminders', JSON.stringify(result))))
   },
 } satisfies ExportedHandler<Env>

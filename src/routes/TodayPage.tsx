@@ -4,6 +4,7 @@ import { ArrowRight, BookMarked, RotateCcw } from 'lucide-react'
 import { openingLine, SERIAL_ORDER, startingPosition, PACE_CHARACTERS } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
 import { NextBookChooser } from '../daily/NextBookChooser'
+import { ReadersToday } from '../daily/ReadersToday'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
 import { useApp } from '../state/context'
@@ -58,6 +59,8 @@ export function TodayPage() {
             <Link className="daily-button is-light" to="/daily">{record ? 'もう一頁だけ読む' : '今日の一頁をひらく'} <ArrowRight size={17}/></Link>
           </>}
       </article>}
+
+      <ReadersToday/>
 
       {isNew && <section className="today-pace">
         <h2>一日の長さを選ぶ</h2>

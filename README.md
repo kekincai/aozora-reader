@@ -44,6 +44,16 @@ npm run dev
 
 SQLiteには作品、5,311語のN2/N1参考語彙、434項目の中国語文法説明、作品内出現回数と逆引き索引を保存します。動詞・形容詞はkuromojiで基本形へ戻して照合し、本文の文法標示は誤検出しやすい一文字・曖昧表現を除いた保守的な一致だけに限定します。
 
+## 毎日のお知らせ（Web Push）
+
+- `public/sw.js` と `public/manifest.webmanifest` で PWA として追加でき、通知を受け取れます（iPhone・iPad はホーム画面に追加したときのみ）。
+- 購読は D1 の `push_subscriptions` に保存し、Worker の Cron（毎時0分）が「その時刻を選んだ、今日まだ読んでいない人」にだけ送ります。
+- 公開鍵は `wrangler.jsonc` の `VAPID_PUBLIC_KEY`、秘密鍵（JWK の `d`）は Worker のシークレット `VAPID_PRIVATE_KEY` です。
+
+```bash
+npx wrangler secret put VAPID_PRIVATE_KEY
+```
+
 ## 検証とデプロイ
 
 ```bash

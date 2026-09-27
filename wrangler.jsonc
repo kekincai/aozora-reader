@@ -35,6 +35,10 @@
       "migrations_dir": "migrations"
     }
   ],
+  "triggers": { "crons": ["0 * * * *"] },
+  "vars": {
+    "VAPID_PUBLIC_KEY": "BDJABZEdcNXyrIxaylt8TZ4HByyErwAFytW50tipmr50JP2gApbMZz9Iggacwf3L0JD-L2pngnzpB0CI9QQ3glc"
+  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",

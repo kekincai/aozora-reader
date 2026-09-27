@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, BookOpen, MessageCircle, RefreshCw, Users } from 'lucide-react'
 import type { CloudUser } from './auth'
-import { loadAdminOverview, setFeedbackStatus, type AdminOverview, type FeedbackStatus } from './operations'
+import { loadAdminOverview, setFeedbackStatus, type AdminOverview, type FeedbackStatus, type Retention } from './operations'
 
 const number = new Intl.NumberFormat('ja-JP')
 const date = new Intl.DateTimeFormat('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-const eventLabels: Record<string,string> = { page_view:'ページ閲覧', read_start:'読書開始', search:'文章検索', learning_open:'学習項目', review_complete:'復習完了', feedback_submitted:'ご意見' }
+const eventLabels: Record<string,string> = { page_view:'ページ閲覧', read_start:'読書開始', search:'文章検索', learning_open:'学習項目', review_complete:'復習完了', feedback_submitted:'ご意見', page_complete:'一頁読了', quiz_done:'確かめ完了' }
 const statusLabels: Record<FeedbackStatus,string> = { open:'未対応', reviewing:'確認中', resolved:'対応済み', closed:'終了' }
 
 function TrendChart({ data }: { data: AdminOverview['daily'] }) {
@@ -20,6 +20,25 @@ function TrendChart({ data }: { data: AdminOverview['daily'] }) {
     <path d={points.map((point,index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ')}/>
     {points.map(point => <g key={point.date}><circle cx={point.x} cy={point.y} r="4"/><text x={point.x} y="207" textAnchor="middle">{point.date.slice(5)}</text></g>)}
   </svg>
+}
+
+function rate(returned?: number, cohort?: number) {
+  return cohort ? `${Math.round(100 * Number(returned || 0) / Number(cohort))}%` : '—'
+}
+
+function RetentionCard({ label, value }: { label: string; value?: Retention }) {
+  return <div className="retention-card"><span>{label}</span>
+    <div><strong>{rate(value?.returnedDay1, value?.cohortDay1)}</strong><small>翌日も来た（{number.format(Number(value?.returnedDay1 || 0))} / {number.format(Number(value?.cohortDay1 || 0))}人）</small></div>
+    <div><strong>{rate(value?.returnedDay7, value?.cohortDay7)}</strong><small>7日以内に戻った（{number.format(Number(value?.returnedDay7 || 0))} / {number.format(Number(value?.cohortDay7 || 0))}人）</small></div>
+  </div>
+}
+
+function DailyReadingBars({ data }: { data: NonNullable<AdminOverview['dailyReading']> }) {
+  if (!data.length) return <div className="admin-empty">一頁を読み終えた記録が集まると、ここに表示されます。</div>
+  const max = Math.max(1, ...data.map(item => Number(item.pages)))
+  return <div className="reading-bars" role="img" aria-label="日ごとの一頁読了数">{data.map(item => <div key={item.date} title={`${item.date} ${item.pages}頁 · ${item.readers}人`}>
+    <i style={{ height: `${Math.max(4, Number(item.pages) / max * 100)}%` }}/><span>{item.date.slice(5)}</span><b>{item.readers}人</b>
+  </div>)}</div>
 }
 
 export function AdminPage({ user }: { user: CloudUser | null }) {
@@ -47,6 +66,12 @@ export function AdminPage({ user }: { user: CloudUser | null }) {
       <div><Activity/><span>7日間の利用セッション</span><strong>{number.format(metrics.activeReaders7d || 0)}</strong></div>
       <div><BookOpen/><span>7日間の読書開始</span><strong>{number.format(metrics.readStarts7d || 0)}</strong></div>
       <div><MessageCircle/><span>未対応のご意見</span><strong>{number.format(metrics.openFeedback || 0)}</strong></div>
+    </section>
+    <section className="admin-panel habit-panel">
+      <div className="admin-panel-title"><h2>毎日の一頁</h2><span>直近5週間に初めて来た人 · 日本時間</span></div>
+      <div className="retention-grid"><RetentionCard label="一頁を読み終えた人" value={data?.retention?.readers}/><RetentionCard label="訪れた人" value={data?.retention?.visitors}/></div>
+      <DailyReadingBars data={data?.dailyReading || []}/>
+      <p className="admin-footnote">9月28日の更新より前は訪問ごとに別人として数えていたため、それ以前の回帰率は低く出ます。</p>
     </section>
     <section className="admin-grid">
       <div className="admin-panel trend-panel"><div className="admin-panel-title"><h2>利用推移</h2><span>直近14日間</span></div><TrendChart data={data?.daily || []}/></div>

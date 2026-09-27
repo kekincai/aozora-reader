@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Cloud, KeyRound, MessageCircle, ShieldCheck } from 'lucide-react'
 import { PaceChooser } from './TodayPage'
+import { ReminderSettings } from '../daily/ReminderSettings'
 import { useApp } from '../state/context'
 import { japanDate, streakSummary } from '../state/store'
 
@@ -53,6 +54,8 @@ export function RecordPage() {
       <section className="record-settings">
         <h2>一日の長さ</h2>
         <PaceChooser pace={state.pace} onChange={pace => setState(current => ({ ...current, pace }))}/>
+        <h2>毎日のお知らせ</h2>
+        <ReminderSettings/>
         <h2>記録の同期</h2>
         <button className="today-tile" onClick={openAuth}>
           {auth.user ? <Cloud size={18}/> : <KeyRound size={18}/>}

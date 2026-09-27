@@ -263,7 +263,8 @@ export async function listVocabulary(request: Request, env: CatalogEnv) {
   const offset = numberParam(url.searchParams.get('offset'), 0, 0, 20_000)
   const result = await queryCatalog(env, client => client.query(`
     with selected as (
-      select v.* from learning.vocabulary v where
+      -- Entries that are really N5–N3 words (面白い) are kept for saved cards but not listed.
+      select v.* from learning.vocabulary v where v.lower_level is null and
         ($1='' or v.term ilike '%'||$1||'%' or v.reading ilike '%'||$1||'%' or v.meaning ilike '%'||$1||'%') and
         ($2='' or v.jlpt_level=$2) and ($3='' or v.kana_key=$3) and ($4='' or v.category=$4) and
         (not $5::boolean or exists(select 1 from learning.work_vocabulary_stats ws where ws.vocabulary_id=v.id))
@@ -430,9 +431,9 @@ export async function entryArticles(env: CatalogEnv, kind: 'vocabulary' | 'gramm
 export async function learningSummary(env: CatalogEnv) {
   const result = await queryCatalog(env, client => client.query(`
     select
-      (select count(*)::integer from learning.vocabulary) as vocabulary,
+      (select count(*)::integer from learning.vocabulary where lower_level is null) as vocabulary,
       (select count(*)::integer from learning.grammar_patterns) as grammar,
-      (select coalesce(array_agg(distinct category order by category), '{}') from learning.vocabulary where category is not null) as "vocabularyCategories",
+      (select coalesce(array_agg(distinct category order by category), '{}') from learning.vocabulary where category is not null and lower_level is null) as "vocabularyCategories",
       (select coalesce(array_agg(distinct category order by category), '{}') from learning.grammar_patterns) as "grammarCategories"
   `))
   return response(result.rows[0])

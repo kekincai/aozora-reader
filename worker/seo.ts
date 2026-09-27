@@ -155,9 +155,9 @@ function serveRobots(url: URL) {
 function transformHtml(response: Response, seo: PageSeo) {
   const jsonLd = JSON.stringify(seo.jsonLd).replaceAll('<', '\\u003c')
   const transformed = new HTMLRewriter()
-    .on('title', { element: element => element.setInnerContent(seo.title) })
-    .on('meta[name="description"]', { element: element => element.setAttribute('content', seo.description) })
-    .on('head', { element: element => element.append(
+    .on('title', { element: element => { element.setInnerContent(seo.title) } })
+    .on('meta[name="description"]', { element: element => { element.setAttribute('content', seo.description) } })
+    .on('head', { element: element => { element.append(
       `<meta name="robots" content="${escapeHtml(seo.robots)}">` +
       `<link rel="canonical" href="${escapeHtml(seo.canonical)}">` +
       `<meta property="og:site_name" content="${SITE_NAME}">` +
@@ -168,8 +168,8 @@ function transformHtml(response: Response, seo: PageSeo) {
       `<meta name="twitter:card" content="summary">` +
       `<script type="application/ld+json">${jsonLd}</script>`,
       { html: true },
-    ) })
-  if (seo.preview) transformed.on('#root', { element: element => element.setInnerContent(seo.preview!, { html: true }) })
+    ) } })
+  if (seo.preview) transformed.on('#root', { element: element => { element.setInnerContent(seo.preview!, { html: true }) } })
   const result = transformed.transform(response)
   const headers = new Headers(result.headers)
   // HTML contains hashed asset names, so it must never outlive a deployment.

@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite'
 import kuromoji from 'kuromoji'
 import * as cheerio from 'cheerio'
 import { annotationSafety, canAnnotateToken, hiragana, kanaKey, vocabularyCategory } from './lib/learning-rules.mjs'
+import { findLowerLevelEntries, loadLowerLevelLists } from './lib/lower-level.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const corpusRoot = resolve(root, 'public/corpus')
@@ -183,6 +184,13 @@ const grammar = [...rawN2Grammar.map(item => [item, 'N2']), ...rawN1Grammar.map(
 
 const ambiguousGrammarPatterns = new Set(['ない', 'ては', 'まで', 'ただ', 'なら', 'たら', 'とも', 'なり', 'うと', 'にも', 'がい', '上に'])
 const grammarForAnnotation = grammar.filter(entry => entry.matchParts.every(part => part.length >= 2) && !ambiguousGrammarPatterns.has(entry.pattern))
+
+// N2/N1 entries that are really N5–N3 words under another spelling are listed but never annotated.
+const lowerLevel = findLowerLevelEntries(vocabulary, await loadLowerLevelLists())
+for (const entry of vocabulary) {
+  const level = lowerLevel.get(entry.id)
+  if (level) Object.assign(entry, { lowerLevel: level, annotationSafe: false, annotationNote: `${level}の基本語（別表記）` })
+}
 
 const vocabIndex = indexLexicon(vocabulary)
 const articleRefs = Object.fromEntries([...vocabulary, ...grammar].map(entry => [entry.id, []]))

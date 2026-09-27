@@ -3139,10 +3139,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v188",
@@ -3169,10 +3170,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v190",
@@ -3438,10 +3440,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v207",
@@ -3453,10 +3456,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v208",
@@ -4909,8 +4913,8 @@
       "kanaRow": "か",
       "kanaKey": "か",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -4925,7 +4929,8 @@
           "author": "夏目 漱石",
           "count": 2
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v300",
@@ -8007,9 +8012,10 @@
       "kanaKey": "け",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "含有词典记号或多个变体",
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v484",
@@ -9260,8 +9266,8 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -9270,7 +9276,8 @@
           "author": "太宰 治",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v563",
@@ -9504,10 +9511,11 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v577",
@@ -13023,10 +13031,11 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v792",
@@ -14425,10 +14434,11 @@
       "kanaRow": "さ",
       "kanaKey": "す",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v880",
@@ -16636,10 +16646,11 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1016",
@@ -17478,8 +17489,8 @@
       "kanaRow": "た",
       "kanaKey": "ち",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -17488,7 +17499,8 @@
           "author": "夏目 漱石",
           "count": 2
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1066",
@@ -18325,10 +18337,11 @@
       "kanaRow": "た",
       "kanaKey": "つ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1118",
@@ -20091,8 +20104,8 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -20101,7 +20114,8 @@
           "author": "夏目 漱石",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1224",
@@ -22315,10 +22329,11 @@
       "kanaRow": "は",
       "kanaKey": "は",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1350",
@@ -23273,10 +23288,11 @@
       "kanaRow": "は",
       "kanaKey": "ひ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1408",
@@ -23340,8 +23356,8 @@
       "kanaRow": "は",
       "kanaKey": "ひ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -23350,7 +23366,8 @@
           "author": "夏目 漱石",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1412",
@@ -25473,9 +25490,10 @@
       "kanaKey": "へ",
       "category": "名词",
       "annotationSafe": false,
-      "annotationNote": "词缀或非独立词",
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1544",
@@ -26406,9 +26424,10 @@
       "kanaKey": "ま",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1603",
@@ -26690,8 +26709,8 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -26700,7 +26719,8 @@
           "author": "新美 南吉",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1622",
@@ -27191,8 +27211,8 @@
       "kanaRow": "ま",
       "kanaKey": "む",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -27231,7 +27251,8 @@
           "author": "中島 敦",
           "count": 4
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1654",
@@ -29971,8 +29992,8 @@
       "kanaRow": "わ",
       "kanaKey": "わ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -29999,7 +30020,8 @@
           "author": "中島 敦",
           "count": 7
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1824",
@@ -30519,10 +30541,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1854",
@@ -30564,8 +30587,8 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -30586,7 +30609,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1857",
@@ -30613,8 +30637,8 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -30629,7 +30653,8 @@
           "author": "夏目 漱石",
           "count": 2
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1859",
@@ -30835,10 +30860,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1872",
@@ -31037,8 +31063,8 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -31047,7 +31073,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1882",
@@ -31180,10 +31207,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1889",
@@ -31195,10 +31223,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1890",
@@ -31322,8 +31351,8 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -31332,7 +31361,8 @@
           "author": "夏目 漱石",
           "count": 2
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1898",
@@ -31507,10 +31537,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1909",
@@ -31522,10 +31553,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1910",
@@ -31936,10 +31968,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1935",
@@ -31966,10 +31999,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1937",
@@ -31981,10 +32015,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1938",
@@ -31997,9 +32032,10 @@
       "kanaKey": "あ",
       "category": "其他",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1939",
@@ -32042,9 +32078,10 @@
       "kanaKey": "あ",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1942",
@@ -32057,9 +32094,10 @@
       "kanaKey": "あ",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1943",
@@ -32243,10 +32281,11 @@
       "kanaRow": "あ",
       "kanaKey": "あ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1955",
@@ -32273,10 +32312,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1957",
@@ -32378,8 +32418,8 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -32388,7 +32428,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v1964",
@@ -32847,10 +32888,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v1992",
@@ -32892,10 +32934,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v1995",
@@ -32982,10 +33025,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2001",
@@ -33025,10 +33069,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2003",
@@ -33135,8 +33180,8 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -33145,7 +33190,8 @@
           "author": "太宰 治",
           "count": 11
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2009",
@@ -33624,10 +33670,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2037",
@@ -33639,10 +33686,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2038",
@@ -33654,10 +33702,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2039",
@@ -33684,10 +33733,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2041",
@@ -33699,10 +33749,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2042",
@@ -34011,10 +34062,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2061",
@@ -34170,8 +34222,8 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -34180,7 +34232,8 @@
           "author": "有島 武郎",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2067",
@@ -34207,10 +34260,11 @@
       "kanaRow": "あ",
       "kanaKey": "い",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2069",
@@ -34355,10 +34409,11 @@
       "kanaRow": "あ",
       "kanaKey": "う",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2078",
@@ -34839,10 +34894,11 @@
       "kanaRow": "あ",
       "kanaKey": "う",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2108",
@@ -34876,10 +34932,11 @@
       "kanaRow": "あ",
       "kanaKey": "う",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2110",
@@ -35041,10 +35098,11 @@
       "kanaRow": "あ",
       "kanaKey": "う",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2121",
@@ -35843,10 +35901,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2169",
@@ -36229,10 +36288,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2192",
@@ -36354,8 +36414,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -36376,7 +36436,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2199",
@@ -36616,10 +36677,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2213",
@@ -36668,10 +36730,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2216",
@@ -36758,8 +36821,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -36768,7 +36831,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2222",
@@ -36892,8 +36956,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -36932,7 +36996,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2230",
@@ -36959,10 +37024,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2232",
@@ -37062,8 +37128,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -37072,7 +37138,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2238",
@@ -37337,10 +37404,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2254",
@@ -37452,10 +37520,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2260",
@@ -37505,9 +37574,10 @@
       "kanaKey": "お",
       "category": "其他",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2263",
@@ -37568,8 +37638,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -37590,7 +37660,8 @@
           "author": "夏目 漱石",
           "count": 3
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2266",
@@ -37602,10 +37673,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2267",
@@ -37744,8 +37816,8 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -37754,7 +37826,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2276",
@@ -37937,10 +38010,11 @@
       "kanaRow": "あ",
       "kanaKey": "お",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2287",
@@ -38642,10 +38716,11 @@
       "kanaRow": "か",
       "kanaKey": "か",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2330",
@@ -39890,9 +39965,10 @@
       "kanaKey": "か",
       "category": "其他",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2406",
@@ -40174,9 +40250,10 @@
       "kanaKey": "か",
       "category": "其他",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2424",
@@ -40422,8 +40499,8 @@
       "kanaRow": "か",
       "kanaKey": "か",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -40438,7 +40515,8 @@
           "author": "太宰 治",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2438",
@@ -40465,10 +40543,11 @@
       "kanaRow": "か",
       "kanaKey": "か",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2440",
@@ -40480,10 +40559,11 @@
       "kanaRow": "か",
       "kanaKey": "か",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2441",
@@ -42574,10 +42654,11 @@
       "kanaRow": "か",
       "kanaKey": "き",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2572",
@@ -42814,10 +42895,11 @@
       "kanaRow": "か",
       "kanaKey": "き",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2588",
@@ -43846,10 +43928,11 @@
       "kanaRow": "か",
       "kanaKey": "き",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v2654",
@@ -45016,8 +45099,8 @@
       "kanaRow": "か",
       "kanaKey": "く",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -45026,7 +45109,8 @@
           "author": "宮沢 賢治",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2727",
@@ -45687,8 +45771,8 @@
       "kanaRow": "か",
       "kanaKey": "け",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -45697,7 +45781,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2769",
@@ -48232,8 +48317,8 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -48260,7 +48345,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2931",
@@ -48581,8 +48667,8 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -48591,7 +48677,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2950",
@@ -48843,10 +48930,11 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2967",
@@ -48970,10 +49058,11 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v2975",
@@ -49262,8 +49351,8 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -49272,7 +49361,8 @@
           "author": "宮沢 賢治",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v2994",
@@ -49374,10 +49464,11 @@
       "kanaRow": "か",
       "kanaKey": "こ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3001",
@@ -49869,10 +49960,11 @@
       "kanaRow": "さ",
       "kanaKey": "さ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3034",
@@ -50366,10 +50458,11 @@
       "kanaRow": "さ",
       "kanaKey": "さ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3064",
@@ -51370,9 +51463,10 @@
       "kanaKey": "し",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3126",
@@ -51399,10 +51493,11 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3128",
@@ -51489,8 +51584,8 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -51499,7 +51594,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3134",
@@ -51833,9 +51929,10 @@
       "kanaKey": "し",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3155",
@@ -51995,10 +52092,11 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3165",
@@ -52276,10 +52374,11 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3182",
@@ -52291,8 +52390,8 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -52307,7 +52406,8 @@
           "author": "中島 敦",
           "count": 2
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3183",
@@ -52653,10 +52753,11 @@
       "kanaRow": "さ",
       "kanaKey": "し",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3205",
@@ -56919,10 +57020,11 @@
       "kanaRow": "さ",
       "kanaKey": "す",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3465",
@@ -56935,9 +57037,10 @@
       "kanaKey": "す",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3466",
@@ -59347,10 +59450,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3615",
@@ -59362,10 +59466,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3616",
@@ -59504,10 +59609,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3625",
@@ -59625,9 +59731,10 @@
       "kanaKey": "そ",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3633",
@@ -59670,9 +59777,10 @@
       "kanaKey": "そ",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3636",
@@ -59811,10 +59919,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3645",
@@ -59827,9 +59936,10 @@
       "kanaKey": "そ",
       "category": "其他",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3646",
@@ -59841,10 +59951,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3647",
@@ -59856,10 +59967,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3648",
@@ -59871,10 +59983,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3649",
@@ -59886,10 +59999,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3650",
@@ -59901,10 +60015,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3651",
@@ -59916,10 +60031,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3652",
@@ -59961,10 +60077,11 @@
       "kanaRow": "さ",
       "kanaKey": "そ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3655",
@@ -60655,8 +60772,8 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -60665,7 +60782,8 @@
           "author": "宮沢 賢治",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3699",
@@ -61172,8 +61290,8 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -61188,7 +61306,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3729",
@@ -61222,10 +61341,11 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3731",
@@ -61237,10 +61357,11 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3732",
@@ -61310,10 +61431,11 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3736",
@@ -61325,10 +61447,11 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3737",
@@ -62181,8 +62304,8 @@
       "kanaRow": "た",
       "kanaKey": "た",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -62191,7 +62314,8 @@
           "author": "夏目 漱石",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3789",
@@ -62448,10 +62572,11 @@
       "kanaRow": "た",
       "kanaKey": "ち",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3805",
@@ -63119,10 +63244,11 @@
       "kanaRow": "た",
       "kanaKey": "ち",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3848",
@@ -63276,8 +63402,8 @@
       "kanaRow": "た",
       "kanaKey": "ち",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -63298,7 +63424,8 @@
           "author": "夏目 漱石",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3858",
@@ -64349,10 +64476,11 @@
       "kanaRow": "た",
       "kanaKey": "つ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v3920",
@@ -64364,10 +64492,11 @@
       "kanaRow": "た",
       "kanaKey": "つ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v3921",
@@ -64379,10 +64508,11 @@
       "kanaRow": "た",
       "kanaKey": "つ",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v3922",
@@ -66454,10 +66584,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4052",
@@ -66469,10 +66600,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4053",
@@ -66499,10 +66631,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4055",
@@ -66833,10 +66966,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4075",
@@ -67601,10 +67735,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4123",
@@ -67616,10 +67751,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4124",
@@ -67661,10 +67797,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4127",
@@ -67938,8 +68075,8 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -67948,7 +68085,8 @@
           "author": "中島 敦",
           "count": 3
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4145",
@@ -67960,10 +68098,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4146",
@@ -68005,10 +68144,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4149",
@@ -68048,10 +68188,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4151",
@@ -68078,10 +68219,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4153",
@@ -68123,10 +68265,11 @@
       "kanaRow": "た",
       "kanaKey": "と",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4156",
@@ -68519,8 +68662,8 @@
       "kanaRow": "な",
       "kanaKey": "な",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -68529,7 +68672,8 @@
           "author": "中島 敦",
           "count": 3
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4181",
@@ -68541,10 +68685,11 @@
       "kanaRow": "な",
       "kanaKey": "な",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4182",
@@ -68681,10 +68826,11 @@
       "kanaRow": "な",
       "kanaKey": "な",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4190",
@@ -69003,10 +69149,11 @@
       "kanaRow": "な",
       "kanaKey": "な",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v4211",
@@ -71113,8 +71260,8 @@
       "kanaRow": "は",
       "kanaKey": "は",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -71129,7 +71276,8 @@
           "author": "夏目 漱石",
           "count": 5
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4338",
@@ -71234,8 +71382,8 @@
       "kanaRow": "は",
       "kanaKey": "は",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -71256,7 +71404,8 @@
           "author": "森 鴎外",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4343",
@@ -71336,9 +71485,10 @@
       "kanaKey": "は",
       "category": "名词",
       "annotationSafe": false,
-      "annotationNote": "词缀或非独立词",
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v4348",
@@ -73292,10 +73442,11 @@
       "kanaRow": "は",
       "kanaKey": "ひ",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v4468",
@@ -73778,10 +73929,11 @@
       "kanaRow": "は",
       "kanaKey": "ひ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4499",
@@ -76594,8 +76746,8 @@
       "kanaRow": "は",
       "kanaKey": "ほ",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -76604,7 +76756,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N4"
     },
     {
       "id": "v4676",
@@ -77427,8 +77580,8 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "动词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -77437,7 +77590,8 @@
           "author": "寺田 寅彦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4727",
@@ -77626,10 +77780,11 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4738",
@@ -77753,8 +77908,8 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -77763,7 +77918,8 @@
           "author": "中島 敦",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4746",
@@ -77775,10 +77931,11 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N5の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N5"
     },
     {
       "id": "v4747",
@@ -78219,10 +78376,11 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4773",
@@ -78294,10 +78452,11 @@
       "kanaRow": "ま",
       "kanaKey": "ま",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N4の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N4"
     },
     {
       "id": "v4778",
@@ -78993,8 +79152,8 @@
       "kanaRow": "ま",
       "kanaKey": "み",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -79003,7 +79162,8 @@
           "author": "夏目 漱石",
           "count": 1
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4819",
@@ -80795,10 +80955,11 @@
       "kanaRow": "や",
       "kanaKey": "や",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4927",
@@ -81243,10 +81404,11 @@
       "kanaRow": "や",
       "kanaKey": "や",
       "category": "名词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4952",
@@ -81818,8 +81980,8 @@
       "kanaRow": "や",
       "kanaKey": "よ",
       "category": "形容词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
       "articles": [
         {
@@ -81834,7 +81996,8 @@
           "author": "夏目 漱石",
           "count": 6
         }
-      ]
+      ],
+      "lowerLevel": "N3"
     },
     {
       "id": "v4988",
@@ -83418,9 +83581,10 @@
       "kanaKey": "わ",
       "category": "接续・连体",
       "annotationSafe": false,
-      "annotationNote": "不是可明确识别的内容词",
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v5091",
@@ -83477,10 +83641,11 @@
       "kanaRow": "わ",
       "kanaKey": "わ",
       "category": "副词",
-      "annotationSafe": true,
-      "annotationNote": "",
+      "annotationSafe": false,
+      "annotationNote": "N3の基本語（別表記）",
       "source": "Tanos JLPT reference list via Hanabira",
-      "articles": []
+      "articles": [],
+      "lowerLevel": "N3"
     },
     {
       "id": "v5095",

@@ -108,12 +108,42 @@ export async function submitFeedback(request: Request, env: OperationsEnv, user:
   return response({ submitted: true, id: feedbackID }, 201)
 }
 
+/** Start of today in Japan as epoch milliseconds; the daily page turns over at JST midnight. */
+export function japanMidnight(now = Date.now()) {
+  const jst = now + 9 * 3_600_000
+  return jst - (jst % 86_400_000) - 9 * 3_600_000
+}
+
+/** How many people finished a page today, for the social line on the Today page. */
+export async function dailyStats(env: OperationsEnv) {
+  const row = await env.DB.prepare(`SELECT COUNT(DISTINCT COALESCE(user_id, visitor_hash)) AS readers
+    FROM analytics_events WHERE event_name = 'page_complete' AND created_at >= ?1`).bind(japanMidnight()).first<{ readers: number }>()
+  return new Response(JSON.stringify({ readersToday: row?.readers || 0 }), { headers: { ...headers, 'cache-control': 'public, max-age=60' } })
+}
+
+/**
+ * Next-day and within-a-week return rates for people first seen in the last five weeks.
+ * `eventFilter` narrows both the cohort and the return to one event, e.g. finishing a page.
+ */
+function retentionQuery(env: OperationsEnv, eventFilter: string, today: string) {
+  return env.DB.prepare(`WITH ev AS (
+      SELECT COALESCE(user_id, visitor_hash) AS who, date(created_at / 1000 + 32400, 'unixepoch') AS d
+      FROM analytics_events WHERE ${eventFilter} GROUP BY who, d
+    ), first AS (SELECT who, MIN(d) AS d0 FROM ev GROUP BY who HAVING MIN(d) >= date(?1, '-35 day'))
+    SELECT
+      (SELECT COUNT(*) FROM first WHERE d0 <= date(?1, '-1 day')) AS cohortDay1,
+      (SELECT COUNT(*) FROM first f WHERE d0 <= date(?1, '-1 day') AND EXISTS (SELECT 1 FROM ev e WHERE e.who = f.who AND e.d = date(f.d0, '+1 day'))) AS returnedDay1,
+      (SELECT COUNT(*) FROM first WHERE d0 <= date(?1, '-7 day')) AS cohortDay7,
+      (SELECT COUNT(*) FROM first f WHERE d0 <= date(?1, '-7 day') AND EXISTS (SELECT 1 FROM ev e WHERE e.who = f.who AND e.d > f.d0 AND e.d <= date(f.d0, '+7 day'))) AS returnedDay7`).bind(today)
+}
+
 export async function adminOverview(env: OperationsEnv, user: OperationsUser) {
   if (!await isAdmin(env, user?.id)) throw new OperationsError('管理者権限が必要です。', 403)
   const now = Date.now()
   const sevenDays = now - 7 * 86_400_000
   const fourteenDays = now - 13 * 86_400_000
-  const [metrics, daily, topWorks, events, feedback, users] = await env.DB.batch([
+  const today = new Date(now + 9 * 3_600_000).toISOString().slice(0, 10)
+  const [metrics, daily, topWorks, events, feedback, users, dailyReading, visitorRetention, readerRetention] = await env.DB.batch([
     env.DB.prepare(`SELECT
       (SELECT COUNT(*) FROM users) AS totalUsers,
       (SELECT COUNT(DISTINCT COALESCE(user_id, visitor_hash)) FROM analytics_events WHERE created_at >= ?1) AS activeReaders7d,
@@ -137,11 +167,18 @@ export async function adminOverview(env: OperationsEnv, user: OperationsUser) {
       FROM users u LEFT JOIN analytics_events e ON e.user_id = u.id
       LEFT JOIN reader_states r ON r.user_id = u.id
       GROUP BY u.id, u.display_name, u.created_at, r.user_id ORDER BY u.created_at DESC LIMIT 100`),
+    env.DB.prepare(`SELECT date(created_at / 1000 + 32400, 'unixepoch') AS date, COUNT(*) AS pages,
+      COUNT(DISTINCT COALESCE(user_id, visitor_hash)) AS readers
+      FROM analytics_events WHERE event_name = 'page_complete' AND created_at >= ?1 GROUP BY date ORDER BY date`).bind(fourteenDays),
+    retentionQuery(env, "event_name = 'page_view'", today),
+    retentionQuery(env, "event_name = 'page_complete'", today),
   ])
   return response({
     generatedAt: now,
     metrics: metrics.results[0] || {}, daily: daily.results, topWorks: topWorks.results,
     events: events.results, feedback: feedback.results, users: users.results,
+    dailyReading: dailyReading.results,
+    retention: { visitors: visitorRetention.results[0] || {}, readers: readerRetention.results[0] || {} },
   })
 }
 

@@ -6,6 +6,9 @@ import { WordSheet } from '../components/WordSheet'
 import { advance, buildQuiz, openingLine, pageAt, pickQuote, sentences, SERIAL_ORDER, startingPosition, type QuizQuestion, type QuizSource } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
 import { NextBookChooser } from '../daily/NextBookChooser'
+import { ReadersToday } from '../daily/ReadersToday'
+import { ReminderInvite } from '../daily/ReminderSettings'
+import { markReadForReminder } from '../push'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
 import { entryForToken, entryWord, loadSerialWork, type WorkEntries } from '../learning'
@@ -122,6 +125,7 @@ export function DailyPage() {
       return updated
     })
     trackEvent('page_complete', { workID: work.id, label: work.title, value: page.number, path: '/daily' })
+    void markReadForReminder()
     setPhase('done')
     window.scrollTo(0, 0)
   }
@@ -223,6 +227,8 @@ export function DailyPage() {
       <h1>{streak.total}日目の栞</h1>
       <p className="done-sub">{outcome.total ? `${outcome.total}語のうち ${outcome.correct}語正解` : '今日の頁を読みました'}{streak.current > 1 && ` · 連続 ${streak.current} 日`}</p>
       <StreakStrip days={state.days} today={today}/>
+      <ReadersToday refreshKey={1}/>
+      <ReminderInvite/>
       {outcome.finishedTitle && <p className="done-shelf">「{outcome.finishedTitle}」を読み終えました。<Link to="/shelf">本棚を見る</Link></p>}
       {outcome.quote && <figure className="quote-card"><blockquote>{outcome.quote}</blockquote><figcaption>{work.author}「{work.title}」 · 第{page.number}頁</figcaption></figure>}
       {outcome.quote && <button className="daily-button is-quiet" onClick={() => void copyQuote()}><Copy size={16}/> {copied ? 'コピーしました' : 'この一文をコピーして送る'}</button>}

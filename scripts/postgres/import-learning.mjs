@@ -71,11 +71,11 @@ async function insertRows(client, table, fields, rows) {
 
 async function seedLexicon(client) {
   await client.query(`
-    insert into learning.vocabulary(id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name)
-    select id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name
-    from jsonb_to_recordset($1::jsonb) as x(id text,term text,reading text,meaning text,meaning_language text,jlpt_level text,kana_key text,category text,annotation_safe boolean,annotation_note text,source_name text)
-    on conflict(id) do update set term=excluded.term,reading=excluded.reading,meaning=excluded.meaning,meaning_language=excluded.meaning_language,jlpt_level=excluded.jlpt_level,kana_key=excluded.kana_key,category=excluded.category,annotation_safe=excluded.annotation_safe,annotation_note=excluded.annotation_note,source_name=excluded.source_name,updated_at=now()
-  `, [JSON.stringify(index.vocabulary.map(entry => ({ id: entry.id, term: entry.term, reading: entry.reading, meaning: entry.meaning, meaning_language: entry.meaningLanguage || 'en', jlpt_level: entry.level, kana_key: entry.kanaKey, category: entry.category, annotation_safe: entry.annotationSafe, annotation_note: entry.annotationNote || null, source_name: entry.source })))])
+    insert into learning.vocabulary(id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level)
+    select id,term,reading,meaning,meaning_language,jlpt_level,kana_key,category,annotation_safe,annotation_note,source_name,lower_level
+    from jsonb_to_recordset($1::jsonb) as x(id text,term text,reading text,meaning text,meaning_language text,jlpt_level text,kana_key text,category text,annotation_safe boolean,annotation_note text,source_name text,lower_level text)
+    on conflict(id) do update set term=excluded.term,reading=excluded.reading,meaning=excluded.meaning,meaning_language=excluded.meaning_language,jlpt_level=excluded.jlpt_level,kana_key=excluded.kana_key,category=excluded.category,annotation_safe=excluded.annotation_safe,annotation_note=excluded.annotation_note,source_name=excluded.source_name,lower_level=excluded.lower_level,updated_at=now()
+  `, [JSON.stringify(index.vocabulary.map(entry => ({ id: entry.id, term: entry.term, reading: entry.reading, meaning: entry.meaning, meaning_language: entry.meaningLanguage || 'en', jlpt_level: entry.level, kana_key: entry.kanaKey, category: entry.category, annotation_safe: entry.annotationSafe, annotation_note: entry.annotationNote || null, source_name: entry.source, lower_level: entry.lowerLevel || null })))])
   await client.query(`
     insert into learning.grammar_patterns(id,title,pattern,match_parts,meaning,meaning_language,formation,jlpt_level,category,examples,annotation_safe,source_name)
     select id,title,pattern,match_parts,meaning,meaning_language,formation,jlpt_level,category,examples,annotation_safe,source_name
