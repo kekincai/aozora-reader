@@ -12,14 +12,14 @@ describe('Aozora corpus', () => {
   })
 
   it('preserves ruby markup in the source text', async () => {
-    const work = JSON.parse(await readFile('public/corpus/works/637.json', 'utf8'))
+    const work = JSON.parse(await readFile('data/corpus/works/637.json', 'utf8'))
     expect(work.paragraphs.join('')).toContain('<ruby>')
     expect(work.sourceUrl).toMatch(/^https:\/\/www\.aozora\.gr\.jp\//)
   })
 
   it('builds complete N2/N1 learning indexes and annotated text', async () => {
-    const index = JSON.parse(await readFile('public/learning/index.json', 'utf8'))
-    const work = JSON.parse(await readFile('public/corpus/works/637.json', 'utf8'))
+    const index = JSON.parse(await readFile('data/lexicon/index.json', 'utf8'))
+    const work = JSON.parse(await readFile('data/corpus/works/637.json', 'utf8'))
     const annotatedGrammarIds = new Set(
       work.annotatedParagraphs.flat().flatMap((token: { grammarIds?: string[] }) => token.grammarIds || []),
     )

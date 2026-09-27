@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, BookOpenText, Check, ChevronRight, LocateFixed, RotateCcw, X } from 'lucide-react'
 import { loadWork, readingForToken, type AnnotatedToken, type ReaderWork as Work } from '../catalog'
-import { entryWord, loadLearningIndex, type LearningIndex, type SelectedEntry } from '../learning'
+import { EntryArticles } from '../components/EntryArticles'
+import { entryWord, type SelectedEntry } from '../learning'
 import { trackEvent } from '../operations'
 import { findTopicFocusRange, parseReaderTarget } from '../reader-links'
 import { addCard, useApp, useReadingTimer } from '../state/context'
@@ -14,7 +15,7 @@ export function ReaderPage() {
   const targetParagraph = parseReaderTarget(searchParams.get('paragraph'))
   const focusForm = searchParams.get('focus') || ''
   const focusText = (searchParams.get('text') || '').slice(0, 40)
-  const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
+  const [work, setWork] = useState<Work | null>(null)
   const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(Boolean(targetParagraph)); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -22,7 +23,7 @@ export function ReaderPage() {
     setWork(null)
     setFull(Boolean(targetParagraph))
     setLoadError('')
-    Promise.all([loadWork(id, targetParagraph), loadLearningIndex()]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }).catch(cause => setLoadError(cause instanceof Error ? cause.message : '作品を読み込めませんでした。'))
+    loadWork(id, targetParagraph).then(setWork).catch(cause => setLoadError(cause instanceof Error ? cause.message : '作品を読み込めませんでした。'))
     window.scrollTo(0,0)
   }, [id, targetParagraph])
   useEffect(() => {
@@ -33,8 +34,8 @@ export function ReaderPage() {
   const trackedWork = useRef('')
   useEffect(() => { if (work) { document.title = `${work.title} — 青空しおり`; if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
   useReadingTimer(seconds => setState(current => ({ ...current, readingSeconds: current.readingSeconds + seconds })))
-  const vocabMap = useMemo(() => new Map(learning?.vocabulary.map(entry => [entry.id, entry]) || []), [learning])
-  const grammarMap = useMemo(() => new Map(learning?.grammar.map(entry => [entry.id, entry]) || []), [learning])
+  const vocabMap = useMemo(() => new Map(work?.entries.vocabulary.map(entry => [entry.id, entry]) || []), [work])
+  const grammarMap = useMemo(() => new Map(work?.entries.grammar.map(entry => [entry.id, entry]) || []), [work])
   const saveWord = () => {
     if (!selected) return
     setState(current => addCard(current, {
@@ -74,7 +75,7 @@ export function ReaderPage() {
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', update) }
   }, [work, id, shownCharacters, setState])
   if (loadError) return <main className="daily-shell daily-center"><p>{loadError}</p><Link className="daily-button is-accent" to="/shelf">本棚へ戻る</Link></main>
-  if (!work || !learning) return <div className="reader-loading">本文を分析しています…</div>
+  if (!work) return <div className="reader-loading">本文を分析しています…</div>
   const openToken = (token: AnnotatedToken) => {
     const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
     const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
@@ -113,6 +114,6 @@ export function ReaderPage() {
       <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
     </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>
     <Link className="mobile-learning-bar" to="/learn"><span>この章：{work.learning?.vocabularyUnique || 0}語彙・{work.learning?.grammarUnique || 0}文法</span><strong>一覧 <ChevronRight size={14}/></strong></Link>
-    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる"><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{selected.entry.meaning}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}{selected.entry.examples[0].zh && <><br/><small>{selected.entry.examples[0].zh}</small></>}</p>}<div className="appears-in"><span>この表現がある作品</span>{selected.entry.articles.slice(0,3).map(article => <Link key={article.id} to={`/read/${article.id}`}>{article.title} · {article.count}回</Link>)}</div><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.cards[`${selected.kind}:${selected.entry.id}`] ? <><Check size={17}/> 単語帳に入れました</> : <><RotateCcw size={17}/> 単語帳に入れる</>}</button></div></section></div>}
+    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる"><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{selected.entry.meaning}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}{selected.entry.examples[0].zh && <><br/><small>{selected.entry.examples[0].zh}</small></>}</p>}<EntryArticles selected={selected} className="appears-in" label="この表現がある作品"/><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.cards[`${selected.kind}:${selected.entry.id}`] ? <><Check size={17}/> 単語帳に入れました</> : <><RotateCcw size={17}/> 単語帳に入れる</>}</button></div></section></div>}
   </div>
 }

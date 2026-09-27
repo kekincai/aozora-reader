@@ -326,3 +326,4 @@ button.today-tile { grid-template-columns: 20px 1fr; }
 @media (prefers-reduced-motion: reduce) {
   .seal, .streak-marks i, .word-panel { animation: none !important; }
 }
+.learn-more { width: 100%; margin-top: 18px; }

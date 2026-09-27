@@ -39,11 +39,33 @@ export function annotationSafety(term, token) {
   return { safe: true, reason: '' }
 }
 
+const KANJI = /[一-龯々〆ヵヶ]/
+const TRAILING_KANA = /[ぁ-ゖァ-ヺー]+$/
+
+/** Reading of the part before the okurigana, so 刺さっ(ささっ) and 刺さる(ささる) both give さ. */
+function stemReading(written, reading) {
+  const okurigana = written.match(TRAILING_KANA)?.[0] || ''
+  return reading.slice(0, Math.max(0, reading.length - okurigana.length))
+}
+
+/**
+ * Whether the word is read the way the dictionary entry is. Same characters can be a
+ * different word: 僕 read ぼく is "I", not the N1 entry 僕(しもべ) "servant".
+ * Unknown readings pass, so words missing from the tokenizer dictionary are not lost.
+ */
+export function readingMatches(entry, token) {
+  if (!entry?.reading || !KANJI.test(entry.term)) return true
+  const contextReading = token.reading && token.reading !== '*' ? hiragana(token.reading) : ''
+  if (!contextReading) return true
+  const entryReading = hiragana(entry.reading.normalize('NFKC'))
+  return stemReading(token.surface_form, contextReading) === stemReading(entry.term, entryReading)
+}
+
 export function canAnnotateToken(entry, token) {
   if (!entry?.annotationSafe || !token) return false
   if (!CONTENT_POS.has(token.pos)) return false
   if (['接尾', '接頭', '非自立'].includes(token.pos_detail_1)) return false
   const base = (token.basic_form === '*' ? token.surface_form : token.basic_form).normalize('NFKC')
   const surface = token.surface_form.normalize('NFKC')
-  return entry.term === base || entry.term === surface
+  return (entry.term === base || entry.term === surface) && readingMatches(entry, token)
 }

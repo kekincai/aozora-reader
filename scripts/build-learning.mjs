@@ -8,7 +8,9 @@ import { annotationSafety, canAnnotateToken, hiragana, kanaKey, vocabularyCatego
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const corpusRoot = resolve(root, 'public/corpus')
-const learningRoot = resolve(root, 'public/learning')
+// Pipeline data, not website files: the site reads the lexicon from PostgreSQL.
+const learningRoot = resolve(root, 'data/lexicon')
+const worksRoot = resolve(root, 'data/corpus/works')
 const dataRoot = resolve(root, 'data')
 const rawBase = 'https://raw.githubusercontent.com/tristcoil/hanabira.org/main/backend/express/json_data'
 const sources = {
@@ -186,7 +188,7 @@ const vocabIndex = indexLexicon(vocabulary)
 const articleRefs = Object.fromEntries([...vocabulary, ...grammar].map(entry => [entry.id, []]))
 const works = []
 for (const summary of manifest.works) {
-  const path = resolve(corpusRoot, 'works', `${summary.id}.json`)
+  const path = resolve(worksRoot, `${summary.id}.json`)
   const work = JSON.parse(await readFile(path, 'utf8'))
   const counters = { vocabulary: new Map(), grammar: new Map() }
   const annotatedParagraphs = work.paragraphs.map(paragraph => annotateParagraph(paragraph, tokenizer, vocabIndex, grammarForAnnotation, counters))
@@ -235,7 +237,7 @@ const clearWorkOccurrences = database.prepare('DELETE FROM occurrences WHERE wor
 database.exec('BEGIN')
 try {
   for (const summary of works) {
-    const work = JSON.parse(await readFile(resolve(corpusRoot, 'works', `${summary.id}.json`), 'utf8'))
+    const work = JSON.parse(await readFile(resolve(worksRoot, `${summary.id}.json`), 'utf8'))
     clearWorkOccurrences.run(work.id)
     insertWork.run(work.id, work.title, work.author, work.level, work.genre, work.sourceUrl, work.sourcePath, JSON.stringify(work.annotatedParagraphs), new Date().toISOString())
   }

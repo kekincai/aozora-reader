@@ -375,11 +375,61 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
     const grammarByParagraph = new Map<string, unknown[]>()
     for (const item of grammar.rows) { const key=String(item.paragraph_id); const items=grammarByParagraph.get(key)||[]; items.push({ startOffset:item.startOffset,endOffset:item.endOffset,ranges:item.ranges,grammarId:item.grammarId }); grammarByParagraph.set(key,items) }
     const hasMore = paragraphs.rows.length > limit
+    // Ship only the dictionary entries this window uses, instead of the whole 2.6MB lexicon.
+    const vocabularyIDs = [...new Set(vocabulary.rows.map(item => String(item.vocabId)))]
+    const grammarIDs = [...new Set(grammar.rows.map(item => String(item.grammarId)))]
+    const vocabularyEntries = vocabularyIDs.length ? await client.query(`
+      select id, term, reading, meaning, meaning_language as "meaningLanguage", jlpt_level as level, category
+      from learning.vocabulary where id = any($1::text[])
+    `, [vocabularyIDs]) : { rows: [] }
+    const grammarEntries = grammarIDs.length ? await client.query(`
+      select id, title, pattern, meaning, meaning_language as "meaningLanguage", formation, jlpt_level as level, category, examples
+      from learning.grammar_patterns where id = any($1::text[])
+    `, [grammarIDs]) : { rows: [] }
+    const analysis = await client.query(`
+      select vocabulary_count::integer as "vocabularyCount", vocabulary_unique::integer as "vocabularyUnique",
+        grammar_count::integer as "grammarCount", grammar_unique::integer as "grammarUnique"
+      from learning.work_analysis where work_id = $1
+    `, [work.internal_id])
     delete work.internal_id
+    if (analysis.rows[0]) work.learning = analysis.rows[0]
     return response({
       work,
+      entries: { vocabulary: vocabularyEntries.rows, grammar: grammarEntries.rows },
       paragraphs: visible.map(row => ({ ordinal: row.ordinal, text: row.text, rubies: rubyByParagraph.get(String(row.id)) || [], vocabulary: vocabularyByParagraph.get(String(row.id)) || [], grammar: grammarByParagraph.get(String(row.id)) || [] })),
       page: { from, limit, hasMore, nextFrom: hasMore ? from + limit : null },
     })
   })
+}
+
+/** Works where a vocabulary or grammar entry appears most, loaded when a word sheet opens. */
+export async function entryArticles(env: CatalogEnv, kind: 'vocabulary' | 'grammar', entryID: string) {
+  if (!/^[vg]\d{1,6}$/.test(entryID)) return response({ error: '項目IDが正しくありません。' }, 400)
+  const [table, column] = kind === 'vocabulary' ? ['learning.work_vocabulary_stats', 'vocabulary_id'] : ['learning.work_grammar_stats', 'grammar_id']
+  const result = await queryCatalog(env, client => client.query(`
+    select w.aozora_work_id::text as id, w.title,
+      coalesce(string_agg(concat_ws(' ', p.family_name, p.given_name), '・') filter (where wp.role = '著者'), '作者不詳') as author,
+      ws.occurrence_count::integer as count
+    from ${table} ws
+    join catalog.works w on w.id = ws.work_id
+    left join catalog.work_people wp on wp.work_id = w.id
+    left join catalog.people p on p.id = wp.person_id
+    where ws.${column} = $1
+    group by w.id, ws.occurrence_count
+    order by ws.occurrence_count desc, w.aozora_work_id
+    limit 3
+  `, [entryID]))
+  return response({ articles: result.rows })
+}
+
+/** Totals and filter options for the study index. */
+export async function learningSummary(env: CatalogEnv) {
+  const result = await queryCatalog(env, client => client.query(`
+    select
+      (select count(*)::integer from learning.vocabulary) as vocabulary,
+      (select count(*)::integer from learning.grammar_patterns) as grammar,
+      (select coalesce(array_agg(distinct category order by category), '{}') from learning.vocabulary where category is not null) as "vocabularyCategories",
+      (select coalesce(array_agg(distinct category order by category), '{}') from learning.grammar_patterns) as "grammarCategories"
+  `))
+  return response(result.rows[0])
 }

@@ -9,5 +9,6 @@ export default defineConfig({
       server.middlewares.use('/api/analytics', (_request, response) => { response.statusCode = 204; response.end() })
     },
   }],
-  server: { port: 5190, proxy: { '/api': { target: 'https://aozora-reader.kekincai.workers.dev', changeOrigin: true } } },
+  // PREVIEW_API=http://localhost:8799 points at `wrangler dev --remote` to try Worker changes before deploying.
+  server: { port: 5190, proxy: { '/api': { target: process.env.PREVIEW_API || 'https://aozora-reader.kekincai.workers.dev', changeOrigin: true } } },
 })

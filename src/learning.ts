@@ -1,26 +1,40 @@
 import { annotateLearning, type AnnotatedToken, type WorkSummary } from './catalog'
 
 export type ArticleRef = { id: string; title: string; author: string; count: number }
-export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaRow: string; kanaKey?: string; category?: string; annotationSafe?: boolean; articles: ArticleRef[] }
-export type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles: ArticleRef[] }
-export type LearningIndex = { notice: string; vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
+export type VocabularyEntry = { id: string; term: string; reading: string; meaning: string; meaningLanguage?: string; level: 'N1'|'N2'; kanaKey?: string; category?: string; annotationSafe?: boolean; articles?: ArticleRef[] }
+export type GrammarEntry = { id: string; title: string; pattern: string; meaning: string; meaningLanguage?: string; formation: string; level: 'N1'|'N2'; category: string; examples: {jp:string;zh?:string}[]; articles?: ArticleRef[] }
+/** The dictionary entries a work (or a window of it) actually uses. */
+export type WorkEntries = { vocabulary: VocabularyEntry[]; grammar: GrammarEntry[] }
+export type LearningSummary = { vocabulary: number; grammar: number; vocabularyCategories: string[]; grammarCategories: string[] }
 export type SelectedEntry = { kind: 'vocabulary'; entry: VocabularyEntry } | { kind: 'grammar'; entry: GrammarEntry }
 
-let learningIndex: Promise<LearningIndex> | null = null
+let summary: Promise<LearningSummary> | null = null
 
-export function loadLearningIndex() {
-  learningIndex ||= fetch('/learning/index.json').then(response => {
-    if (!response.ok) throw new Error('learning index unavailable')
-    return response.json() as Promise<LearningIndex>
-  }).catch(error => { learningIndex = null; throw error })
-  return learningIndex
+export function loadLearningSummary() {
+  summary ||= fetch('/api/learning/summary').then(response => {
+    if (!response.ok) throw new Error('learning summary unavailable')
+    return response.json() as Promise<LearningSummary>
+  }).catch(error => { summary = null; throw error })
+  return summary
 }
 
-export type SerialWork = WorkSummary & { paragraphs: { ordinal: number; text: string; tokens: AnnotatedToken[] }[] }
+const articleCache = new Map<string, Promise<ArticleRef[]>>()
+
+export function loadEntryArticles(kind: SelectedEntry['kind'], id: string) {
+  const key = `${kind}:${id}`
+  if (!articleCache.has(key)) articleCache.set(key, fetch(`/api/learning/${kind}/${encodeURIComponent(id)}/articles`)
+    .then(response => response.ok ? response.json() as Promise<{ articles: ArticleRef[] }> : { articles: [] })
+    .then(result => result.articles)
+    .catch(() => { articleCache.delete(key); return [] }))
+  return articleCache.get(key)!
+}
+
+export type SerialWork = WorkSummary & { paragraphs: { ordinal: number; text: string; tokens: AnnotatedToken[] }[]; entries: WorkEntries }
 
 type Ruby = { startOffset: number; endOffset: number; baseText: string; reading: string }
 type WorkResponse = {
   work: WorkSummary
+  entries?: WorkEntries
   paragraphs: { ordinal: number; text: string; rubies: Ruby[]; vocabulary?: { startOffset: number; endOffset: number; vocabId: string }[]; grammar?: { startOffset: number; endOffset: number; grammarId: string; ranges: [number, number][] }[] }[]
 }
 
@@ -34,6 +48,7 @@ export function loadSerialWork(id: string) {
       const data = await response.json() as WorkResponse
       return {
         ...data.work,
+        entries: data.entries || { vocabulary: [], grammar: [] },
         paragraphs: data.paragraphs.map(paragraph => ({ ordinal: paragraph.ordinal, text: paragraph.text, tokens: annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar) })),
       }
     }).catch(error => { serialWorks.delete(id); throw error }))

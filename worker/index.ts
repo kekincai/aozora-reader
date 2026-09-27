@@ -5,7 +5,7 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
-import { catalogHealth, getWork, listGrammar, listTopicExamples, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
+import { catalogHealth, entryArticles, getWork, learningSummary, listGrammar, listTopicExamples, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
 import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
 import { handleSeoRequest } from './seo'
 import { mergeStates } from '../src/state/model'
@@ -232,6 +232,9 @@ async function handle(request: Request, env: Env) {
   if (request.method === 'GET' && url.pathname === '/api/catalog/topic-examples') return listTopicExamples(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/vocabulary') return listVocabulary(request, env)
   if (request.method === 'GET' && url.pathname === '/api/learning/grammar') return listGrammar(request, env)
+  if (request.method === 'GET' && url.pathname === '/api/learning/summary') return learningSummary(env)
+  const articlesMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/learning\/(vocabulary|grammar)\/([vg]\d{1,6})\/articles$/) : null
+  if (articlesMatch) return entryArticles(env, articlesMatch[1] as 'vocabulary' | 'grammar', articlesMatch[2])
   const workMatch = request.method === 'GET' ? url.pathname.match(/^\/api\/catalog\/works\/(\d+)$/) : null
   if (workMatch) return getWork(request, env, workMatch[1])
   if (request.method === 'GET' && url.pathname === '/api/me') {

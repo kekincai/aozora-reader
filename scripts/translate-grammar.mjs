@@ -1,7 +1,7 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const indexPath = resolve('public/learning/index.json')
+const indexPath = resolve('data/lexicon/index.json')
 const outputPath = resolve('data/grammar-zh.json')
 const index = JSON.parse(await readFile(indexPath, 'utf8'))
 const existing = await readFile(outputPath, 'utf8').then(JSON.parse).catch(() => ({}))

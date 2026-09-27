@@ -39,7 +39,8 @@ npm run dev
 処理結果は二つの形で生成します。
 
 - `data/aozora-learning.sqlite`: 継続加工用のローカル派生データベース（Git管理外）
-- `public/learning/index.json` と `public/corpus/`: Cloudflareへ配る静的な学習索引と注釈済み本文
+- `data/lexicon/index.json` と `data/corpus/works/`: PostgreSQL へ取り込む語彙・文法辞書と精選作品（サイトは PostgreSQL から読みます）
+- `public/corpus/manifest.json`: 本棚に並ぶ精選作品の一覧
 
 SQLiteには作品、5,311語のN2/N1参考語彙、434項目の中国語文法説明、作品内出現回数と逆引き索引を保存します。動詞・形容詞はkuromojiで基本形へ戻して照合し、本文の文法標示は誤検出しやすい一文字・曖昧表現を除いた保守的な一致だけに限定します。
 

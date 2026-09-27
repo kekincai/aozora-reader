@@ -54,11 +54,11 @@ async function importWork([id, title, author, relativePath, level, genre, minute
     paragraphs,
   }
 
-  await writeFile(resolve(outputRoot, 'works', `${id}.json`), `${JSON.stringify(work, null, 2)}\n`)
+  await writeFile(resolve('data/corpus/works', `${id}.json`), `${JSON.stringify(work, null, 2)}\n`)
   return { ...work, paragraphs: undefined, paragraphCount: paragraphs.length }
 }
 
-await mkdir(resolve(outputRoot, 'works'), { recursive: true })
+await mkdir(resolve('data/corpus/works'), { recursive: true })
 const works = []
 for (const selection of selections) works.push(await importWork(selection))
 await writeFile(resolve(outputRoot, 'manifest.json'), `${JSON.stringify({ generatedAt: new Date().toISOString(), works }, null, 2)}\n`)

@@ -7,7 +7,7 @@ import { advance, buildQuiz, openingLine, pageAt, pickQuote, sentences, SERIAL_O
 import { formatJapaneseDate } from '../daily/dates'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
-import { entryForToken, entryWord, loadSerialWork, type LearningIndex } from '../learning'
+import { entryForToken, entryWord, loadSerialWork, type WorkEntries } from '../learning'
 import { trackEvent } from '../operations'
 import { addCard, useApp, useReadingTimer } from '../state/context'
 import { japanDate, Rating, reviewCard, streakSummary, type ReaderState, type SerialPosition } from '../state/store'
@@ -15,7 +15,7 @@ import { japanDate, Rating, reviewCard, streakSummary, type ReaderState, type Se
 type Phase = 'read' | 'quiz' | 'done'
 type Outcome = { correct: number; total: number; quote: string | null; nextLine: string | null; nextTitle: string | null; finishedTitle: string | null }
 
-function quizSources(paragraphs: ReturnType<typeof pageText>, learning: LearningIndex): QuizSource[] {
+function quizSources(paragraphs: ReturnType<typeof pageText>, learning: WorkEntries): QuizSource[] {
   const vocabulary = new Map(learning.vocabulary.map(entry => [entry.id, entry]))
   const grammar = new Map(learning.grammar.map(entry => [entry.id, entry]))
   return paragraphs.flatMap(paragraph => {
@@ -40,7 +40,8 @@ export function DailyPage() {
   const navigate = useNavigate()
   // The page is fixed when the flow opens, so finishing it does not swap the text.
   const [position] = useState<SerialPosition | null>(() => state.serial || startingPosition(state.finished))
-  const { work, learning, page, error, retry } = useSerialPage(position, state.pace, true)
+  const { work, page, error, retry } = useSerialPage(position, state.pace)
+  const learning = work?.entries || null
   const [phase, setPhase] = useState<Phase>('read')
   const [selection, setSelection] = useState<TokenSelection | null>(null)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -59,7 +60,8 @@ export function DailyPage() {
     if (!learning || !paragraphs.length) return []
     const seed = `${position?.workId}:${page?.ordinals[0]}`
     return buildQuiz(quizSources(paragraphs, learning), {
-      vocabulary: learning.vocabulary.filter(entry => entry.articles.length).map(entry => entry.meaning),
+      // Distractors come from other words in the same work, which keeps them plausible.
+      vocabulary: learning.vocabulary.map(entry => entry.meaning),
       grammar: learning.grammar.map(entry => entry.meaning),
     }, seed)
   }, [learning, paragraphs, position, page])

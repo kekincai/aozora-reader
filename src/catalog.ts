@@ -1,3 +1,4 @@
+import type { WorkEntries } from './learning'
 export type LearningStats = { vocabularyCount: number; vocabularyUnique: number; grammarCount: number; grammarUnique: number }
 export type WorkSummary = {
   id: string
@@ -14,7 +15,7 @@ export type WorkSummary = {
   learning?: LearningStats
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
-export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][]; paragraphOrdinals?: number[] }
+export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][]; paragraphOrdinals?: number[]; entries: WorkEntries }
 export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string; editorialRank: number; publicationYear: number }
 
 type VocabularyReading = { term: string; reading: string }
@@ -32,6 +33,7 @@ type GrammarOccurrence = { startOffset: number; endOffset: number; grammarId: st
 type CatalogWorkResponse = {
   work: WorkSummary
   paragraphs: { ordinal: number; text: string; rubies: Ruby[]; vocabulary?: VocabularyOccurrence[]; grammar?: GrammarOccurrence[] }[]
+  entries?: WorkEntries
   page: { from: number; limit: number; hasMore: boolean; nextFrom: number | null }
 }
 
@@ -117,22 +119,12 @@ export async function searchTopicExamples(form = 'all', query = '', page = 1, li
 export async function loadWork(id: string, targetParagraph?: number | null): Promise<ReaderWork> {
   const from = targetParagraph ? Math.max(1, targetParagraph - 20) : 1
   const limit = targetParagraph ? 80 : 220
-  const apiPromise = fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=${from}&limit=${limit}`).then(json<CatalogWorkResponse>)
-  const curatedPromise = fetch(`/corpus/works/${encodeURIComponent(id)}.json`).then(response => response.ok ? response.json() as Promise<ReaderWork> : null).catch(() => null)
-  try {
-    const [api, curated] = await Promise.all([apiPromise, curatedPromise])
-    const databaseWork: ReaderWork = {
-      ...api.work,
-      paragraphs: api.paragraphs.map(paragraph => paragraph.text),
-      annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
-      paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
-    }
-    // The database keeps real paragraphs and only the author's own ruby, which reads cleaner
-    // than the curated file's generated ruby on every kanji.
-    return { ...databaseWork, learning: curated?.learning || databaseWork.learning }
-  } catch (error) {
-    const curated = await curatedPromise
-    if (curated) return curated
-    throw error
+  const api = await fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=${from}&limit=${limit}`).then(json<CatalogWorkResponse>)
+  return {
+    ...api.work,
+    entries: api.entries || { vocabulary: [], grammar: [] },
+    paragraphs: api.paragraphs.map(paragraph => paragraph.text),
+    annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
+    paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
   }
 }

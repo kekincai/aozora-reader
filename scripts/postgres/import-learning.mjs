@@ -9,9 +9,10 @@ const database = process.env.PGDATABASE || 'aozora_reader'
 const limit = Math.max(0, Number(process.env.AOZORA_LEARNING_LIMIT || 0))
 const force = process.env.AOZORA_LEARNING_FORCE === 'true'
 const progressEvery = Math.max(1, Number(process.env.AOZORA_LEARNING_PROGRESS_EVERY || 25))
-const index = JSON.parse(await readFile(resolve(root, 'public/learning/index.json'), 'utf8'))
+const index = JSON.parse(await readFile(resolve(root, 'data/lexicon/index.json'), 'utf8'))
 const manifest = JSON.parse(await readFile(resolve(root, 'public/corpus/manifest.json'), 'utf8'))
-const version = `learning-v3:${index.generatedAt}`
+// v4: vocabulary matches must also agree on reading (僕 as ぼく is not 僕 as しもべ).
+const version = `learning-v4:${index.generatedAt}`
 
 const tokenizer = await new Promise((resolveTokenizer, reject) => kuromoji.builder({ dicPath: resolve(root, 'node_modules/kuromoji/dict') }).build((error, value) => error ? reject(error) : resolveTokenizer(value)))
 const clean = (value = '') => value.normalize('NFKC').replace(/[・･]/g, '').trim()

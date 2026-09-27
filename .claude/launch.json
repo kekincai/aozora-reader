@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "ui-preview", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--config", "vite.preview.config.ts"], "port": 5190 }
+    { "name": "ui-preview", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--config", "vite.preview.config.ts"], "port": 5190 },
+    { "name": "ui-preview-dev-worker", "runtimeExecutable": "env", "runtimeArgs": ["PREVIEW_API=http://localhost:8799", "npx", "vite", "--config", "vite.preview.config.ts", "--port", "5191"], "port": 5191 }
   ]
 }
