@@ -1,8 +1,8 @@
 import { getSeoWork, listSitemapWorks, type CatalogEnv, type SeoWork } from './catalog'
 
 const SITE_NAME = '青空しおり'
-const DEFAULT_DESCRIPTION = '青空文庫の公開作品を読みながら、N2・N1の語彙と文法を学べる日本語読書サイト。'
-const INDEXABLE_STATIC_PATHS = new Set(['/', '/articles', '/learn', '/topics', '/topics/giving-receiving'])
+const DEFAULT_DESCRIPTION = '青空文庫の名作を毎日一頁ずつ読みながら、N2・N1の語彙と文法を身につける日本語読書サイト。'
+const INDEXABLE_STATIC_PATHS = new Set(['/', '/shelf', '/articles', '/learn', '/topics', '/topics/giving-receiving'])
 
 type PageSeo = {
   title: string
@@ -26,7 +26,10 @@ function cleanDescription(value: string, fallback = DEFAULT_DESCRIPTION) {
 
 function staticSeo(url: URL): PageSeo {
   const pages: Record<string, [string, string, string]> = {
-    '/': ['青空しおり — 読みながら学ぶ日本語', DEFAULT_DESCRIPTION, 'WebSite'],
+    '/': ['青空しおり — 毎日一頁、名作で学ぶ日本語', DEFAULT_DESCRIPTION, 'WebSite'],
+    '/daily': ['今日の一頁 — 青空しおり', '青空文庫の名作を毎日4分ずつ読み、出会った言葉を確かめます。', 'WebPage'],
+    '/shelf': ['本棚 — 青空しおり', 'N2からN1へ、毎日一頁ずつ連載で読む十冊の青空文庫作品。', 'CollectionPage'],
+    '/words': ['単語帳 — 青空しおり', '読書で出会ったN2・N1の語彙と文法を、原文の一文と一緒に復習します。', 'WebPage'],
     '/articles': ['作品を探す — 青空しおり', '青空文庫の公開作品を、題名・作者・JLPTレベル・長さから探せます。', 'CollectionPage'],
     '/learn': ['語彙と文法を学ぶ — 青空しおり', 'N2・N1の語彙と文法から、その表現が登場する青空文庫の作品を探して学べます。', 'LearningResource'],
     '/topics': ['特集一覧 — 青空しおり', '日本語の表現を一つの問いから深く学び、青空文庫の原文で確かめる特集一覧です。', 'CollectionPage'],
@@ -116,6 +119,7 @@ function workSeo(url: URL, work: SeoWork | null): PageSeo {
 export function sitemapXml(origin: string, works: Array<{ id: string; updatedOn: string | null }>) {
   const entries = [
     { path: '/', updatedOn: null },
+    { path: '/shelf', updatedOn: null },
     { path: '/articles', updatedOn: null },
     { path: '/learn', updatedOn: null },
     { path: '/topics', updatedOn: null },

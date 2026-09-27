@@ -7,6 +7,7 @@ describe('operations input boundaries', () => {
     expect(normalizePath('/unknown?secret=value')).toBe('/other')
     expect(normalizePath('/topics?from=home')).toBe('/topics')
     expect(normalizePath('/topics/giving-receiving')).toBe('/topics/giving-receiving')
+    expect(normalizePath('/daily')).toBe('/daily')
   })
 
   it('accepts only allowlisted analytics fields', () => {

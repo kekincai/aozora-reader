@@ -127,10 +127,9 @@ export async function loadWork(id: string, targetParagraph?: number | null): Pro
       annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
       paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
     }
-    // Deep links must use the database window that actually contains the target.
-    if (targetParagraph) return { ...databaseWork, learning: curated?.learning || databaseWork.learning }
-    if (curated) return { ...curated, ...api.work, learning: curated.learning, paragraphOrdinals: curated.annotatedParagraphs.map((_, index) => index + 1) }
-    return databaseWork
+    // The database keeps real paragraphs and only the author's own ruby, which reads cleaner
+    // than the curated file's generated ruby on every kanji.
+    return { ...databaseWork, learning: curated?.learning || databaseWork.learning }
   } catch (error) {
     const curated = await curatedPromise
     if (curated) return curated

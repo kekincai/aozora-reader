@@ -1,7 +1,7 @@
 export type OperationsEnv = { DB: D1Database }
 export type OperationsUser = { id: string; display_name: string } | null
 
-const EVENT_NAMES = new Set(['page_view', 'read_start', 'search', 'learning_open', 'review_complete'])
+const EVENT_NAMES = new Set(['page_view', 'read_start', 'search', 'learning_open', 'review_complete', 'page_complete', 'quiz_done'])
 const CATEGORIES = new Set(['bug', 'suggestion', 'content', 'other'])
 const STATUSES = new Set(['open', 'reviewing', 'resolved', 'closed'])
 const headers = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
@@ -34,13 +34,13 @@ function cleanString(value: unknown, max: number) {
 export function normalizePath(value: unknown) {
   const path = cleanString(value, 240).split('?')[0].split('#')[0]
   if (/^\/read\/\d+$/.test(path)) return '/read/:id'
-  return ['/','/articles','/learn','/topics','/topics/giving-receiving','/review','/record','/feedback','/admin'].includes(path) ? path : '/other'
+  return ['/','/daily','/shelf','/words','/articles','/learn','/topics','/topics/giving-receiving','/review','/record','/feedback','/admin'].includes(path) ? path : '/other'
 }
 
 export function normalizeFeedbackPath(value: unknown) {
   const path = cleanString(value, 240).split('?')[0].split('#')[0]
   if (/^\/read\/\d+$/.test(path)) return path
-  return ['/','/articles','/learn','/topics','/topics/giving-receiving','/review','/record','/feedback'].includes(path) ? path : '/'
+  return ['/','/daily','/shelf','/words','/articles','/learn','/topics','/topics/giving-receiving','/review','/record','/feedback'].includes(path) ? path : '/'
 }
 
 export function normalizeAnalyticsInput(data: Record<string, unknown>) {

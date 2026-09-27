@@ -1,4 +1,4 @@
-export type EventName = 'page_view' | 'read_start' | 'search' | 'learning_open' | 'review_complete'
+export type EventName = 'page_view' | 'read_start' | 'search' | 'learning_open' | 'review_complete' | 'page_complete' | 'quiz_done'
 export type AnalyticsDetails = { workID?: string; label?: string; value?: number; path?: string }
 export type FeedbackCategory = 'bug' | 'suggestion' | 'content' | 'other'
 export type FeedbackStatus = 'open' | 'reviewing' | 'resolved' | 'closed'
