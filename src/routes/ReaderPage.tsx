@@ -1,119 +1,151 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, BookOpenText, Check, ChevronRight, LocateFixed, RotateCcw, X } from 'lucide-react'
-import { loadWork, readingForToken, type AnnotatedToken, type ReaderWork as Work } from '../catalog'
-import { EntryArticles } from '../components/EntryArticles'
-import { englishMeaning, entryWord, meaningOf, type SelectedEntry } from '../learning'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, BookMarked, BookOpenText, LoaderCircle } from 'lucide-react'
+import type { WorkSummary } from '../catalog'
+import { AnnotatedText, MarksLegend, type TokenSelection } from '../components/AnnotatedText'
+import { WordSheet } from '../components/WordSheet'
+import { PACE_CHARACTERS } from '../daily/serial'
+import { entryWord, loadWorkWindow, meaningOf, type GrammarEntry, type SerialWork, type VocabularyEntry } from '../learning'
 import { trackEvent } from '../operations'
-import { findTopicFocusRange, parseReaderTarget } from '../reader-links'
-import { addCard, useApp, useReadingTimer } from '../state/context'
+import { parseReaderTarget } from '../reader-links'
+import { addCard, startSerial, useApp, useReadingTimer } from '../state/context'
+
+const WINDOW = 60
+
+/** Back to where the reader came from inside the site, or to the shelf when opened from a link. */
+function useBack() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  return () => (location.key !== 'default' ? navigate(-1) : navigate('/shelf'))
+}
 
 export function ReaderPage() {
-  const { state, setState } = useApp()
-  const { id = '637' } = useParams(); const navigate = useNavigate()
+  const { id = '637' } = useParams()
   const [searchParams] = useSearchParams()
-  const targetParagraph = parseReaderTarget(searchParams.get('paragraph'))
-  const focusForm = searchParams.get('focus') || ''
+  const target = parseReaderTarget(searchParams.get('paragraph'))
   const focusText = (searchParams.get('text') || '').slice(0, 40)
-  const [work, setWork] = useState<Work | null>(null)
-  const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(Boolean(targetParagraph)); const [selected, setSelected] = useState<SelectedEntry | null>(null)
-  const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
-  const [loadError, setLoadError] = useState('')
+  const focusForm = searchParams.get('focus') || ''
+  const { state, setState } = useApp()
+  const back = useBack()
+
+  const [work, setWork] = useState<WorkSummary & { serialOk?: boolean } | null>(null)
+  const [paragraphs, setParagraphs] = useState<SerialWork['paragraphs']>([])
+  const [vocabulary, setVocabulary] = useState(new Map<string, VocabularyEntry>())
+  const [grammar, setGrammar] = useState(new Map<string, GrammarEntry>())
+  const [nextFrom, setNextFrom] = useState<number | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState('')
+  const [marks, setMarks] = useState(true)
+  const [selection, setSelection] = useState<TokenSelection | null>(null)
+  const startedAt = target ? Math.max(1, target - 20) : 1
+
+  const addWindow = (window: Awaited<ReturnType<typeof loadWorkWindow>>, replace: boolean) => {
+    setWork(window.work)
+    setParagraphs(current => replace ? window.paragraphs : [...current, ...window.paragraphs])
+    setVocabulary(current => new Map([...(replace ? [] : current), ...window.entries.vocabulary.map(entry => [entry.id, entry] as const)]))
+    setGrammar(current => new Map([...(replace ? [] : current), ...window.entries.grammar.map(entry => [entry.id, entry] as const)]))
+    setNextFrom(window.nextFrom)
+  }
+
   useEffect(() => {
-    setWork(null)
-    setFull(Boolean(targetParagraph))
-    setLoadError('')
-    loadWork(id, targetParagraph).then(setWork).catch(cause => setLoadError(cause instanceof Error ? cause.message : '作品を読み込めませんでした。'))
-    window.scrollTo(0,0)
-  }, [id, targetParagraph])
+    let active = true
+    setWork(null); setParagraphs([]); setError(''); setSelection(null)
+    loadWorkWindow(id, startedAt, WINDOW)
+      .then(window => { if (active) addWindow(window, true) })
+      .catch(cause => { if (active) setError(cause instanceof Error ? cause.message : '作品を読み込めませんでした。') })
+    window.scrollTo(0, 0)
+    return () => { active = false }
+  }, [id, startedAt])
+
+  const loadMore = () => {
+    if (!nextFrom || loadingMore) return
+    setLoadingMore(true)
+    loadWorkWindow(id, nextFrom, WINDOW).then(window => addWindow(window, false)).catch(() => setError('続きを読み込めませんでした。')).finally(() => setLoadingMore(false))
+  }
+
+  // Deep links scroll to the highlighted words once the text is on screen.
   useEffect(() => {
-    if (!work || !targetParagraph) return
-    const frame = window.requestAnimationFrame(() => (document.getElementById('topic-focus') || document.getElementById(`paragraph-${targetParagraph}`))?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
-    return () => window.cancelAnimationFrame(frame)
-  }, [work, targetParagraph, focusText])
-  const trackedWork = useRef('')
-  useEffect(() => { if (work) { document.title = `${work.title} — 青空しおり`; if (trackedWork.current !== id) { trackedWork.current = id; trackEvent('read_start', { workID:id, label:work.title, path:`/read/${id}` }) } } }, [work, id, setState])
+    if (!work || !target) return
+    const frame = requestAnimationFrame(() => (document.getElementById('topic-focus') || document.getElementById(`paragraph-${target}`))?.scrollIntoView({ block: 'center' }))
+    return () => cancelAnimationFrame(frame)
+  }, [work, target])
+
+  const tracked = useRef('')
+  useEffect(() => {
+    if (!work || tracked.current === id) return
+    tracked.current = id
+    document.title = `${work.title} — 青空しおり`
+    trackEvent('read_start', { workID: id, label: work.title, path: `/read/${id}` })
+  }, [work, id])
   useReadingTimer(seconds => setState(current => ({ ...current, readingSeconds: current.readingSeconds + seconds })))
-  const vocabMap = useMemo(() => new Map(work?.entries.vocabulary.map(entry => [entry.id, entry]) || []), [work])
-  const grammarMap = useMemo(() => new Map(work?.entries.grammar.map(entry => [entry.id, entry]) || []), [work])
-  const saveWord = () => {
-    if (!selected) return
+
+  // Progress is the furthest paragraph that has scrolled past the middle of the screen.
+  const [furthest, setFurthest] = useState(0)
+  useEffect(() => {
+    if (!work) return
+    const observer = new IntersectionObserver(entries => {
+      const passed = entries.filter(entry => entry.isIntersecting).map(entry => Number(entry.target.id.replace('paragraph-', '')))
+      if (passed.length) setFurthest(current => Math.max(current, ...passed))
+    }, { rootMargin: '0px 0px -50% 0px' })
+    document.querySelectorAll('.daily-text p[id^="paragraph-"]').forEach(element => observer.observe(element))
+    return () => observer.disconnect()
+  }, [work, paragraphs])
+  const percent = work?.paragraphCount ? Math.min(100, Math.round(100 * furthest / work.paragraphCount)) : 0
+  useEffect(() => {
+    if (percent) setState(current => percent > (current.progress[id] || 0) ? { ...current, progress: { ...current.progress, [id]: percent } } : current)
+  }, [percent, id, setState])
+
+  const days = useMemo(() => Math.max(1, Math.round((work?.characterCount || 0) / (PACE_CHARACTERS[state.pace] * 1.3))), [work, state.pace])
+  const isSerial = state.serial?.workId === id
+  const saved = selection ? Boolean(state.cards[`${selection.selected.kind}:${selection.selected.entry.id}`]) : false
+  const save = () => {
+    if (!selection) return
+    const { selected, context, ordinal } = selection
     setState(current => addCard(current, {
       kind: selected.kind, entryId: selected.entry.id, word: entryWord(selected),
       reading: selected.kind === 'vocabulary' ? selected.entry.reading : selected.entry.formation,
-      meaning: meaningOf(selected.entry), level: selected.entry.level, workId: id,
+      meaning: meaningOf(selected.entry), level: selected.entry.level, context, workId: id, ordinal,
     }))
   }
-  const visibleParagraphs = useMemo(() => {
-    if (!work) return []
-    if (full) return work.annotatedParagraphs
-    let remaining = 3100
-    return work.annotatedParagraphs.map(paragraph => {
-      if (remaining <= 0) return []
-      const result = []
-      for (const token of paragraph) { if (remaining <= 0) break; result.push(token); remaining -= token.text.length }
-      return result
-    }).filter(paragraph => paragraph.length)
-  }, [work, full])
-  const shownCharacters = useMemo(() => visibleParagraphs.reduce((sum, paragraph) => sum + paragraph.reduce((size, token) => size + token.text.length, 0), 0), [visibleParagraphs])
-  useEffect(() => {
-    if (!work || !shownCharacters) return
-    // Percent of the whole work read: how far down the shown text, scaled by how much of the work is shown.
-    const share = Math.min(1, shownCharacters / Math.max(shownCharacters, work.characterCount || shownCharacters))
-    let frame = 0
-    const update = () => {
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => {
-        const box = document.querySelector('.reading-text')?.getBoundingClientRect()
-        if (!box) return
-        const ratio = Math.min(1, Math.max(0, (window.innerHeight - box.top) / Math.max(1, box.height)))
-        const percent = Math.round(ratio * share * 100)
-        setState(current => percent > (current.progress[id] || 0) ? { ...current, progress: { ...current.progress, [id]: percent } } : current)
-      })
-    }
-    window.addEventListener('scroll', update, { passive: true })
-    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', update) }
-  }, [work, id, shownCharacters, setState])
-  if (loadError) return <main className="daily-shell daily-center"><p>{loadError}</p><Link className="daily-button is-accent" to="/shelf">本棚へ戻る</Link></main>
-  if (!work) return <div className="reader-loading">本文を分析しています…</div>
-  const openToken = (token: AnnotatedToken) => {
-    const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
-    const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
-    if (vocab && levels[vocab.level]) { setSelected({kind:'vocabulary', entry:vocab}); trackEvent('learning_open', { label:'vocabulary' }) }
-    else if (grammar && showGrammar && levels[grammar.level]) { setSelected({kind:'grammar', entry:grammar}); trackEvent('learning_open', { label:'grammar' }) }
-  }
-  return <div className={`reader-page ${furigana ? '' : 'hide-ruby'}`}>
-    <header className="reader-header"><button className="reader-back" onClick={() => navigate(-1)}><ArrowLeft size={19}/><span>戻る</span></button><div className="reader-title"><strong>{work.title}</strong><span>{state.progress[id] || 0}%</span></div><div className="reader-progress"><i style={{width: `${state.progress[id] || 0}%`}}/></div><Link className="icon-button" to="/" aria-label="今日の一頁へ"><BookOpenText size={18}/></Link></header>
-    <div className="reader-controls"><button className={furigana ? 'active ruby-control' : ''} onClick={() => setFurigana(!furigana)}>ふりがな</button><button className={levels.N2 ? 'active n2-control' : ''} onClick={() => setLevels(value => ({...value,N2:!value.N2}))}>N2 語彙</button><button className={levels.N1 ? 'active n1-control' : ''} onClick={() => setLevels(value => ({...value,N1:!value.N1}))}>N1 語彙</button><button className={showGrammar ? 'active grammar-control' : ''} onClick={() => setShowGrammar(!showGrammar)}>N2・N1 文法</button></div>
-    <main className="reader-layout"><section className="reading-wrap"><div className="reading-meta"><span>{work.genre}</span><h1>{work.title}</h1><p>{work.author}</p></div>
-      {targetParagraph && <div className="reader-deep-link-note"><LocateFixed size={15}/><span>{focusForm ? '特集で選んだ用例まで移動しました' : '選んだ言葉が出てくる段落です'}</span></div>}
-      <article className="reading-text">{visibleParagraphs.map((paragraph, paragraphIndex) => {
-        const ordinal = work.paragraphOrdinals?.[paragraphIndex] || paragraphIndex + 1
-        const isTarget = ordinal === targetParagraph
-        const focusRange = isTarget ? findTopicFocusRange(paragraph.map(token => token.text).join(''), focusText) : null
-        let tokenOffset = 0
-        let focusAnchorAssigned = false
-        return <p id={`paragraph-${ordinal}`} className={isTarget ? 'target-paragraph' : undefined} data-focus={isTarget ? focusForm : undefined} key={ordinal}>{paragraph.map((token, tokenIndex) => {
-        const tokenStart = tokenOffset
-        tokenOffset += token.text.length
-        const isFocusedToken = Boolean(focusRange && tokenStart < focusRange.end && tokenOffset > focusRange.start)
-        const focusID = isFocusedToken && !focusAnchorAssigned ? 'topic-focus' : undefined
-        if (focusID) focusAnchorAssigned = true
-        const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined
-        const grammar = token.grammarIds?.map(key => grammarMap.get(key)).find(Boolean)
-        const vocabVisible = vocab && levels[vocab.level]
-        const grammarVisible = grammar && showGrammar && levels[grammar.level]
-        const annotationClasses = [vocabVisible ? `vocab-${vocab.level.toLowerCase()}` : '', grammarVisible ? `grammar-token grammar-${grammar.level.toLowerCase()}` : ''].filter(Boolean)
-        const learningClassName = annotationClasses.length ? `learning-token ${annotationClasses.join(' ')}` : ''
-        const className = [learningClassName, isFocusedToken ? 'topic-focus-token' : ''].filter(Boolean).join(' ')
-        const reading = readingForToken(token)
-        const content = reading ? <ruby>{token.text}<rt>{reading}</rt></ruby> : token.text
-        return learningClassName ? <button type="button" id={focusID} className={className} key={tokenIndex} onClick={() => openToken(token)}>{content}</button> : <span id={focusID} className={className || undefined} key={tokenIndex}>{content}</span>
-      })}{isTarget && <span className="target-paragraph-label"><LocateFixed size={12}/> {focusForm ? '特集の用例' : 'ここに出てきます'}</span>}</p>})}</article>
-      <div className="reading-actions"><button className="secondary-button" onClick={() => setFull(!full)}>{full ? '短い表示に戻る' : work.annotatedParagraphs.length < work.paragraphCount ? '収録範囲をすべて表示' : '全文を表示'}</button><a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫の原文を見る</a></div>
-      <p className="attribution">出典：{work.attribution} · 表記は底本に準拠</p>
-    </section><aside className="chapter-learning"><span>この章の学び</span><div><strong>{work.learning?.vocabularyUnique || 0}</strong><small>N2・N1 語彙</small></div><div><strong>{work.learning?.grammarUnique || 0}</strong><small>N2・N1 文法</small></div><Link to="/learn">一覧から探す <ChevronRight size={14}/></Link></aside></main>
-    <Link className="mobile-learning-bar" to="/learn"><span>この章：{work.learning?.vocabularyUnique || 0}語彙・{work.learning?.grammarUnique || 0}文法</span><strong>一覧 <ChevronRight size={14}/></strong></Link>
-    {selected && <div className="sheet-scrim" onClick={() => setSelected(null)}><section className="word-sheet" onClick={e => e.stopPropagation()}><button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる"><X size={20}/></button><div className="sheet-handle"/><div className="word-heading"><div><h2>{selected.kind === 'vocabulary' ? selected.entry.term : selected.entry.pattern}</h2><p>{selected.kind === 'vocabulary' ? `[ ${selected.entry.reading} ]` : selected.entry.formation}</p></div><span>{selected.entry.level} · {selected.kind === 'vocabulary' ? '語彙' : selected.entry.category}</span></div><p className="meaning">{meaningOf(selected.entry)}{englishMeaning(selected.entry) && <><br/><small>{englishMeaning(selected.entry)}</small></>}</p>{selected.kind === 'grammar' && selected.entry.examples[0] && <p className="usage">{selected.entry.examples[0].jp}{selected.entry.examples[0].zh && <><br/><small>{selected.entry.examples[0].zh}</small></>}</p>}<EntryArticles selected={selected} className="appears-in" label="この表現がある作品"/><div className="sheet-actions"><button className="primary-button" onClick={saveWord}>{state.cards[`${selected.kind}:${selected.entry.id}`] ? <><Check size={17}/> 単語帳に入れました</> : <><RotateCcw size={17}/> 単語帳に入れる</>}</button></div></section></div>}
+
+  const header = <header className="daily-bar">
+    <button className="daily-close" onClick={back} aria-label="戻る"><ArrowLeft size={20}/></button>
+    <span className="daily-title">{work?.title || '　'}<small>{work?.author}</small></span>
+    <span className="daily-time">{percent ? `${percent}%` : ''}</span>
+    <i className="daily-progress" style={{ transform: `scaleX(${percent / 100})` }} aria-hidden="true"/>
+  </header>
+
+  if (error && !work) return <div className="daily-shell">{header}<main className="daily-center"><p>{error}</p><Link className="daily-button is-accent" to="/shelf">本棚へ戻る</Link></main></div>
+  if (!work) return <div className="daily-shell">{header}<main className="daily-center"><p className="serial-loading">本文をひらいています…</p></main></div>
+
+  return <div className="daily-shell">
+    {header}
+    <main className="daily-reading reader-full">
+      <section className="reader-intro">
+        <span className="page-kicker">{work.genre}{work.level !== '未分類' && ` · ${work.level}`}</span>
+        <h1>{work.title}</h1>
+        <p className="reader-author">{work.author}</p>
+        <p className="reader-meta">{(work.characterCount || 0).toLocaleString()}字 · 一日{state.pace}分で約{days}日</p>
+        {isSerial
+          ? <Link className="daily-button is-accent" to="/daily"><BookOpenText size={16}/> 今日の一頁で続きを読む</Link>
+          : work.serialOk && <button className="daily-button is-quiet" onClick={() => setState(current => startSerial(current, work))}><BookMarked size={16}/> この本を毎日の連載にする</button>}
+        {startedAt > 1 && <Link className="text-link reader-from-start" to={`/read/${id}`}>冒頭から読む</Link>}
+      </section>
+
+      <MarksLegend marks={marks} onToggle={() => setMarks(value => !value)}/>
+      <div className={marks ? undefined : 'marks-hidden'}>
+        <AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selection ? `${selection.selected.kind}:${selection.selected.entry.id}` : undefined}
+          target={target ? { ordinal: target, text: focusText, label: focusForm ? '特集の用例' : 'ここに出てきます' } : null}
+          onSelect={next => { setSelection(next); trackEvent('learning_open', { label: next.selected.kind, path: `/read/${id}` }) }}/>
+      </div>
+
+      {nextFrom
+        ? <button className="daily-button is-quiet reader-more" onClick={loadMore} disabled={loadingMore}>{loadingMore ? <><LoaderCircle className="spin" size={16}/> 読み込んでいます…</> : <>続きを読む <ArrowRight size={16}/></>}</button>
+        : <p className="reader-end">おわり</p>}
+      {error && <p className="study-status">{error}</p>}
+      <p className="daily-source">出典：<a href={work.sourceUrl} target="_blank" rel="noreferrer">青空文庫「{work.title}」</a> · 表記は底本に準拠</p>
+
+      {selection && <WordSheet selected={selection.selected} context={selection.context} saved={saved} onSave={save} onClose={() => setSelection(null)} showArticles/>}
+    </main>
   </div>
 }

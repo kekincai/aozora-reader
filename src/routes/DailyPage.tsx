@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Copy, X } from 'lucide-react'
-import { AnnotatedText, type TokenSelection } from '../components/AnnotatedText'
+import { AnnotatedText, MarksLegend, type TokenSelection } from '../components/AnnotatedText'
 import { WordSheet } from '../components/WordSheet'
 import { advance, buildQuiz, openingLine, pageAt, pickQuote, sentences, SERIAL_ORDER, startingPosition, type QuizQuestion, type QuizSource } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
@@ -197,10 +197,7 @@ export function DailyPage() {
 
     {phase === 'read' && <main className="daily-reading">
       <div className="daily-heading"><span>{work.author}</span><h1>{work.title}</h1></div>
-      <div className="daily-legend">
-        {marks ? <><span className="legend-n2">N2 語彙</span><span className="legend-n1">N1 語彙</span><span className="legend-grammar">文法</span><small>タップで意味</small></> : <small>印を隠しています</small>}
-        <button onClick={() => setMarks(value => !value)} aria-pressed={!marks}>{marks ? '印を隠す' : '印を表示'}</button>
-      </div>
+      <MarksLegend marks={marks} onToggle={() => setMarks(value => !value)}/>
       <div className={marks ? undefined : 'marks-hidden'}><AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selectedKey} onSelect={selection => { setSelection(selection); trackEvent('learning_open', { label: selection.selected.kind, path: '/daily' }) }}/></div>
       <div className="daily-cliff">
         {!page.isLast && nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。{nextWork ? `明日からは「${nextWork.title}」。` : '次の一冊は、あなたに合う候補から選べます。'}</p></>}

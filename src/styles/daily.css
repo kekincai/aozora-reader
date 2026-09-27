@@ -592,3 +592,40 @@ button.today-tile { grid-template-columns: 20px 1fr; }
   .admin-feedback li { grid-template-columns: 1fr; }
   .admin-feedback select { grid-column: 1; grid-row: auto; justify-self: start; }
 }
+
+/* ---------- section sub-navigation ---------- */
+.section-nav { display: flex; gap: 4px; max-width: 1120px; margin: 0 auto; padding: 12px 52px 0; overflow-x: auto; scrollbar-width: none; }
+.section-nav::-webkit-scrollbar { display: none; }
+.section-nav a { flex: 0 0 auto; padding: 8px 14px; border-radius: 99px; color: var(--muted); font-size: 13px; text-decoration: none; letter-spacing: .04em; }
+.section-nav a:hover { color: var(--ink); background: rgba(49, 94, 80, .06); }
+.section-nav a.is-on { background: var(--ink); color: #f7f3e9; font-weight: 600; }
+.section-nav + main.page-frame, .section-nav + .page-frame { padding-top: 26px; }
+.words-layout:has(> section:only-child) { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+.shelf-search { margin-top: 6px; }
+@media (max-width: 899px) { .section-nav { padding: 10px 18px 0; } .section-nav + .page-frame { padding-top: 18px; } }
+.daily-text p.is-target { position: relative; margin-left: -12px; margin-right: -12px; padding: 30px 12px 10px; border-radius: 12px; background: var(--beni-soft); }
+.daily-text .target-label { position: absolute; top: 8px; right: 12px; font: 700 11px var(--sans, inherit); color: var(--beni); letter-spacing: .06em; text-indent: 0; }
+.daily-text .is-focus { background-color: color-mix(in srgb, var(--beni) 28%, transparent); border-radius: 3px; }
+
+/* ---------- full-text reader ---------- */
+.reader-intro { display: grid; justify-items: center; gap: 6px; text-align: center; margin-bottom: 26px; }
+.reader-intro h1 { font: 600 clamp(26px, 3vw, 34px) var(--serif); letter-spacing: .12em; margin: 4px 0 0; }
+.reader-author { margin: 0; font-size: 14px; letter-spacing: .1em; }
+.reader-meta { margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+.reader-intro .daily-button { min-height: 42px; padding: 9px 18px; font-size: 13px; }
+.reader-from-start { margin-top: 2px; }
+.reader-more { width: 100%; margin-top: 12px; }
+.reader-end { text-align: center; font: 600 15px var(--serif); letter-spacing: .4em; color: var(--muted); margin: 28px 0 6px; }
+
+/* ---------- feedback ---------- */
+.feedback { max-width: 680px; }
+.feedback-card { display: grid; gap: 16px; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); }
+.feedback-field { display: grid; gap: 6px; font-size: 13px; }
+.feedback-field b { color: var(--beni); font-size: 11px; margin-left: 4px; }
+.feedback-field textarea, .feedback-field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font: 15px/1.8 var(--sans, inherit); color: var(--ink); resize: vertical; }
+.feedback-field textarea:focus, .feedback-field input:focus { outline: 0; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.feedback-field small { justify-self: end; color: var(--muted); font-size: 11px; }
+.feedback-honeypot { position: absolute; left: -9999px; }
+.feedback-privacy { margin: 0; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.feedback-privacy svg { vertical-align: -2px; }
+.feedback-card > .daily-button { justify-self: start; }

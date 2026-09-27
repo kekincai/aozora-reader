@@ -10,10 +10,31 @@ export type { AuthState }
 
 const navigation = [
   { to: '/', label: '今日', icon: BookOpenText, match: ['/'] },
-  { to: '/shelf', label: '本棚', icon: BookMarked, match: ['/shelf', '/articles', '/topics', '/read'] },
-  { to: '/words', label: '単語帳', icon: NotebookTabs, match: ['/words', '/review', '/learn'] },
+  { to: '/shelf', label: '本棚', icon: BookMarked, match: ['/shelf', '/articles', '/read'] },
+  { to: '/words', label: 'ことば', icon: NotebookTabs, match: ['/words', '/review', '/learn', '/topics'] },
   { to: '/record', label: '記録', icon: BarChart3, match: ['/record', '/feedback', '/admin'] },
 ]
+
+/** Pages inside each tab, shown as a second row so no page is reachable only from a card. */
+type SectionItem = { to: string; label: string; also?: string[]; admin?: boolean }
+const sections: { tab: string; items: SectionItem[] }[] = [
+  { tab: '/shelf', items: [{ to: '/shelf', label: '本棚' }, { to: '/articles', label: '作品を探す' }] },
+  { tab: '/words', items: [{ to: '/words', label: '単語帳', also: ['/review'] }, { to: '/learn', label: '索引' }, { to: '/topics', label: '特集' }] },
+  { tab: '/record', items: [{ to: '/record', label: '記録' }, { to: '/feedback', label: 'ご意見' }, { to: '/admin', label: '管理', admin: true }] },
+]
+
+function SectionNav() {
+  const { pathname } = useLocation()
+  const { auth } = useApp()
+  const section = sections.find(item => item.items.some(entry => isActive(pathname, [entry.to, ...(entry.also || [])])))
+  if (!section) return null
+  return <nav className="section-nav" aria-label="この項目のページ">
+    {section.items.filter(item => !item.admin || auth.user?.isAdmin).map(item => {
+      const active = isActive(pathname, [item.to, ...(item.also || [])])
+      return <Link key={item.to} to={item.to} className={active ? 'is-on' : ''} aria-current={active ? 'page' : undefined}>{item.label}</Link>
+    })}
+  </nav>
+}
 
 function isActive(pathname: string, match: string[]) {
   return match.some(path => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
@@ -78,6 +99,7 @@ function Header() {
 export function AppShell({ children }: { children: ReactNode }) {
   return <div className="app-shell">
     <Header/>
+    <SectionNav/>
     {children}
     <footer><span>青空文庫の公開作品を、毎日の一頁に。</span><a href="https://www.aozora.gr.jp/" target="_blank" rel="noreferrer">青空文庫について</a></footer>
     <NavItems className="tab-bar"/>

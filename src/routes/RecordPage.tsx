@@ -1,5 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Cloud, KeyRound, MessageCircle, ShieldCheck } from 'lucide-react'
+import { Cloud, KeyRound } from 'lucide-react'
 import { PaceChooser } from './TodayPage'
 import { ReminderSettings } from '../daily/ReminderSettings'
 import { useApp } from '../state/context'
@@ -31,7 +30,6 @@ export function MonthCalendar({ month, days, restDays, today }: { month: string;
 
 export function RecordPage() {
   const { state, setState, auth, syncStatus, openAuth } = useApp()
-  const location = useLocation()
   const today = japanDate()
   const summary = streakSummary(state.days, today)
   const month = today.slice(0, 7)
@@ -61,8 +59,6 @@ export function RecordPage() {
           {auth.user ? <Cloud size={18}/> : <KeyRound size={18}/>}
           <div><strong>{auth.user ? `${auth.user.displayName}さん` : 'パスキーで同期する'}</strong><span>{auth.user ? (syncStatus === 'error' ? '同期を再試行しています' : syncStatus === 'saving' ? '保存しています…' : 'クラウドに保存済み') : '登録しなくても、この端末には記録が残ります'}</span></div>
         </button>
-        <Link className="today-tile" to={{ pathname: '/feedback', search: `?from=${encodeURIComponent(location.pathname)}` }}><MessageCircle size={18}/><div><strong>ご意見を送る</strong><span>不具合や読みたい作品を教えてください</span></div></Link>
-        {auth.user?.isAdmin && <Link className="today-tile" to="/admin"><ShieldCheck size={18}/><div><strong>管理</strong><span>運営の数字を見る</span></div></Link>}
       </section>
     </div>
   </main>

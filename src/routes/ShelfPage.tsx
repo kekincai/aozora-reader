@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Search, Sparkles } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 import { loadWorks, type WorkSummary } from '../catalog'
 import { SERIAL_ORDER, startingPosition } from '../daily/serial'
 import { NextBookChooser } from '../daily/NextBookChooser'
@@ -57,9 +57,6 @@ export function ShelfPage() {
 
     <NextBookChooser after={current || state.finished[state.finished.length - 1] || null} title={current ? '別の本を連載にする' : '次の一冊を選ぶ'} note={current ? '今の連載を替えると、明日からは選んだ本の一頁目から始まります。' : undefined}/>
 
-    <div className="shelf-more">
-      <Link className="today-tile" to="/articles"><Search size={18}/><div><strong>17,831作品から探す</strong><span>題名・作者・長さ・レベルで絞り込み</span></div><ArrowRight size={16}/></Link>
-      <Link className="today-tile" to="/topics"><Sparkles size={18}/><div><strong>特集</strong><span>授受動詞を青空文庫の原文で読む</span></div><ArrowRight size={16}/></Link>
-    </div>
+    <Link className="daily-button is-quiet shelf-search" to="/articles"><Search size={16}/> ほかの作品を探す <ArrowRight size={16}/></Link>
   </main>
 }

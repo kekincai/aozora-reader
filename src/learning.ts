@@ -40,6 +40,24 @@ type WorkResponse = {
 
 const serialWorks = new Map<string, Promise<SerialWork>>()
 
+export type WorkWindow = { work: WorkSummary; paragraphs: SerialWork['paragraphs']; entries: WorkEntries; nextFrom: number | null }
+
+/** A window of paragraphs from `from`, for the full-text reader to load as the reader scrolls. */
+export async function loadWorkWindow(id: string, from: number, limit = 60): Promise<WorkWindow> {
+  const response = await fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=${from}&limit=${limit}`)
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({})) as { error?: string }
+    throw new Error(data.error || '作品を読み込めませんでした。')
+  }
+  const data = await response.json() as WorkResponse & { page: { nextFrom: number | null } }
+  return {
+    work: data.work,
+    entries: data.entries || { vocabulary: [], grammar: [] },
+    paragraphs: data.paragraphs.map(paragraph => ({ ordinal: paragraph.ordinal, text: paragraph.text, tokens: annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar) })),
+    nextFrom: data.page.nextFrom,
+  }
+}
+
 /** The whole annotated work; serial works are short enough to paginate on the client. */
 export function loadSerialWork(id: string) {
   if (!serialWorks.has(id)) {

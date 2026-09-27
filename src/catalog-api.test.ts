@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { loadWork, searchTopicExamples, searchWorks } from './catalog'
+import { searchTopicExamples, searchWorks } from './catalog'
+import { loadWorkWindow } from './learning'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -30,22 +31,19 @@ describe('catalog paging requests', () => {
 })
 
 describe('reader paragraph windows', () => {
-  it('loads a window around a deep-linked paragraph and preserves database ordinals', async () => {
+  it('loads a window from a deep-linked paragraph and keeps database ordinals and entries', async () => {
     const apiPayload = {
       work: { id: '755', title: '文芸の哲学的基礎', author: '夏目 漱石', level: 'N1', genre: '評論', minutes: 30, summary: '', sourceUrl: '', attribution: '青空文庫', paragraphCount: 2500 },
       paragraphs: [{ ordinal: 1842, text: '先生が説明してくれた。', rubies: [], vocabulary: [], grammar: [] }],
-      page: { from: 1822, limit: 80, hasMore: true, nextFrom: 1902 },
+      entries: { vocabulary: [{ id: 'v1', term: '説明', reading: 'せつめい', meaning: 'explanation', meaningZh: '说明', level: 'N2' }], grammar: [] },
+      page: { from: 1822, limit: 60, hasMore: true, nextFrom: 1882 },
     }
-    const fetchMock = vi.fn((input: RequestInfo | URL) => {
-      const url = String(input)
-      return Promise.resolve(url.startsWith('/api/')
-        ? new Response(JSON.stringify(apiPayload), { status: 200, headers: { 'content-type': 'application/json' } })
-        : new Response('', { status: 404 }))
-    })
+    const fetchMock = vi.fn(() => Promise.resolve(new Response(JSON.stringify(apiPayload), { status: 200, headers: { 'content-type': 'application/json' } })))
     vi.stubGlobal('fetch', fetchMock)
-    const work = await loadWork('755', 1842)
-    expect(fetchMock.mock.calls.map(call => String(call[0]))).toContain('/api/catalog/works/755?from=1822&limit=80')
-    expect(work.paragraphOrdinals).toEqual([1842])
-    expect(work.paragraphs[0]).toContain('くれた')
+    const window = await loadWorkWindow('755', 1822, 60)
+    expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toBe('/api/catalog/works/755?from=1822&limit=60')
+    expect(window.paragraphs.map(paragraph => paragraph.ordinal)).toEqual([1842])
+    expect(window.entries.vocabulary[0].meaningZh).toBe('说明')
+    expect(window.nextFrom).toBe(1882)
   })
 })

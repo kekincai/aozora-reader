@@ -333,11 +333,12 @@ export async function getWork(request: Request, env: CatalogEnv, workID: string)
           '作者不詳'
         ) as author,
         coalesce(pr.jlpt_level, rd.level, '未分類') as level,
-        coalesce(pr.genres[1], '文学') as genre,
+        coalesce(pr.genres[1], ${WORK_KIND_SQL}) as genre,
         greatest(1, ceil(w.character_count / 500.0))::integer as minutes,
         coalesce(pr.summary_ja, '') as summary,
         w.card_url as "sourceUrl", '青空文庫' as attribution,
-        w.paragraph_count::integer as "paragraphCount", w.character_count::integer as "characterCount"
+        w.paragraph_count::integer as "paragraphCount", w.character_count::integer as "characterCount",
+        coalesce(rd.serial_ok, false) as "serialOk"
       from catalog.works w
       left join catalog.work_people wp on wp.work_id = w.id
       left join catalog.people p on p.id = wp.person_id
@@ -512,4 +513,13 @@ export async function serialCandidates(request: Request, env: CatalogEnv) {
     limit $4
   `, [after, exclude, date, limit]))
   return response({ works: result.rows })
+}
+
+/** Chinese meanings for saved cards made before the lexicon had them. */
+export async function vocabularyMeanings(request: Request, env: CatalogEnv) {
+  const ids = (new URL(request.url).searchParams.get('ids') || '').split(',').filter(id => /^v\d{1,6}$/.test(id)).slice(0, 200)
+  if (!ids.length) return response({ meanings: {} })
+  const result = await queryCatalog(env, client => client.query(
+    'select id, meaning_zh as "meaningZh" from learning.vocabulary where id = any($1::text[]) and meaning_zh is not null', [ids]))
+  return response({ meanings: Object.fromEntries(result.rows.map(row => [row.id, row.meaningZh])) })
 }

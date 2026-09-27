@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, BookOpenText, Search } from 'lucide-react'
+import { ArrowRight, BookOpenText } from 'lucide-react'
 import { trackEvent } from '../operations'
 import { useApp } from '../state/context'
 import { dueCards, dueInDays, isLearned, Rating, reviewCard, type WordCard } from '../state/store'
@@ -16,8 +16,34 @@ function sourceLink(card: WordCard) {
   return card.ordinal ? `/read/${card.workId}?view=reader&paragraph=${card.ordinal}&text=${encodeURIComponent(card.word.slice(0, 40))}` : `/read/${card.workId}`
 }
 
+const CJK = /[\u3400-\u9fff]/
+
+/** Cards saved before the lexicon had Chinese keep their English meaning until upgraded here. */
+function useChineseCardMeanings() {
+  const { state, setState } = useApp()
+  const pending = Object.values(state.cards).filter(card => card.kind === 'vocabulary' && card.entryId && !CJK.test(card.meaning)).map(card => card.entryId!)
+  const key = pending.sort().join(',')
+  useEffect(() => {
+    if (!key) return
+    let active = true
+    fetch(`/api/learning/meanings?ids=${key}`).then(response => response.ok ? response.json() as Promise<{ meanings: Record<string, string> }> : null).then(result => {
+      if (!active || !result || !Object.keys(result.meanings).length) return
+      setState(current => {
+        const cards = { ...current.cards }
+        for (const card of Object.values(cards)) {
+          const zh = card.entryId && result.meanings[card.entryId]
+          if (zh && card.kind === 'vocabulary') cards[card.key] = { ...card, meaning: zh }
+        }
+        return { ...current, cards }
+      })
+    }).catch(() => undefined)
+    return () => { active = false }
+  }, [key, setState])
+}
+
 export function WordsPage() {
   const { state } = useApp()
+  useChineseCardMeanings()
   const [filter, setFilter] = useState<'all' | 'due' | 'learned'>('all')
   const cards = useMemo(() => Object.values(state.cards).sort((a, b) => a.srs.due.localeCompare(b.srs.due)), [state.cards])
   const due = dueCards(state)
@@ -49,10 +75,6 @@ export function WordsPage() {
           </li>
         })}</ul>
       </section>
-      <aside className="words-side">
-        <Link className="today-tile" to="/learn"><Search size={18}/><div><strong>語彙・文法の索引</strong><span>N2・N1 の5,311語と434文法から探す</span></div><ArrowRight size={16}/></Link>
-        <Link className="today-tile" to="/topics"><BookOpenText size={18}/><div><strong>特集</strong><span>一つの文法を原文で深く読む</span></div><ArrowRight size={16}/></Link>
-      </aside>
     </div>
   </main>
 }

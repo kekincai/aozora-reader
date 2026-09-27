@@ -1,4 +1,3 @@
-import type { WorkEntries } from './learning'
 export type LearningStats = { vocabularyCount: number; vocabularyUnique: number; grammarCount: number; grammarUnique: number }
 export type WorkSummary = {
   id: string
@@ -16,7 +15,6 @@ export type WorkSummary = {
   serialOk?: boolean
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
-export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][]; paragraphOrdinals?: number[]; entries: WorkEntries }
 export type TopicExample = { id: string; title: string; author: string; ordinal: number; text: string; form: string; editorialRank: number; publicationYear: number }
 
 type VocabularyReading = { term: string; reading: string }
@@ -31,12 +29,6 @@ export function readingForToken(token: AnnotatedToken, vocabulary?: VocabularyRe
 type Ruby = { startOffset: number; endOffset: number; baseText: string; reading: string }
 type VocabularyOccurrence = { startOffset: number; endOffset: number; vocabId: string }
 type GrammarOccurrence = { startOffset: number; endOffset: number; grammarId: string; ranges: [number, number][] }
-type CatalogWorkResponse = {
-  work: WorkSummary
-  paragraphs: { ordinal: number; text: string; rubies: Ruby[]; vocabulary?: VocabularyOccurrence[]; grammar?: GrammarOccurrence[] }[]
-  entries?: WorkEntries
-  page: { from: number; limit: number; hasMore: boolean; nextFrom: number | null }
-}
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -117,18 +109,6 @@ export async function searchTopicExamples(form = 'all', query = '', page = 1, li
   return json<{ examples: TopicExample[]; page: { page: number; limit: number; total: number; totalPages: number } }>(await fetch(url))
 }
 
-export async function loadWork(id: string, targetParagraph?: number | null): Promise<ReaderWork> {
-  const from = targetParagraph ? Math.max(1, targetParagraph - 20) : 1
-  const limit = targetParagraph ? 80 : 220
-  const api = await fetch(`/api/catalog/works/${encodeURIComponent(id)}?from=${from}&limit=${limit}`).then(json<CatalogWorkResponse>)
-  return {
-    ...api.work,
-    entries: api.entries || { vocabulary: [], grammar: [] },
-    paragraphs: api.paragraphs.map(paragraph => paragraph.text),
-    annotatedParagraphs: api.paragraphs.map(paragraph => annotateLearning(paragraph.text, paragraph.rubies, paragraph.vocabulary, paragraph.grammar)),
-    paragraphOrdinals: api.paragraphs.map(paragraph => paragraph.ordinal),
-  }
-}
 
 export type SerialCandidate = WorkSummary & { score: number }
 
