@@ -110,15 +110,26 @@ export async function catalogHealth(env: CatalogEnv) {
   return response({ ok: true, database: result.rows[0] })
 }
 
+/** Kind of work from its NDC classes; editorial genres win for curated works. */
+const WORK_KIND_SQL = `case
+  when exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^K') then '童話・児童'
+  when exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^9[0-9]3') then '小説'
+  when exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^9[0-9]4') then '随筆'
+  when exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^9[0-9]1') then '詩歌'
+  when exists (select 1 from unnest(coalesce(w.ndc_classifications, '{}')) n where n ~ '^9[0-9]2') then '戯曲'
+  else '評論・その他' end`
+const WORK_KINDS = new Set(['童話・児童', '小説', '随筆', '詩歌', '戯曲', '評論・その他'])
+
 export async function listWorks(request: Request, env: CatalogEnv) {
   const url = new URL(request.url)
   const query = (url.searchParams.get('q') || '').trim().slice(0, 80)
   const limit = numberParam(url.searchParams.get('limit'), 30, 1, 50)
   const offset = numberParam(url.searchParams.get('offset'), 0, 0, 20_000)
   const level = (url.searchParams.get('level') || '').slice(0, 4)
-  const genre = (url.searchParams.get('genre') || '').trim().slice(0, 30)
+  const kind = WORK_KINDS.has(url.searchParams.get('kind') || '') ? url.searchParams.get('kind')! : ''
   const maxCharacters = numberParam(url.searchParams.get('maxCharacters'), 2_000_000, 500, 2_000_000)
-  const sort = url.searchParams.get('sort') === 'title' ? 'title' : url.searchParams.get('sort') === 'newest' ? 'newest' : 'shortest'
+  const sorts = ['shortest', 'easiest', 'title', 'newest']
+  const sort = sorts.includes(url.searchParams.get('sort') || '') ? url.searchParams.get('sort')! : 'shortest'
   const result = await queryCatalog(env, client => client.query(`
     select
       w.aozora_work_id::text as id,
@@ -129,13 +140,14 @@ export async function listWorks(request: Request, env: CatalogEnv) {
         '作者不詳'
       ) as author,
       coalesce(pr.jlpt_level, rd.level, '未分類') as level,
-      coalesce(pr.genres[1], '文学') as genre,
+      coalesce(pr.genres[1], ${WORK_KIND_SQL}) as genre,
       greatest(1, ceil(w.character_count / 500.0))::integer as minutes,
       coalesce(pr.summary_ja, '') as summary,
       w.card_url as "sourceUrl",
       '青空文庫' as attribution,
       w.paragraph_count::integer as "paragraphCount",
       w.character_count::integer as "characterCount",
+      coalesce(rd.serial_ok, false) as "serialOk",
       count(*) over()::integer as "__total"
     from catalog.works w
     left join catalog.work_people wp on wp.work_id = w.id
@@ -145,16 +157,17 @@ export async function listWorks(request: Request, env: CatalogEnv) {
     where w.copyright_status = 'なし' and w.has_content
       and ($1::text = '' or w.title ilike '%' || $1 || '%' or w.title_reading ilike '%' || $1 || '%' or concat_ws(' ', p.family_name, p.given_name) ilike '%' || $1 || '%')
       and ($4::text = '' or coalesce(pr.jlpt_level, rd.level) = $4)
-      and ($5::text = '' or $5 = any(pr.genres))
+      and ($5::text = '' or ${WORK_KIND_SQL} = $5)
       and w.character_count <= $6
     group by w.id, pr.work_id, rd.work_id
     order by pr.is_curated desc nulls last,
       case when $7 = 'shortest' then w.character_count end asc,
+      case when $7 = 'easiest' then coalesce(rd.score, 999) end asc,
       case when $7 = 'title' then w.sort_reading end asc,
       case when $7 = 'newest' then w.metadata_updated_on end desc,
       w.aozora_work_id
     limit $2 offset $3
-  `, [query, limit + 1, offset, level, genre, maxCharacters, sort]))
+  `, [query, limit + 1, offset, level, kind, maxCharacters, sort]))
   const total = Number(result.rows[0]?.__total || 0)
   const works = result.rows.slice(0, limit).map(({ __total: _total, ...work }) => work)
   const hasMore = offset + works.length < total

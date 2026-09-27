@@ -23,9 +23,9 @@ describe('catalog paging requests', () => {
 
   it('preserves article filters and the offset used by numbered pages', async () => {
     const fetchMock = mockJson({ works: [], page: { offset: 60, limit: 30, total: 0, totalPages: 0, hasMore: false, nextOffset: null } })
-    await searchWorks({ query: '猫', level: 'N2', genre: '短篇', offset: 60, limit: 30, sort: 'newest' })
+    await searchWorks({ query: '猫', level: 'N2', kind: '小説', offset: 60, limit: 30, sort: 'easiest' })
     const url = fetchMock.mock.calls[0][0] as URL
-    expect(Object.fromEntries(url.searchParams)).toMatchObject({ q: '猫', level: 'N2', genre: '短篇', offset: '60', limit: '30', sort: 'newest' })
+    expect(Object.fromEntries(url.searchParams)).toMatchObject({ q: '猫', level: 'N2', kind: '小説', offset: '60', limit: '30', sort: 'easiest' })
   })
 })
 

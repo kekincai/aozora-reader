@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BookOpenText } from 'lucide-react'
 import { loadSerialCandidates, type SerialCandidate } from '../catalog'
-import { useApp } from '../state/context'
+import { startSerial, useApp } from '../state/context'
 import { PACE_CHARACTERS } from './serial'
 
 /** Three next books near the reader's level; choosing one makes it the daily serial. */
@@ -20,11 +20,7 @@ export function NextBookChooser({ after, title = '次の一冊を選ぶ', note }
       .catch(() => { if (active) setError(true) })
     return () => { active = false }
   }, [after, excludeKey])
-  const choose = (work: SerialCandidate) => setState(current => ({
-    ...current,
-    serial: { workId: work.id, ordinal: 1 },
-    books: { ...current.books, [work.id]: { title: work.title, author: work.author } },
-  }))
+  const choose = (work: SerialCandidate) => setState(current => startSerial(current, work))
   return <section className="next-books">
     <h2>{title}</h2>
     {note && <p className="next-books-note">{note}</p>}

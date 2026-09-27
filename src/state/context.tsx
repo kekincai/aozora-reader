@@ -20,6 +20,11 @@ export function useApp() {
   return value
 }
 
+/** Makes a work the daily serial from its first page, remembering its title for the shelf. */
+export function startSerial(state: ReaderState, work: { id: string; title: string; author: string }): ReaderState {
+  return { ...state, serial: { workId: work.id, ordinal: 1 }, books: { ...state.books, [work.id]: { title: work.title, author: work.author } } }
+}
+
 export function addCard(state: ReaderState, input: Parameters<typeof newCard>[0]): ReaderState {
   const card: WordCard = newCard(input)
   if (state.cards[card.key]) return state

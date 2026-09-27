@@ -13,6 +13,7 @@ export type WorkSummary = {
   paragraphCount: number
   characterCount?: number
   learning?: LearningStats
+  serialOk?: boolean
 }
 export type AnnotatedToken = { text: string; reading?: string; vocabId?: string; grammarIds?: string[] }
 export type ReaderWork = WorkSummary & { paragraphs: string[]; annotatedParagraphs: AnnotatedToken[][]; paragraphOrdinals?: number[]; entries: WorkEntries }
@@ -87,13 +88,13 @@ export async function loadWorks(query = '') {
   return api.works
 }
 
-export type WorkSearch = { query?: string; level?: string; genre?: string; maxCharacters?: number; sort?: 'shortest'|'title'|'newest'; offset?: number; limit?: number }
+export type WorkSearch = { query?: string; level?: string; kind?: string; maxCharacters?: number; sort?: 'shortest'|'easiest'|'title'|'newest'; offset?: number; limit?: number }
 
 export async function searchWorks(filters: WorkSearch = {}) {
   const url = new URL('/api/catalog/works', window.location.origin)
   if (filters.query) url.searchParams.set('q', filters.query)
   if (filters.level) url.searchParams.set('level', filters.level)
-  if (filters.genre) url.searchParams.set('genre', filters.genre)
+  if (filters.kind) url.searchParams.set('kind', filters.kind)
   if (filters.maxCharacters) url.searchParams.set('maxCharacters', String(filters.maxCharacters))
   if (filters.sort) url.searchParams.set('sort', filters.sort)
   url.searchParams.set('offset', String(filters.offset || 0))
