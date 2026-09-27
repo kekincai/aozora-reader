@@ -17,10 +17,12 @@ export function ReaderPage() {
   const [work, setWork] = useState<Work | null>(null); const [learning, setLearning] = useState<LearningIndex | null>(null)
   const [furigana, setFurigana] = useState(true); const [full, setFull] = useState(Boolean(targetParagraph)); const [selected, setSelected] = useState<SelectedEntry | null>(null)
   const [levels, setLevels] = useState({N2:true, N1:true}); const [showGrammar, setShowGrammar] = useState(true)
+  const [loadError, setLoadError] = useState('')
   useEffect(() => {
     setWork(null)
     setFull(Boolean(targetParagraph))
-    Promise.all([loadWork(id, targetParagraph), loadLearningIndex()]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) })
+    setLoadError('')
+    Promise.all([loadWork(id, targetParagraph), loadLearningIndex()]).then(([nextWork, nextLearning]) => { setWork(nextWork); setLearning(nextLearning) }).catch(cause => setLoadError(cause instanceof Error ? cause.message : '作品を読み込めませんでした。'))
     window.scrollTo(0,0)
   }, [id, targetParagraph])
   useEffect(() => {
@@ -71,6 +73,7 @@ export function ReaderPage() {
     window.addEventListener('scroll', update, { passive: true })
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', update) }
   }, [work, id, shownCharacters, setState])
+  if (loadError) return <main className="daily-shell daily-center"><p>{loadError}</p><Link className="daily-button is-accent" to="/shelf">本棚へ戻る</Link></main>
   if (!work || !learning) return <div className="reader-loading">本文を分析しています…</div>
   const openToken = (token: AnnotatedToken) => {
     const vocab = token.vocabId ? vocabMap.get(token.vocabId) : undefined

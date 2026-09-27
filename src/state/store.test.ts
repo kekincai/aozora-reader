@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dueCards, emptyState, mergeStates, migrateState, newCard, Rating, reviewCard, streakSummary, type DayRecord } from './store'
+import { dueCards, dueInDays, emptyState, mergeStates, migrateState, newCard, Rating, reviewCard, streakSummary, type DayRecord } from './store'
 
 const day: DayRecord = { workId: '637', pages: 1, correct: 3, total: 3, seconds: 240 }
 const days = (...dates: string[]) => Object.fromEntries(dates.map(date => [date, day]))
@@ -46,6 +46,22 @@ describe('cards', () => {
     const reviewed = reviewCard(card, Rating.Good, now)
     expect(new Date(reviewed.srs.due).getTime()).toBeGreaterThan(now.getTime())
   })
+
+  it('schedules by day, never minutes later, even after a miss', () => {
+    const now = new Date('2026-09-27T12:00:00Z')
+    const card = newCard({ kind: 'vocabulary', entryId: 'v1', word: '包む', reading: 'つつむ', meaning: 'to wrap', level: 'N2' }, now)
+    for (const rating of [Rating.Again, Rating.Hard, Rating.Good] as const) {
+      const reviewed = reviewCard(card, rating, now)
+      expect(dueInDays(reviewed, now)).toBeGreaterThanOrEqual(1)
+    }
+  })
+
+  it('counts due days on the Japan calendar', () => {
+    const card = newCard({ kind: 'vocabulary', word: '包む', reading: 'つつむ', meaning: 'to wrap', level: 'N2' })
+    // 23:30 JST on the 27th and a card due 00:30 JST on the 28th: due tomorrow, not today.
+    const late = { ...card, srs: { ...card.srs, due: '2026-09-27T15:30:00Z' } }
+    expect(dueInDays(late, new Date('2026-09-27T14:30:00Z'))).toBe(1)
+  })
 })
 
 describe('mergeStates', () => {
@@ -55,5 +71,20 @@ describe('mergeStates', () => {
     const merged = mergeStates(local, cloud, ['637', '92'])
     expect(Object.keys(merged.days).sort()).toEqual(['2026-09-25', '2026-09-26'])
     expect(merged.serial).toEqual({ workId: '637', ordinal: 20 })
+  })
+
+  it('is idempotent, so the server merge and the client adopt do not loop', () => {
+    const local = { ...emptyState(), days: days('2026-09-26'), progress: { '637': 40 } }
+    const cloud = { ...emptyState(), days: days('2026-09-25'), progress: { '637': 60, '92': 10 } }
+    const once = mergeStates(local, cloud)
+    expect(mergeStates(once, cloud)).toEqual(once)
+    expect(mergeStates(local, once)).toEqual(once)
+  })
+
+  it('survives a stale device saving without today', () => {
+    const phone = { ...emptyState(), days: days('2026-09-26', '2026-09-27') }
+    const stalePc = { ...emptyState(), days: days('2026-09-26') }
+    const server = mergeStates(stalePc, phone)
+    expect(Object.keys(server.days).sort()).toEqual(['2026-09-26', '2026-09-27'])
   })
 })

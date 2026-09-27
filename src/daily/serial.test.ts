@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advance, buildQuiz, firstSentence, pageAt, paginate, pickQuote, SERIAL_ORDER } from './serial'
+import { advance, buildQuiz, firstSentence, openingLine, pageAt, paginate, pickQuote, SERIAL_ORDER } from './serial'
 
 const paragraphs = Array.from({ length: 10 }, (_, index) => ({ ordinal: index + 1, text: 'あ'.repeat(250) }))
 
@@ -37,6 +37,10 @@ describe('advance', () => {
 describe('text helpers', () => {
   it('takes the first sentence', () => {
     expect(firstSentence('やがて、行手にぽっつりあかりが一つ見え始めました。それを子供の狐が見つけて')).toBe('やがて、行手にぽっつりあかりが一つ見え始めました。')
+  })
+
+  it('skips chapter numbers for the opening line', () => {
+    expect(openingLine(['一', 'これは、私が小さいときに、村の茂平というおじいさんからきいたお話です。'])).toBe('これは、私が小さいときに、村の茂平というおじいさんからきいたお話です。')
   })
 
   it('prefers a quote that uses a quiz word', () => {

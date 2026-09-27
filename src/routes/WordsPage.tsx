@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, BookOpenText, Search } from 'lucide-react'
 import { trackEvent } from '../operations'
 import { useApp } from '../state/context'
-import { dueCards, isLearned, Rating, reviewCard, type WordCard } from '../state/store'
+import { dueCards, dueInDays, isLearned, Rating, reviewCard, type WordCard } from '../state/store'
 
-function dueLabel(card: WordCard, now = Date.now()) {
-  const days = Math.ceil((new Date(card.srs.due).getTime() - now) / 86_400_000)
+function dueLabel(card: WordCard) {
+  const days = dueInDays(card)
   if (days <= 0) return { text: '今日', due: true }
   return { text: days === 1 ? '明日' : `${days}日後`, due: false }
 }

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BookMarked, RotateCcw } from 'lucide-react'
-import { firstSentence, SERIAL_ORDER, startingPosition, PACE_CHARACTERS } from '../daily/serial'
+import { openingLine, SERIAL_ORDER, startingPosition, PACE_CHARACTERS } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
@@ -34,7 +34,7 @@ export function TodayPage() {
   const paragraphs = useMemo(() => work && page ? pageText(work, page) : [], [work, page])
   const vocabularyCount = useMemo(() => new Set(paragraphs.flatMap(paragraph => paragraph.tokens.map(token => token.vocabId).filter(Boolean))).size, [paragraphs])
   const grammarCount = useMemo(() => new Set(paragraphs.flatMap(paragraph => paragraph.tokens.flatMap(token => token.grammarIds || []))).size, [paragraphs])
-  const teaser = paragraphs[0] ? firstSentence(paragraphs[0].text, 60) : ''
+  const teaser = openingLine(paragraphs.map(paragraph => paragraph.text))
   const name = auth.user?.displayName
   const isNew = Object.keys(state.days).length === 0
 

@@ -3,17 +3,17 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Copy, X } from 'lucide-react'
 import { AnnotatedText, type TokenSelection } from '../components/AnnotatedText'
 import { WordSheet } from '../components/WordSheet'
-import { advance, buildQuiz, firstSentence, pageAt, pickQuote, sentences, startingPosition, type QuizQuestion, type QuizSource } from '../daily/serial'
+import { advance, buildQuiz, openingLine, pageAt, pickQuote, sentences, SERIAL_ORDER, startingPosition, type QuizQuestion, type QuizSource } from '../daily/serial'
 import { formatJapaneseDate } from '../daily/dates'
 import { StreakStrip } from '../daily/StreakStrip'
 import { pageText, readingMinutes, useSerialPage } from '../daily/useSerialPage'
-import { entryForToken, entryWord, type LearningIndex } from '../learning'
+import { entryForToken, entryWord, loadSerialWork, type LearningIndex } from '../learning'
 import { trackEvent } from '../operations'
 import { addCard, useApp, useReadingTimer } from '../state/context'
 import { japanDate, Rating, reviewCard, streakSummary, type ReaderState, type SerialPosition } from '../state/store'
 
 type Phase = 'read' | 'quiz' | 'done'
-type Outcome = { correct: number; total: number; quote: string | null; nextLine: string | null; finishedTitle: string | null }
+type Outcome = { correct: number; total: number; quote: string | null; nextLine: string | null; nextTitle: string | null; finishedTitle: string | null }
 
 function quizSources(paragraphs: ReturnType<typeof pageText>, learning: LearningIndex): QuizSource[] {
   const vocabulary = new Map(learning.vocabulary.map(entry => [entry.id, entry]))
@@ -64,11 +64,20 @@ export function DailyPage() {
     }, seed)
   }, [learning, paragraphs, position, page])
   const nextPage = useMemo(() => work && page && !page.isLast ? pageAt(work.paragraphs, state.pace, page.ordinals[page.ordinals.length - 1] + 1) : null, [work, page, state.pace])
+  const [nextWork, setNextWork] = useState<{ title: string; line: string } | null>(null)
+  useEffect(() => {
+    // On a work's last page, tomorrow's hook is the opening line of the next book.
+    const nextId = page?.isLast && position ? SERIAL_ORDER[SERIAL_ORDER.indexOf(position.workId) + 1] : undefined
+    if (!nextId) return
+    let active = true
+    void loadSerialWork(nextId).then(next => { if (active && next.paragraphs.length) setNextWork({ title: next.title, line: openingLine(next.paragraphs.map(paragraph => paragraph.text)) }) }).catch(() => undefined)
+    return () => { active = false }
+  }, [page, position])
   const nextLine = useMemo(() => {
-    if (!work || !nextPage) return null
-    const paragraph = work.paragraphs.find(item => item.ordinal === nextPage.ordinals[0])
-    return paragraph ? firstSentence(paragraph.text, 60) : null
-  }, [work, nextPage])
+    if (!work || !nextPage) return nextWork?.line || null
+    const wanted = new Set(nextPage.ordinals)
+    return openingLine(work.paragraphs.filter(item => wanted.has(item.ordinal)).map(item => item.text)) || null
+  }, [work, nextPage, nextWork])
 
   const started = useRef(false)
   useEffect(() => {
@@ -94,7 +103,7 @@ export function DailyPage() {
     const seconds = takeSeconds()
     const { position: next, finishedWork } = advance(position, page)
     const quizWords = quiz.map(question => question.surface)
-    setOutcome({ correct, total, quote: pickQuote(paragraphs.map(paragraph => paragraph.text), quizWords), nextLine, finishedTitle: finishedWork ? work.title : null })
+    setOutcome({ correct, total, quote: pickQuote(paragraphs.map(paragraph => paragraph.text), quizWords), nextLine, nextTitle: finishedWork ? nextWork?.title || null : null, finishedTitle: finishedWork ? work.title : null })
     setState(current => {
       const previous = current.days[today]
       const updated: ReaderState = {
@@ -185,7 +194,7 @@ export function DailyPage() {
       </div>
       <div className={marks ? undefined : 'marks-hidden'}><AnnotatedText paragraphs={paragraphs} vocabulary={vocabulary} grammar={grammar} furigana activeKey={selectedKey} onSelect={selection => { setSelection(selection); trackEvent('learning_open', { label: selection.selected.kind, path: '/daily' }) }}/></div>
       <div className="daily-cliff">
-        {nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。</p></>}
+        {!page.isLast && nextLine ? <><span>今日はここまで。つづきは明日。</span><p>{nextLine}</p></> : <><span>この頁で最後です。</span><p>「{work.title}」を読み終えると、本棚に一冊並びます。{nextWork && `明日からは「${nextWork.title}」。`}</p></>}
       </div>
       <button className="daily-button is-accent daily-finish" onClick={startQuiz}>{quiz.length ? `読みおわった · ${quiz.length}語を確かめる` : '読みおわった'} <ArrowRight size={17}/></button>
       <p className="daily-hint">下線の言葉をタップすると、意味と原文の一文が出ます。</p>
@@ -213,7 +222,7 @@ export function DailyPage() {
       {outcome.finishedTitle && <p className="done-shelf">「{outcome.finishedTitle}」を読み終えました。<Link to="/shelf">本棚を見る</Link></p>}
       {outcome.quote && <figure className="quote-card"><blockquote>{outcome.quote}</blockquote><figcaption>{work.author}「{work.title}」 · 第{page.number}頁</figcaption></figure>}
       {outcome.quote && <button className="daily-button is-quiet" onClick={() => void copyQuote()}><Copy size={16}/> {copied ? 'コピーしました' : 'この一文をコピーして送る'}</button>}
-      {outcome.nextLine && <div className="done-tomorrow"><span>明日の一行目</span><p>{outcome.nextLine}</p></div>}
+      {outcome.nextLine && <div className="done-tomorrow"><span>{outcome.nextTitle ? `明日から「${outcome.nextTitle}」` : '明日の一行目'}</span><p>{outcome.nextLine}</p></div>}
       <div className="done-actions">
         <Link className="daily-button is-accent" to="/">今日を閉じる</Link>
         {state.serial && <button className="daily-button is-quiet" onClick={() => navigate('/daily', { replace: true, state: { again: Date.now() } })}>もう一頁だけ読む</button>}

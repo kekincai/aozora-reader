@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { loadCloudState, saveCloudState, useAuth } from './auth'
 import { AdminPage } from './AdminPage'
@@ -9,6 +9,7 @@ import { SERIAL_ORDER } from './daily/serial'
 import { ArticlesPage } from './routes/ArticlesPage'
 import { DailyPage } from './routes/DailyPage'
 import { LearnPage } from './routes/LearnPage'
+import { NotFoundPage } from './routes/NotFoundPage'
 import { ReaderPage } from './routes/ReaderPage'
 import { RecordPage } from './routes/RecordPage'
 import { ShelfPage } from './routes/ShelfPage'
@@ -40,29 +41,40 @@ function useCloudSync(auth: ReturnType<typeof useAuth>, state: ReturnType<typeof
   const hydratedUser = useRef<string | null>(null)
   const latest = useRef(state)
   latest.current = state
+  // Adopts server-merged state only when it adds something, so saving does not loop.
+  const adopt = useCallback((incoming: unknown) => {
+    const merged = mergeStates(latest.current, incoming, SERIAL_ORDER)
+    if (JSON.stringify(merged) !== JSON.stringify(latest.current)) setState(merged)
+  }, [setState])
 
   useEffect(() => {
     if (!auth.user) { hydratedUser.current = null; setSyncStatus('local'); return }
-    if (hydratedUser.current === auth.user.id) return
-    let active = true
     const userID = auth.user.id
-    void loadCloudState<unknown>().then(({ state: cloud }) => {
+    let active = true
+    const pull = () => void loadCloudState<unknown>().then(({ state: cloud }) => {
       if (!active) return
-      const merged = mergeStates(latest.current, cloud, SERIAL_ORDER)
-      setState(merged)
-      hydratedUser.current = userID
+      adopt(cloud)
+      if (hydratedUser.current !== userID) {
+        hydratedUser.current = userID
+        void saveCloudState(latest.current).then(result => { if (active && result.state) adopt(result.state) })
+      }
       setSyncStatus('saved')
-      void saveCloudState(merged)
-    }).catch(() => setSyncStatus('error'))
-    return () => { active = false }
-  }, [auth.user, setState])
+    }).catch(() => { if (active) setSyncStatus('error') })
+    if (hydratedUser.current !== userID) pull()
+    // A tab left open on another device catches up when it comes back into view.
+    const onVisible = () => { if (document.visibilityState === 'visible') pull() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { active = false; document.removeEventListener('visibilitychange', onVisible) }
+  }, [auth.user, adopt])
 
   useEffect(() => {
     if (!auth.user || hydratedUser.current !== auth.user.id) return
     setSyncStatus('saving')
-    const timer = window.setTimeout(() => void saveCloudState(state).then(() => setSyncStatus('saved')).catch(() => setSyncStatus('error')), 800)
+    const timer = window.setTimeout(() => void saveCloudState(state)
+      .then(result => { if (result.state) adopt(result.state); setSyncStatus('saved') })
+      .catch(() => setSyncStatus('error')), 800)
     return () => window.clearTimeout(timer)
-  }, [auth.user, state])
+  }, [auth.user, state, adopt])
 
   return syncStatus
 }
@@ -91,6 +103,7 @@ function App() {
         <Route path="/read/:id" element={<ReaderPage/>}/>
         <Route path="/feedback" element={<Shell><FeedbackPage/></Shell>}/>
         <Route path="/admin" element={<Shell><AdminRoute/></Shell>}/>
+        <Route path="*" element={<Shell><NotFoundPage/></Shell>}/>
       </Routes>
       {authOpen && <AuthDialog onClose={() => setAuthOpen(false)}/>}
     </BrowserRouter>

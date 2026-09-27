@@ -63,5 +63,5 @@ export async function loadCloudState<T>() {
 }
 
 export async function saveCloudState<T>(state: T) {
-  return api<{ saved: true; updatedAt: number }>('/api/state', { method: 'PUT', body: JSON.stringify({ state }) })
+  return api<{ saved: true; updatedAt: number; state?: T }>('/api/state', { method: 'PUT', body: JSON.stringify({ state }) })
 }

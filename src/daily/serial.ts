@@ -66,6 +66,12 @@ export function firstSentence(text: string, max = 48) {
   return Array.from(sentence).length > max ? `${Array.from(sentence).slice(0, max).join('')}……` : sentence
 }
 
+/** The first real sentence, skipping chapter numbers and headings such as「一」. */
+export function openingLine(texts: string[], max = 60) {
+  const text = texts.find(value => Array.from(value.trim()).length >= 8) || texts[0] || ''
+  return firstSentence(text.trim(), max)
+}
+
 /** A line worth keeping: prefers one that uses a word from today's quiz. */
 export function pickQuote(texts: string[], preferred: string[] = []) {
   const candidates = texts.flatMap(sentences).filter(sentence => {

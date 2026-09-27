@@ -8,6 +8,8 @@ import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simp
 import { catalogHealth, getWork, listGrammar, listTopicExamples, listVocabulary, listWorks, todayWork, type CatalogEnv } from './catalog'
 import { adminOverview, isAdmin, OperationsError, recordAnalytics, submitFeedback, updateFeedback } from './operations'
 import { handleSeoRequest } from './seo'
+import { mergeStates } from '../src/state/model'
+import { SERIAL_ORDER } from '../src/daily/serial'
 
 interface Env extends CatalogEnv {
   DB: D1Database
@@ -36,6 +38,8 @@ type PasskeyRow = {
 }
 
 const SESSION_DAYS = 30
+// Well under D1's 2MB value limit; roughly 2,000 word cards.
+const STATE_LIMIT = 1_000_000
 const jsonHeaders = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
 
 class ApiError extends Error {
@@ -86,7 +90,7 @@ function checkSameOrigin(request: Request) {
 
 async function body<T>(request: Request): Promise<T> {
   const length = Number(request.headers.get('content-length') || 0)
-  if (length > 256_000) throw new ApiError('送信データが大きすぎます。', 413)
+  if (length > STATE_LIMIT + 50_000) throw new ApiError('送信データが大きすぎます。', 413)
   if (!request.headers.get('content-type')?.includes('application/json')) throw new ApiError('JSON 形式で送信してください。', 415)
   try { return await request.json<T>() }
   catch { throw new ApiError('JSON を読み取れませんでした。', 400) }
@@ -205,13 +209,17 @@ async function stateRoute(request: Request, env: Env) {
     return json({ state: row ? JSON.parse(row.state_json) : null, updatedAt: row?.updated_at || null })
   }
   const data = await body<{ state?: unknown }>(request)
-  const serialized = JSON.stringify(data.state)
-  if (serialized.length > 200_000) return error('学習記録が大きすぎます。', 413)
+  // Merge instead of overwrite: a device that has been open since yesterday must not erase
+  // the page another device read today.
+  const existing = await env.DB.prepare('SELECT state_json FROM reader_states WHERE user_id = ?').bind(user.id).first<{ state_json: string }>()
+  const merged = mergeStates(data.state, existing ? JSON.parse(existing.state_json) : null, SERIAL_ORDER)
+  const serialized = JSON.stringify(merged)
+  if (serialized.length > STATE_LIMIT) return error('学習記録が大きすぎます。', 413)
   const now = Date.now()
   await env.DB.prepare(`INSERT INTO reader_states (user_id, state_json, updated_at) VALUES (?, ?, ?)
     ON CONFLICT(user_id) DO UPDATE SET state_json = excluded.state_json, updated_at = excluded.updated_at`)
     .bind(user.id, serialized, now).run()
-  return json({ saved: true, updatedAt: now })
+  return json({ saved: true, updatedAt: now, state: merged })
 }
 
 async function handle(request: Request, env: Env) {
