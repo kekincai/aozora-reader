@@ -4,6 +4,9 @@
   "compatibility_date": "2026-07-19",
   "main": "./worker/index.ts",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [{ "pattern": "aozora.kejincai.dev", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
@@ -37,6 +40,8 @@
   ],
   "triggers": { "crons": ["0 * * * *"] },
   "vars": {
+    "RP_ID": "kejincai.dev",
+    "SITE_URL": "https://aozora.kejincai.dev",
     "VAPID_PUBLIC_KEY": "BDJABZEdcNXyrIxaylt8TZ4HByyErwAFytW50tipmr50JP2gApbMZz9Iggacwf3L0JD-L2pngnzpB0CI9QQ3glc"
   },
   "hyperdrive": [

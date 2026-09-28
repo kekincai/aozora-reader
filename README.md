@@ -1,5 +1,7 @@
 # 青空しおり
 
+https://aozora.kejincai.dev
+
 青空文庫の著作権が切れた作品を、N2〜N1の日本語学習者が「読み切れる」形に整えるオープンソースの読書サイトです。
 
 ## 現在できること
@@ -53,6 +55,10 @@ SQLiteには作品、5,311語のN2/N1参考語彙、434項目の中国語文法�
 ```bash
 npx wrangler secret put VAPID_PRIVATE_KEY
 ```
+
+## ドメイン
+
+`wrangler.jsonc` の `routes` で `aozora.kejincai.dev` を Workers のカスタムドメインとして割り当て、`workers.dev` は無効にしています。パスキーは `RP_ID`（`kejincai.dev`）に結び付くため、同じドメインの別サブドメインへ移っても使い続けられます。
 
 ## 検証とデプロイ
 

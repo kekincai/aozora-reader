@@ -1,7 +1,7 @@
 import { buildPushPayload } from '@block65/webcrypto-web-push'
 import { OperationsError } from './operations'
 
-export type PushEnv = { DB: D1Database; VAPID_PUBLIC_KEY?: string; VAPID_PRIVATE_KEY?: string }
+export type PushEnv = { DB: D1Database; VAPID_PUBLIC_KEY?: string; VAPID_PRIVATE_KEY?: string; SITE_URL?: string }
 type SubscriptionRow = { endpoint: string; p256dh: string; auth: string }
 
 const headers = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
@@ -84,7 +84,7 @@ export async function sendDailyReminders(env: PushEnv, now = Date.now()) {
       const payload = await buildPushPayload(
         { data: { title: '今日の一頁', body: 'つづきが待っています。約5分で読めます。', url: '/daily' }, options: { ttl: 3 * 3600, urgency: 'normal', topic: 'daily-page' } },
         { endpoint: row.endpoint, expirationTime: null, keys: { p256dh: row.p256dh, auth: row.auth } },
-        { subject: 'https://aozora-reader.kekincai.workers.dev', publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY },
+        { subject: env.SITE_URL || 'https://aozora.kejincai.dev', publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY },
       )
       const result = await fetch(row.endpoint, payload)
       if (result.status === 404 || result.status === 410) {

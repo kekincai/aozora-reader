@@ -10,5 +10,5 @@ export default defineConfig({
     },
   }],
   // PREVIEW_API=http://localhost:8799 points at `wrangler dev --remote` to try Worker changes before deploying.
-  server: { port: 5190, proxy: { '/api': { target: process.env.PREVIEW_API || 'https://aozora-reader.kekincai.workers.dev', changeOrigin: true } } },
+  server: { port: 5190, proxy: { '/api': { target: process.env.PREVIEW_API || 'https://aozora.kejincai.dev', changeOrigin: true } } },
 })

@@ -15,6 +15,8 @@ import { SERIAL_ORDER } from '../src/daily/serial'
 interface Env extends CatalogEnv, PushEnv {
   DB: D1Database
   ASSETS: Fetcher
+  /** Passkeys are bound to this registrable domain so any of its subdomains can serve the site. */
+  RP_ID?: string
 }
 
 type UserRow = { id: string; display_name: string }
@@ -79,9 +81,10 @@ function sessionCookie(request: Request, token: string, maxAge = SESSION_DAYS * 
   return `aozora_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=${maxAge}`
 }
 
-function requestSite(request: Request) {
+function requestSite(request: Request, env: Env) {
   const url = new URL(request.url)
-  return { origin: url.origin, rpID: url.hostname }
+  const shared = env.RP_ID && (url.hostname === env.RP_ID || url.hostname.endsWith(`.${env.RP_ID}`))
+  return { origin: url.origin, rpID: shared ? env.RP_ID! : url.hostname }
 }
 
 function checkSameOrigin(request: Request) {
@@ -129,7 +132,7 @@ async function registerOptions(request: Request, env: Env) {
   const data = await body<{ displayName?: string }>(request)
   const displayName = data.displayName?.trim()
   if (!displayName || displayName.length > 40) return error('名前は1〜40文字で入力してください。')
-  const { rpID, origin } = requestSite(request)
+  const { rpID, origin } = requestSite(request, env)
   const userID = crypto.randomUUID()
   const options = await generateRegistrationOptions({
     rpName: '青空しおり', rpID, userID: new TextEncoder().encode(userID) as Uint8Array<ArrayBuffer>, userName: displayName,
@@ -149,7 +152,7 @@ async function registerVerify(request: Request, env: Env) {
   if (!data.challengeID || !data.response) return error('登録情報が不足しています。')
   const challenge = await env.DB.prepare('SELECT * FROM auth_challenges WHERE id = ?').bind(data.challengeID).first<ChallengeRow>()
   if (!challenge || challenge.purpose !== 'register' || challenge.expires_at <= Date.now()) return error('登録の有効時間が切れました。もう一度お試しください。', 410)
-  const site = requestSite(request)
+  const site = requestSite(request, env)
   if (challenge.rp_id !== site.rpID || challenge.origin !== site.origin) return error('登録元を確認できません。', 403)
   const verification = await verifyRegistrationResponse({ response: data.response, expectedChallenge: challenge.challenge, expectedOrigin: challenge.origin, expectedRPID: challenge.rp_id, requireUserVerification: true })
   if (!verification.verified || !challenge.user_id || !challenge.display_name) return error('パスキーを確認できませんでした。')
@@ -169,7 +172,7 @@ async function registerVerify(request: Request, env: Env) {
 }
 
 async function loginOptions(request: Request, env: Env) {
-  const { rpID, origin } = requestSite(request)
+  const { rpID, origin } = requestSite(request, env)
   const options = await generateAuthenticationOptions({ rpID, userVerification: 'required' })
   const challengeID = crypto.randomUUID()
   await env.DB.prepare(`INSERT INTO auth_challenges
@@ -183,7 +186,7 @@ async function loginVerify(request: Request, env: Env) {
   if (!data.challengeID || !data.response) return error('ログイン情報が不足しています。')
   const challenge = await env.DB.prepare('SELECT * FROM auth_challenges WHERE id = ?').bind(data.challengeID).first<ChallengeRow>()
   if (!challenge || challenge.purpose !== 'login' || challenge.expires_at <= Date.now()) return error('ログインの有効時間が切れました。もう一度お試しください。', 410)
-  const site = requestSite(request)
+  const site = requestSite(request, env)
   if (challenge.rp_id !== site.rpID || challenge.origin !== site.origin) return error('ログイン元を確認できません。', 403)
   const passkey = await env.DB.prepare('SELECT * FROM passkeys WHERE credential_id = ?').bind(data.response.id).first<PasskeyRow>()
   if (!passkey) return error('このパスキーは登録されていません。', 404)
